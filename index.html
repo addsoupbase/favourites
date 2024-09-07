@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Document</title>
+    <style>
+        #main {
+            position: relative;
+            padding: 20px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            justify-content: center;
+            background-color: rgb(23, 186, 23, 0.2);
+            border-radius: 3px;
+            max-width: fit-content;
+            max-height: 50%;
+            overflow-y: hidden;
+        }
+
+        audio {
+            max-width: 250px;
+        }
+
+        #bg {
+            width: 100%;
+            height: 100%;
+            background-color: rgb(0, 0, 0);
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .holder {
+            background-color: red;
+            border-color: aliceblue;
+            border-style: solid;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px;
+        }
+
+        body {
+            background-color: rgb(70, 70, 70);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        p,
+        h1 {
+            color: white;
+        }
+
+        input {
+            cursor: pointer;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+
+        #code {
+            height: 150px;
+            background-color: black;
+            text-align: left;
+            border-color: darkgray;
+            border-style: solid;
+            width: 90%;
+            overflow-wrap: break-word;
+            max-width: 300px;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .raw {
+            font-size: 12px;
+            font-family: 'Courier New', Courier, monospace
+        }
+
+        .fancy {
+            font-size: 30px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import { Elem as あ, Colors as r, frange, range } from './utils.js'
+        あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = true
+        const canvas = new あ({ tag: 'canvas', id: 'bg' }, true),
+            ctx = canvas.content.getContext('2d');
+        const { sin, cos } = Math;
+        window.canvas = canvas;
+        canvas.ctx = ctx
+        canvas.resize = function () { this.content.width = window.innerWidth; this.content.height = window.innerHeight }; canvas.frame = 0; canvas.toKill = []; canvas.all = [];
+        canvas.update = function () {
+            requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize(); winterCanvas.ctx.clearRect(0, 0, 400, 400); ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
+            canvas.toKill.forEach(o => canvas.all.deleteWithin(o)); canvas.toKill = []
+            winterCanvas.toKill.forEach(o => winterCanvas.all.deleteWithin(o)); winterCanvas.toKill = []
+            for (let context of [winterCanvas.ctx, canvas.ctx]) {
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.lineCap = ctx.lineJoin = 'round';
+                context.lineWidth = 1;
+                context.textRendering = 'optimizeSpeed'
+            }
+            canvas.all.forEach(o => {
+                ctx.beginPath()
+                ctx.rect(-100, 0, canvas.content.width*1.5, canvas.content.height*1.5)
+                if (!ctx.isPointInPath(o.x, o.y)) {
+                    o.kill()
+                }
+         
+                    o.draw?.(canvas.frame, o.set.ctx)
+                
+            });
+            winterCanvas.all.forEach(o => {
+                winterCanvas.ctx.beginPath()
+                winterCanvas.ctx.rect(winterCanvas.content.width/-2, winterCanvas.content.height/-2, winterCanvas.content.width*2, winterCanvas.content.height*2)
+                
+                if (!winterCanvas.ctx.isPointInPath(o.x, o.y)) {
+                    o.kill()
+                }
+                    o.draw?.(canvas.frame, o.set.ctx)
+                
+            }); if (!(canvas.frame % 15)) {
+                let snowflake = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: [...'❄❅❆'].pick(), size: range(30, 50), color: [r.blue, r.darkblue].pick(), set: winterCanvas })
+                snowflake.glow = false
+                snowflake.velocity.a = range(-0.01, 0.01)
+                snowflake.velocity.y = -1
+                snowflake.velocity.x = range(-1, 1)
+
+
+                for (let i = 2; i--;) {
+                    let smaller = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: '⬤', size: 5, color: '#FFFFFF', set: winterCanvas })
+                    smaller.glow = false
+                    smaller.velocity.a = range(-0.01, 0.01)
+                    smaller.velocity.y = -0.5
+                    smaller.velocity.x = range(-1, 1)
+                    smaller.fill = true
+                }
+            }
+            (canvas.frame % 50) || ((o => {
+
+                let x = new a({
+                    x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: [frange(0, 7), [
+                        '𝓜𝓦𝓐𝓗',
+                        '(˶˃ ᵕ ˂˶) .ᐟ.ᐟ',
+                        '(˶ˆᗜˆ˵)',
+                        '૮ • ﻌ - ა',
+                        '⋆˚ʚɞ',
+                        'xoxo',
+                        'cute',
+                        '♬♩♪♩',
+                        '‧₊˚❀༉‧₊˚.',
+                        '・❥・', 'ᕙ(‾̀◡‾́)ᕗ', 'ଘ(੭*ˊᵕˋ)੭* ̀ˋ', 'ଘʕ੭·͡ᴥ·ʔ﻿ ੭', '(ΦзΦ) ❤️', '★⌒ヽ(●’､＾●)Kiss!', '(*^ ‿ <*)♡'].pick()].pick(), size: 20 + range(1, 10)
+                })
+                x.velocity =
+                    { x: frange(1, 5), y: 0, a: range(-0.1, 0.1), s: 0, o: 0 }
+
+            })())
+
+        }
+        class a {
+
+            velocity = { x: 0, y: 0, a: 0, s: 0, o: 0 }; fill = false; random = range(-1, 1); glow = true; angle = 0; opacity = 1; constructor(o) {
+                //  setTimeout(()=>this.kill(),30000)
+                this.set = o.set ?? canvas
+                this.set.all.push(this)
+                this.x = o.x ?? 0; this.y = o.y ?? 0; this.size = o.size ?? 10; this.shape = o.shape ?? 3; this.color = o.color ?? Object.values(r).pick()
+            }
+            draw(f, v) {
+                this.x -= this.velocity.x; this.y -= this.velocity.y; this.angle += this.velocity.a; this.size += this.velocity.s;
+                //    this.x < -100 - this.size || this.x > (this.set.content.width + this.size + 100) && this.kill()
+                //   this.y < -100 - this.size || this.y > (this.set.content.height + this.size + 100) && this.kill()
+                this.opacity <= 0 && this.kill()
+                this.opacity -= this.velocity.o
+                this.opacity = Math.max(this.opacity, 0)
+                v.save()
+                v.globalAlpha = this.opacity
+                v.translate(this.x, this.y)
+                v.rotate(this.angle)
+                v.beginPath()
+                if (this.glow) {
+                    v.shadowColor = this.color
+                }
+                v.strokeStyle = v.fillStyle = this.color
+                if (this.set === winterCanvas) {
+                    if (this.random > 0) {
+
+                        v.translate(sin(f / 30) * 5, 0)
+                    }
+                    else {
+                        v.translate(cos(f / 30) * 5, 0)
+
+                    }
+                }
+                if (!this.shape || this.shape === 1) { ctx.arc(0, 0, this.size, 0, Math.PI * 2) }
+
+                else if (typeof this.shape === 'string') {
+                    if (this.set === canvas) {
+                        v.rotate(-this.angle)
+                    }
+                    v.font = `${this.size * 1.2}px monospace`
+                    if (this.shape.match(/cute/) && this.glow) {
+                        (f % 80) || (() => {
+                            (this.color = Object.values(r).pick())
+                            let x = new a({ shape: this.shape, size: this.size, x: this.x, y: this.y, color: this.color })
+                            x.velocity.s = 0.7
+                            x.glow = false
+                            x.velocity.x = this.velocity.x
+                            x.velocity.o = 0.01
+                        })()
+                    }
+
+                    v.strokeText(this.shape, 0, 0)
+                    if (this.fill) v.fillText(this.shape, 0, 0)
+
+                }
+                else {
+                    v.moveTo(0, this.size)
+                    for (let i = 0, s = this.shape; i < s; i++) {
+                        v.rotate(Math.PI * 2 / s)
+                        v.lineTo(0, this.size)
+                    }
+                }
+                v.shadowBlur = 5
+                v.stroke()
+                if (this.fill) v.fill();
+                v.clip()
+                v.restore()
+            }
+            kill() { this.set.toKill.includes(this) || this.set.toKill.push(this) }
+        }
+        document.body.onload = canvas.update
+        new あ({
+            tag: 'div', id: 'main', children: [
+                new あ({ tag: 'p', class: ['fancy'], text: 'Favourite Things' }),
+                new あ({
+                    tag: 'div', class: ['holder'], id: 'colors', style: 'background-color:#20a6a6', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', text: 'Color: <b>Teal</b>' }),
+                                new あ({
+                                    tag: 'input', type: 'color', events: [
+                                        ['change', function () {
+                                            あ.$('#colors').content.style.backgroundColor = this.value
+                                        }]
+                                    ], value: '#20a6a6'
+                                })
+                            ]
+                        }),
+                    ]
+                }),
+
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:yellow', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Fruit:' }),
+                                new あ({
+                                    tag: 'h2', style: 'color: black', class: ['clickable'], text: '🍋Lemon🍋', events: [
+                                        ['click', () => {
+                                            for (let i = 10; i--;) {
+                                                let x = new a({ x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: '🍋', size: 20 + range(1, 10) })
+                                                x.velocity = { x: frange(1, 5), y: 0, a: range(-0.1, 0.1), s: 0, o: 0 }
+
+                                            }
+
+                                        }]
+                                    ]
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:green', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
+                                new あ({
+                                    tag: 'div', id: 'code', events: [
+                                        ['click', newName]
+                                    ], children: [
+                                        new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'function ' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'newName' }),
+                                        new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '() {' }),
+                                        new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'if' }),
+                                        new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'confirm' }),
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `"Would you like a random name?"` }),
+
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+
+                                        new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: ')' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '{' }),
+
+                                        new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
+                                        new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `""` }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+                                        new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'for' }),
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '5' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '--;' }),
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '+=' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'String' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'fromCharCode' }),
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'floor' }),
+
+                                        new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'random' }),
+                                        new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '()' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '* 0xFFFF' }),
+
+                                        new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: ')' }),
+
+
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'alert' }),
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "`Your new name is " }),
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '${' }),
+                                        new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+
+                                        new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '}' }),
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "!`" }),
+
+                                        new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+
+                                        new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '}' }),
+
+                                        new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '}' }),
+
+
+
+                                    ]
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+              /*  new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:darkgrey', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Symbol: <b>Whatever this is</b>' }),
+                                new あ({ tag: 'a', href: 'https://graphemica.com/%D9%BC/glyphs/times-new-roman-regular', style: 'color: white; font-size: 40px', text: 'ټ' }),
+                            ]
+                        }),
+                    ]
+                }),*/
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#34baeb', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Sound: <b>Windows Logon Sound</b>' }),
+                                new あ({ tag: 'audio', src: './media/logonsound.mp3', controls: true, type: 'audio/mpeg' }),
+                            ]
+                        }),
+                    ]
+                }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:	#7289da', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>' }),
+                                new あ({ tag: 'img', src: './media/hugs.png', title: 'big hugs' }),
+                            ]
+                        }),
+                    ]
+                }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:	#314A63', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
+                                new あ({ tag: 'img', src: './media/200.gif', title: 'Misdreavus', width: 100, height: 100 }),
+                                new あ({ tag: 'img', src: 'https://archives.bulbagarden.net/media/upload/6/6c/Spr_3r_200.png', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
+
+                            ]
+                        }),
+                    ]
+                }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#08e6ff', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
+                                new あ({ tag: 'canvas', style: 'width:100%; height:100%;', id: 'winterCanvas', title: 'Misdreavus', }),
+
+                            ]
+                        }),
+                    ]
+                }),
+                /*       new あ({
+                           tag: 'div', class: ['holder'], style: 'background-color:	#5f3685', children: [
+                               new あ({
+                                   tag: 'div', children: [
+                                       new あ({ tag: 'p', style: 'color: black', text: 'App: <b>Discord</b>' }),
+                                       new あ({ tag: 'img', class:['clickable'], src: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/6257d23c5fb25be7e0b6e220_Open%20Source%20Projects%20_%20Discord-7.svg', title: 'Discord', width: 100, height: 100, events: [
+                                           ['click',()=>{
+                                               open('http://discord.com/users/805868620205916161')
+                                           }]
+                                       ] }),
+       
+                                   ]
+                               }),
+                           ]
+                       }),*/
+                //
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#cc8a33', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Message to recieve:' }),
+                                new あ({ tag: 'h1', text: 'HIIIIIIIIIIII' }),
+
+                            ]
+                        }),
+                    ]
+                }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#33cc42', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
+                                new あ({ tag: 'img', src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls', width: 400 / 1.5, height: 200 / 1.5 }),
+
+                            ]
+                        }),
+                    ]
+                }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#a32e2e', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Number:' }),
+                                new あ({ tag: 'h1', class:['clickable'],text: '49' , events: [
+                                        ['click', () => {
+                                            for (let i = 10; i--;) {
+                                                let x = new a({ x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: '49', size: 20 + range(1, 10) })
+                                                x.velocity = { x: frange(1, 5), y: 0, a: range(-0.1, 0.1), s: 0, o: 0 }
+
+                                            }
+
+                                        }]
+                                    ]}),
+
+                            ]
+                        }),
+                    ]
+                }),
+            ]
+        }, true)
+        function newName() {
+            if (confirm('Would you like a random name?')) {
+                let str = ''
+                for (let i = 5; i--;) str += String.fromCharCode(Math.floor(Math.random() * 0xFFFF))
+                alert(`Your new name is ${str}!`)
+            }
+        }
+        let winterCanvas = あ.$('#winterCanvas');
+        winterCanvas.ctx = winterCanvas.content.getContext('2d');
+        winterCanvas.toKill = []
+        winterCanvas.all = []
+        addEventListener('mousedown', (ev) => {
+            let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
+            x.velocity.s = 1
+            x.velocity.o = 0.01
+        })
+        window.winterCanvas = winterCanvas
+    </script>
+</body>
+
+</html>
