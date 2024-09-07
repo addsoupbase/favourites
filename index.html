@@ -130,7 +130,7 @@
                     o.draw?.(canvas.frame, o.set.ctx)
                 
             }); if (!(canvas.frame % 15)) {
-                let snowflake = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: [...'❄❅❆'].pick(), size: range(30, 50), color: [r.blue, r.darkblue].pick(), set: winterCanvas })
+                let snowflake = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: [...'❅❆'].pick(), size: range(30, 50), color: [r.blue, r.darkblue].pick(), set: winterCanvas })
                 snowflake.glow = false
                 snowflake.velocity.a = range(-0.01, 0.01)
                 snowflake.velocity.y = -1
