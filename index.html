@@ -19,7 +19,9 @@
             max-height: 50%;
             overflow-y: hidden;
         }
-
+        #preview {
+            width: 100%
+        }
         audio {
             max-width: 250px;
         }
@@ -109,7 +111,7 @@
             }
             canvas.all.forEach(o => {
                 ctx.beginPath()
-                ctx.rect(-100, 0, canvas.content.width*1.5, canvas.content.height*1.5)
+                ctx.rect(-100, 0, canvas.content.width*2, canvas.content.height*1.5)
                 if (!ctx.isPointInPath(o.x, o.y)) {
                     o.kill()
                 }
@@ -265,7 +267,7 @@
                                     tag: 'h2', style: 'color: black', class: ['clickable'], text: '🍋Lemon🍋', events: [
                                         ['click', () => {
                                             for (let i = 10; i--;) {
-                                                let x = new a({ x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: '🍋', size: 20 + range(1, 10) })
+                                                let x = new a({ x: canvas.content.width+100, y: range(0, canvas.content.height), shape: '🍋', size: 20 + range(1, 10) })
                                                 x.velocity = { x: frange(1, 5), y: 0, a: range(-0.1, 0.1), s: 0, o: 0 }
 
                                             }
@@ -447,7 +449,7 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                                new あ({ tag: 'img', src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls', width: 400 / 1.5, height: 200 / 1.5 }),
+                                new あ({ tag: 'img', src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls',id:'preview' }),
 
                             ]
                         }),
