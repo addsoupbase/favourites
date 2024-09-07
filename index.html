@@ -68,11 +68,12 @@
             text-align: left;
             border-color: darkgray;
             border-style: solid;
-            width: 90%;
+            width: 100%;
+         margin-left: auto;
+         margin-right: auto;
             overflow-wrap: break-word;
             max-width: 300px;
             border-radius: 5px;
-            padding: 5px;
             cursor: pointer;
         }
 
@@ -188,6 +189,7 @@
                 v.beginPath()
                 if (this.glow) {
                     v.shadowColor = this.color
+                    v.shadowBlur = 5
                 }
                 v.strokeStyle = v.fillStyle = this.color
                 if (this.set === winterCanvas) {
@@ -229,7 +231,6 @@
                         v.lineTo(0, this.size)
                     }
                 }
-                v.shadowBlur = 5
                 v.stroke()
                 if (this.fill) v.fill();
                 v.clip()
