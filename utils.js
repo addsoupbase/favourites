@@ -33,21 +33,21 @@ Array.prototype.average = function (type) {
     if (type) {
         // Calculate the median
         const median = sorted[Math.floor(sorted.length / 2)];
-        
+
         // Calculate the first quartile (Q1) and third quartile (Q3)
         const q1 = sorted[Math.floor(sorted.length / 4)];
         const q3 = sorted[Math.floor(3 * sorted.length / 4)];
 
         // Calculate the IQR
         const IQR = q3 - q1;
-        
+
         // Calculate the fences
         const upperFence = q3 + 1.5 * IQR;
         const lowerFence = q1 - 1.5 * IQR;
 
         // Filter outliers
         const filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
-        
+
         // Recalculate the average on the filtered array
         return filtered.reduce((a, b) => a + b, 0) / filtered.length;
     } else {
@@ -259,7 +259,10 @@ export class Elem {
     static textStyle(message, options) {
         console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     }
-    static attributes = [ ['for','href','innerHTML','type','download','style','value','name','checked','src','accept','placeholder','title','controls','id','readonly','width','height']]
+    static clear() {
+        while (Elem.elements.length) Elem.elements.forEach(o => o.kill())
+    }
+    static attributes = ['for', 'href', 'innerHTML', 'type', 'download', 'style', 'value', 'name', 'checked', 'src', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height']
     static $(query) {
         if (query.includes('#')) {
             return document.getElementById(query.replace('#', ''))?.content
@@ -358,32 +361,30 @@ export class Elem {
             }
         }
         this.eventNames = {}
+        Object.defineProperty(this.eventNames, 'trigger', {
+            enumerable: false, value: (search) => {
+                if (search) {
+                    if (search in this.eventNames) this.eventNames[search]();
+                    else Elem.warn(`Non-existent event: ${search}`);
+                }
+                else {
+                    let t = 0;
+                    Object.values(this.eventNames).forEach(o => { t++; o.call(this) });
+                    return t
+                }
+            }
+        })
         this.content = document.createElement(opts.tag)
         new.target.elements.push(this)
         this.content.content = this
-        /*for (let attr of Elem.attributes) {
-            if (attr in opts) this.content.setAttribute(attr, opts[attr] ) 
-        }*/
-        opts.type && this.content.setAttribute('type', opts.type)
-        opts.for && this.content.setAttribute('for', opts.for)
-        opts.download && this.content.setAttribute('download', opts.download)
-        opts.style && this.content.setAttribute('style', opts.style)
-        opts.value && this.content.setAttribute('value', opts.value)
-        opts.name && this.content.setAttribute('name', opts.name)
-        opts.checked != null && (this.content.setAttribute('checked', opts.checked))
-        opts.src && this.content.setAttribute('src', opts.src)
-        opts.accept && this.content.setAttribute('accept', opts.accept)
-        opts.placeholder && this.content.setAttribute('placeholder', opts.placeholder)
-        opts.title && this.content.setAttribute('title', opts.title)
-        opts.controls && this.content.setAttribute('controls', opts.controls)
-        this.parent = null
-        opts.id && this.content.setAttribute('id', opts.id)
-        opts.readonly && this.content.setAttribute('readonly', opts.readonly)
+        for (let attr of Elem.attributes) {
+            if (attr in opts) this[attr] = opts[attr]
+        }
 
-        opts.width  && this.content.setAttribute('width',opts.width)
-        opts.height && this.content.setAttribute('height',opts.height) 
-       this.content.href = opts.href ?? ''
+        /*    opts.type && this.content.setAttribute('type', opts.type);opts.for && this.content.setAttribute('for', opts.for);opts.download && this.content.setAttribute('download', opts.download);opts.style && this.content.setAttribute('style', opts.style);opts.value && this.content.setAttribute('value', opts.value);opts.name && this.content.setAttribute('name', opts.name);opts.checked != null && (this.content.setAttribute('checked', opts.checked));opts.src && this.content.setAttribute('src', opts.src);opts.accept && this.content.setAttribute('accept', opts.accept);opts.placeholder && this.content.setAttribute('placeholder', opts.placeholder);opts.title && this.content.setAttribute('title', opts.title);opts.controls && this.content.setAttribute('controls', opts.controls);opts.id && this.content.setAttribute('id', opts.id);opts.readonly && this.content.setAttribute('readonly', opts.readonly);opts.width && this.content.setAttribute('width', opts.width);opts.height && this.content.setAttribute('height', opts.height);opts.href && this.content.setAttribute('href', opts.href)*/
         this.content.innerHTML = opts.text ?? ''
+        this.parent = null
+
         this.children = []
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         this.#display = this.content.style.display
@@ -394,6 +395,9 @@ export class Elem {
             }
         }
         if (opts.events) {
+            if (!Array.isArray(opts.events)) {
+                opts.events = Object.entries(opts.events)
+            }
             this.addevent(...opts.events)
         }
         if (opts.parent) {
@@ -410,6 +414,9 @@ export class Elem {
                 kid.parent = this
             }
         }
+    }
+    hightlight() {
+        this.content.style.zIndex = '999999'
     }
     get initial() {
         return this.#initial
@@ -453,6 +460,7 @@ export class Elem {
             if (typeof props.class === 'string') {
                 props.class = [props.class]
             }
+
             for (let $class of props.class) {
                 if (!Elem.findClass($class)) {
                     Elem.messages.noclass($class)
@@ -478,6 +486,7 @@ export class Elem {
         return this
     }
     addevent(...events) {
+
         for (let [eventName, event] of events) {
             Elem.listeners++
             this.content.addEventListener(eventName, event)
@@ -504,6 +513,7 @@ export class Elem {
         }
         Elem.debug(`Element removed`)
         delete Elem.tracking[this.#_label_]
+        delete Elem[`#${this.id}`]
         this.killChildren()
         this?.parent?.children?.deleteWithin?.(this)
         Elem.elements.deleteWithin(this)
@@ -527,12 +537,19 @@ export class Elem {
     }
 }
 for (let attribute of Elem.attributes) {
-    Object.defineProperty(Elem.prototype,attribute,{get(){
-       return this.content.getAttribute(attribute)
-    },
-    set(val){
-        this.content.setAttribute(attribute, val)
-    }});
+    Object.defineProperty(Elem.prototype, `${attribute}`, {
+        get() {
+            return this.content.getAttribute(`${attribute}`)
+        },
+        set(val) {
+            Elem.info(`${attribute}=${val}${this.id ? 'on ' + this : ''}`)
+            if (attribute === 'id') {
+                if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
+                Elem[`#${val}`] = this
+            }
+            this.content.setAttribute(`${attribute}`, val)
+        }
+    });
 }
 export function $search(query) {
     let result;

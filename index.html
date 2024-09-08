@@ -92,7 +92,7 @@
 <body>
     <script type="module">
         import { Elem as あ, Colors as r, frange, range } from './utils.js'
-        あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = true
+        あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = あ.logLevels.success=  true
         const canvas = new あ({ tag: 'canvas', id: 'bg' }, true),
             ctx = canvas.content.getContext('2d');
         const { sin, cos } = Math;
