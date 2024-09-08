@@ -259,6 +259,7 @@ export class Elem {
     static textStyle(message, options) {
         console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     }
+    static attributes = [ ['for','href','innerHTML','type','download','style','value','name','checked','src','accept','placeholder','title','controls','id','readonly','width','height']]
     static $(query) {
         if (query.includes('#')) {
             return document.getElementById(query.replace('#', ''))?.content
@@ -360,26 +361,28 @@ export class Elem {
         this.content = document.createElement(opts.tag)
         new.target.elements.push(this)
         this.content.content = this
+        /*for (let attr of Elem.attributes) {
+            if (attr in opts) this.content.setAttribute(attr, opts[attr] ) 
+        }*/
         opts.type && this.content.setAttribute('type', opts.type)
         opts.for && this.content.setAttribute('for', opts.for)
         opts.download && this.content.setAttribute('download', opts.download)
         opts.style && this.content.setAttribute('style', opts.style)
         opts.value && this.content.setAttribute('value', opts.value)
         opts.name && this.content.setAttribute('name', opts.name)
-        opts.checked != null && (this.content.checked = opts.checked)
+        opts.checked != null && (this.content.setAttribute('checked', opts.checked))
         opts.src && this.content.setAttribute('src', opts.src)
         opts.accept && this.content.setAttribute('accept', opts.accept)
         opts.placeholder && this.content.setAttribute('placeholder', opts.placeholder)
         opts.title && this.content.setAttribute('title', opts.title)
         opts.controls && this.content.setAttribute('controls', opts.controls)
-
         this.parent = null
         opts.id && this.content.setAttribute('id', opts.id)
         opts.readonly && this.content.setAttribute('readonly', opts.readonly)
 
         opts.width  && this.content.setAttribute('width',opts.width)
         opts.height && this.content.setAttribute('height',opts.height) 
-        this.content.href = opts.href ?? ''
+       this.content.href = opts.href ?? ''
         this.content.innerHTML = opts.text ?? ''
         this.children = []
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
@@ -522,6 +525,14 @@ export class Elem {
         this.content.style.display = this.#display
         return this
     }
+}
+for (let attribute of Elem.attributes) {
+    Object.defineProperty(Elem.prototype,attribute,{get(){
+       return this.content.getAttribute(attribute)
+    },
+    set(val){
+        this.content.setAttribute(attribute, val)
+    }});
 }
 export function $search(query) {
     let result;
