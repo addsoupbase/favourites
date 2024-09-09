@@ -1,16 +1,4 @@
-export const darkenHexColor = function (hex, percent) {
-    hex = hex.replace(/^#/, '');
-    let r = parseInt(hex.substring(0, 2), 16), g = parseInt(hex.substring(2, 4), 16), b = parseInt(hex.substring(4, 6), 16);
-    r = Math.round(r * (1 - percent / 100));
-    g = Math.round(g * (1 - percent / 100));
-    b = Math.round(b * (1 - percent / 100));
-    r = Math.min(255, Math.max(0, r));
-    g = Math.min(255, Math.max(0, g));
-    b = Math.min(255, Math.max(0, b));
-    return '#' + [r, g, b].map(c => {
-        const hex = c.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-    }).join('');
+export const darkenHexColor = function (hex, percent) {hex = hex.replace(/^#/, '');let r = parseInt(hex.substring(0, 2), 16), g = parseInt(hex.substring(2, 4), 16), b = parseInt(hex.substring(4, 6), 16);r = Math.round(r * (1 - percent / 100));g = Math.round(g * (1 - percent / 100));b = Math.round(b * (1 - percent / 100));r = Math.min(255, Math.max(0, r));g = Math.min(255, Math.max(0, g));b = Math.min(255, Math.max(0, b));return '#' + [r, g, b].map(c => {const hex = c.toString(16);return hex.length === 1 ? '0' + hex : hex;}).join('');
 }
 export const choose = (...a) => a[Math.floor(Math.random() * a.length)]
 export const range = function getRandomInRange(min, max) {
@@ -542,7 +530,7 @@ for (let attribute of Elem.attributes) {
             return this.content.getAttribute(`${attribute}`)
         },
         set(val) {
-            Elem.info(`${attribute}=${val}${this.id ? 'on ' + this : ''}`)
+            Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
             if (attribute === 'id') {
                 if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
                 Elem[`#${val}`] = this

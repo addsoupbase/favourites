@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width">
     <title>Document</title>
     <style>
+        button {
+            border-radius: 5px;
+            border-color: #a4712d;
+            background-color: #a4712d;
+        }
+     div {
+        overflow-wrap:anywhere;
+        margin: auto;
+        max-width: 400px;
+
+     }
         #main {
             position: relative;
             padding: 20px;
@@ -19,8 +30,8 @@
             max-height: 50%;
             overflow-y: hidden;
         }
-        #preview {
-            width: 100%
+        .preview {
+            width: 50%
         }
         audio {
             max-width: 250px;
@@ -61,7 +72,10 @@ html::-webkit-scrollbar {
         h1 {
             color: white;
         }
-
+        .cursive {
+            font-style: italic;
+            font-size: 12px;
+        }
         input {
             cursor: pointer;
         }
@@ -84,6 +98,7 @@ html::-webkit-scrollbar {
             border-radius: 5px;
             cursor: pointer;
         }
+       
 
         .raw {
             font-size: 12px;
@@ -409,7 +424,7 @@ html::-webkit-scrollbar {
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
                                 new あ({ tag: 'img', src: './media/200.gif', title: 'Misdreavus', width: 100, height: 100 }),
-                                new あ({ tag: 'img', src: './media/misdreavus.png', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
+                                new あ({ tag: 'img', src: './media/misdreavus1.png', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
 
                             ]
                         }),
@@ -446,11 +461,21 @@ html::-webkit-scrollbar {
                     tag: 'div', class: ['holder'], style: 'background-color:#cc8a33', children: [
                         new あ({
                             tag: 'div', children: [
-                                new あ({ tag: 'p', style: 'color: black', text: 'Message to receive:' }),
-                                new あ({ tag: 'h1', text: 'HIIIIIIIIIIII' }),
+                                new あ({ tag: 'p', style: 'color: black', text: 'Messages:' }),
+                                new あ({ tag: 'p', style: 'color: black', text: '(tap image to go to the next one)' }),
 
+                                new あ({tag:'div',children: [
+                            new あ({tag:'fig', children: [
+
+                                new あ({tag:'img', id:'msgImg', class:['clickable', 'preview'], title:'Mila being hyper', src:'./media/fig1.png',events:{click(){cycleImage()}}}),
+                                new あ({tag:'figcaption', id:'caption', class:['cursive'],text:'Exhibit A'}),
+                            ]}),
+                            new あ({ tag: 'p', style: 'color: black', id: 'desc', text: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!' }),
+
+                                ]})
                             ]
                         }),
+                       
                     ]
                 }),
                 new あ({
@@ -458,7 +483,7 @@ html::-webkit-scrollbar {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                                new あ({ tag: 'img', src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls',id:'preview' }),
+                                new あ({ tag: 'img', class:['preview'], src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls',id:'preview' }),
 
                             ]
                         }),
@@ -503,6 +528,36 @@ html::-webkit-scrollbar {
             x.velocity.o = 0.01
         })
         window.winterCanvas = winterCanvas
+        let examples = [{
+            src: './media/fig1.png',
+            description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
+            title: 'Mila being hyper'
+        },{
+            src: './media/cicada.png',
+            description: 'When you say stupid stuff that makes me laugh for no reason',
+            title: 'CICADA'
+        }, {
+            src: './media/copy.png',
+            description: 'When you copy me',
+            title: 'STARRRRRRRRRR'
+        },{
+            src: './media/hearts.png',
+            description: 'When you show me stuff you made!! Even if you think its bad! (i dont have an example for this one, so just take the hearts <3)',
+            title: '<3'
+        },  ]
+        const letters = 'abcdefghijklmnopqrstuvwxyz'
+        let current = 0
+        function cycleImage() {
+            current++
+            if (!examples[current]) {
+                current = 0
+            }
+
+            あ['#msgImg'].src = examples[current].src
+            あ['#msgImg'].title = examples[current].title ?? ''
+            あ['#desc'].content.innerHTML = examples[current].description
+            あ['#caption'].content.innerHTML = `Exhibit ${letters[current].toUpperCase()}`
+        }
     </script>
 </body>
 
