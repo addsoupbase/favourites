@@ -137,10 +137,9 @@
         canvas.ctx = ctx
         canvas.resize = function () { this.content.width = window.innerWidth; this.content.height = window.innerHeight }; canvas.frame = 0; canvas.toKill = []; canvas.all = [];
         canvas.update = function () {
-            requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize(); winterCanvas.ctx.clearRect(0, 0, 400, 400); ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
+            requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize();  ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
             canvas.toKill.forEach(o => canvas.all.deleteWithin(o)); canvas.toKill = []
-            winterCanvas.toKill.forEach(o => winterCanvas.all.deleteWithin(o)); winterCanvas.toKill = []
-            for (let context of [winterCanvas.ctx, canvas.ctx]) {
+            for (let context of [canvas.ctx]) {
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
                 context.lineCap = ctx.lineJoin = 'round';
@@ -157,32 +156,7 @@
                 o.draw?.(canvas.frame, o.set.ctx)
 
             });
-            winterCanvas.all.forEach(o => {
-                winterCanvas.ctx.beginPath()
-                winterCanvas.ctx.rect(winterCanvas.content.width / -2, winterCanvas.content.height / -2, winterCanvas.content.width * 2, winterCanvas.content.height * 2)
-
-                if (!winterCanvas.ctx.isPointInPath(o.x, o.y)) {
-                    o.kill()
-                }
-                o.draw?.(canvas.frame, o.set.ctx)
-
-            }); if (!(canvas.frame % 15)) {
-                let snowflake = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: [...'❅❆'].pick(), size: range(30, 50), color: [r.blue, r.darkblue].pick(), set: winterCanvas })
-                snowflake.glow = false
-                snowflake.velocity.a = range(-0.01, 0.01)
-                snowflake.velocity.y = -1
-                snowflake.velocity.x = range(-1, 1)
-
-
-                for (let i = 2; i--;) {
-                    let smaller = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: '⬤', size: 5, color: '#FFFFFF', set: winterCanvas })
-                    smaller.glow = false
-                    smaller.velocity.a = range(-0.01, 0.01)
-                    smaller.velocity.y = -0.5
-                    smaller.velocity.x = range(-1, 1)
-                    smaller.fill = true
-                }
-            }
+        
             (canvas.frame % 50) || ((o => {
 
                 let x = new a({
@@ -229,16 +203,7 @@
                     //       v.shadowBlur = 5
                 }
                 v.strokeStyle = v.fillStyle = this.color
-                if (this.set === winterCanvas) {
-                    if (this.random > 0) {
-
-                        v.translate(sin(f / 30) * 5, 0)
-                    }
-                    else {
-                        v.translate(cos(f / 30) * 5, 0)
-
-                    }
-                }
+          
                 if (!this.shape || this.shape === 1) { ctx.arc(0, 0, this.size, 0, Math.PI * 2) }
 
                 else if (typeof this.shape === 'string') {
@@ -428,8 +393,12 @@
                     tag: 'div', class: ['holder'], style: 'background-color:	#7289da', children: [
                         new あ({
                             tag: 'div', children: [
-                                new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>' }),
-                                new あ({ tag: 'img', src: './media/hugs.png', title: 'big hugs' }),
+                                new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
+                                new あ({ tag: 'img', src: './media/hugs.png', title: 'big hugs', class:['clickable'],events:{
+                                    click(){
+                                        this.content.anim({class:'wobble-hor-bottom'})
+                                    }
+                                } }),
                             ]
                         }),
                     ]
@@ -439,8 +408,12 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
-                                new あ({ tag: 'img', src: './media/200.gif', title: 'Misdreavus', width: 100, height: 100 }),
-                                new あ({ tag: 'img', src: './media/misdreavus1.png', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
+                                new あ({ tag: 'img', src: './media/200.gif', title: 'Misdreavus', width: 100, height: 100,events: {click(){
+                                    あ['#msgImg'].fadeIn()
+                                }},  }),
+                                new あ({ tag: 'img', src: './media/misdreavus1.png', title: 'Misdreavus Gen 3', events: {click(){
+                                    あ['#msgImg'].fadeOut()
+                                }}, width: 100, height: 100 }),
 
                             ]
                         }),
@@ -451,7 +424,7 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                                new あ({ tag: 'canvas', style: 'width:100%; height:100%;', id: 'winterCanvas', title: 'Winter', }),
+                                new あ({ tag: 'img', style: 'width:100%; height:100%;', src:'./media/winter.png', title: 'Winter', }),
 
                             ]
                         }),
@@ -503,7 +476,7 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                                new あ({ tag: 'iframe', loading: 'lazy', src: 'https://www.youtube.com/embed/o2E2wLm_LlY', frameborder: 0, allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share', referrerpolicy: "strict-origin-when-cross-origin", allowfullscreen: true })
+                                new あ.youtube({src: 'https://www.youtube.com/embed/o2E2wLm_LlY'}),
                             ]
                         }),
                     ]
@@ -556,16 +529,12 @@
                 alert(`Your new name is ${str}!`)
             }
         }
-        let winterCanvas = あ.$('#winterCanvas');
-        winterCanvas.ctx = winterCanvas.content.getContext('2d');
-        winterCanvas.toKill = []
-        winterCanvas.all = []
+    
         addEventListener('mousedown', (ev) => {
             let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
             x.velocity.s = 1
             x.velocity.o = 0.01
         })
-        window.winterCanvas = winterCanvas
         let examples = [{
             src: './media/fig1.png',
             description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
@@ -591,7 +560,7 @@
                 current = 0
             }
             あ['#msgImg'].noevent('click')
-            あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () { this.content.removeClass('fade-in-tr'); this.content.addevent({ click: cycleImage }) })
+            あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () {this.content.addevent({ click: cycleImage }) })
 
 
             あ['#msgImg'].src = examples[current].src
