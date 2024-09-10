@@ -403,7 +403,7 @@ export class Elem {
             }
         }
     }
-    hightlight() {
+    highlight() {
         this.content.style.zIndex = '999999'
     }
     get initial() {

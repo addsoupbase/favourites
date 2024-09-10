@@ -212,7 +212,7 @@ html::-webkit-scrollbar {
                 v.beginPath()
                 if (this.glow) {
                     v.shadowColor = this.color
-                    v.shadowBlur = 5
+             //       v.shadowBlur = 5
                 }
                 v.strokeStyle = v.fillStyle = this.color
                 if (this.set === winterCanvas) {
@@ -511,6 +511,13 @@ html::-webkit-scrollbar {
                 }),
             ]
         }, true)
+        new あ({tag:'button', text:'123456',
+            events:{
+                click(){
+                    this.innerHTML += 1
+                }
+            }
+        },true).highlight()
         function newName() {
             if (confirm('Would you like a random name?')) {
                 let str = ''
