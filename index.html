@@ -275,10 +275,9 @@
             }
             kill() { this.set.toKill.includes(this) || this.set.toKill.push(this) }
         }
-        document.body.onload = canvas.update
         new あ({
             start() {
-                this.anim({ class: 'bounce-in-top' })
+                this.anim({ class: 'bounce-in-top' }, canvas.update)
             },
             tag: 'div', id: 'main', children: [
                 new あ({ tag: 'p', class: ['fancy'], text: 'Favourite Things' }),
