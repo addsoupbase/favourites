@@ -435,7 +435,7 @@ html::-webkit-scrollbar {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                                new あ({ tag: 'canvas', style: 'width:100%; height:100%;', id: 'winterCanvas', title: 'Misdreavus', }),
+                                new あ({ tag: 'canvas', style: 'width:100%; height:100%;', id: 'winterCanvas', title: 'Winter', }),
 
                             ]
                         }),
@@ -511,13 +511,7 @@ html::-webkit-scrollbar {
                 }),
             ]
         }, true)
-        new あ({tag:'button', text:'123456',
-            events:{
-                click(){
-                    this.innerHTML += 1
-                }
-            }
-        },true).highlight()
+     
         function newName() {
             if (confirm('Would you like a random name?')) {
                 let str = ''
