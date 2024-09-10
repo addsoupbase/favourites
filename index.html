@@ -4,19 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <title>Document</title>
+    <title>Favourites</title>
+    <link rel="stylesheet" href="animations.css">
     <style>
-        button {
-            border-radius: 5px;
-            border-color: #a4712d;
-            background-color: #a4712d;
-        }
-     div {
-        overflow-wrap:anywhere;
-        margin: auto;
-        max-width: 400px;
+      button {
+     border-radius: 5px;
+     border-color: #a4712d;
+     background-color: #a4712d;
+ }
+        div {
+            overflow-wrap: anywhere;
+            margin: auto;
+            max-width: 400px;
 
-     }
+        }
+
         #main {
             position: relative;
             padding: 20px;
@@ -30,9 +32,11 @@
             max-height: 50%;
             overflow-y: hidden;
         }
+
         .preview {
             width: 50%
         }
+
         audio {
             max-width: 250px;
         }
@@ -59,23 +63,30 @@
             background-color: rgb(70, 70, 70);
             font-family: 'Courier New', Courier, monospace;
         }
-        html {
-    overflow: -moz-scrollbars-none;
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;     /* Firefox */
-}
 
-html::-webkit-scrollbar { 
-    display: none;  /* Safari and Chrome */
-}
+        html {
+            overflow: -moz-scrollbars-none;
+            -ms-overflow-style: none;
+            /* Internet Explorer 10+ */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        html::-webkit-scrollbar {
+            display: none;
+            /* Safari and Chrome */
+        }
+
         p,
         h1 {
             color: white;
         }
+
         .cursive {
             font-style: italic;
             font-size: 12px;
         }
+
         input {
             cursor: pointer;
         }
@@ -91,14 +102,14 @@ html::-webkit-scrollbar {
             border-color: darkgray;
             border-style: solid;
             width: 100%;
-         margin-left: auto;
-         margin-right: auto;
+            margin-left: auto;
+            margin-right: auto;
             overflow-wrap: break-word;
             max-width: 300px;
             border-radius: 5px;
             cursor: pointer;
         }
-       
+
 
         .raw {
             font-size: 12px;
@@ -115,7 +126,7 @@ html::-webkit-scrollbar {
 <body>
     <script type="module">
         import { Elem as あ, Colors as r, frange, range } from './utils.js'
-        あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = あ.logLevels.success=  true
+        あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = あ.logLevels.success = true
         const canvas = new あ({ tag: 'canvas', id: 'bg' }, true),
             ctx = canvas.content.getContext('2d');
         const { sin, cos } = Math;
@@ -135,23 +146,23 @@ html::-webkit-scrollbar {
             }
             canvas.all.forEach(o => {
                 ctx.beginPath()
-                ctx.rect(-100, 0, canvas.content.width*2, canvas.content.height*1.5)
+                ctx.rect(-100, 0, canvas.content.width * 2, canvas.content.height * 1.5)
                 if (!ctx.isPointInPath(o.x, o.y)) {
                     o.kill()
                 }
-         
-                    o.draw?.(canvas.frame, o.set.ctx)
-                
+
+                o.draw?.(canvas.frame, o.set.ctx)
+
             });
             winterCanvas.all.forEach(o => {
                 winterCanvas.ctx.beginPath()
-                winterCanvas.ctx.rect(winterCanvas.content.width/-2, winterCanvas.content.height/-2, winterCanvas.content.width*2, winterCanvas.content.height*2)
-                
+                winterCanvas.ctx.rect(winterCanvas.content.width / -2, winterCanvas.content.height / -2, winterCanvas.content.width * 2, winterCanvas.content.height * 2)
+
                 if (!winterCanvas.ctx.isPointInPath(o.x, o.y)) {
                     o.kill()
                 }
-                    o.draw?.(canvas.frame, o.set.ctx)
-                
+                o.draw?.(canvas.frame, o.set.ctx)
+
             }); if (!(canvas.frame % 15)) {
                 let snowflake = new a({ x: range(0, winterCanvas.content.width), y: -50, shape: [...'❅❆'].pick(), size: range(30, 50), color: [r.blue, r.darkblue].pick(), set: winterCanvas })
                 snowflake.glow = false
@@ -212,7 +223,7 @@ html::-webkit-scrollbar {
                 v.beginPath()
                 if (this.glow) {
                     v.shadowColor = this.color
-             //       v.shadowBlur = 5
+                    //       v.shadowBlur = 5
                 }
                 v.strokeStyle = v.fillStyle = this.color
                 if (this.set === winterCanvas) {
@@ -263,6 +274,9 @@ html::-webkit-scrollbar {
         }
         document.body.onload = canvas.update
         new あ({
+            start() {
+             this.anim({class:'bounce-in-top'})
+             },
             tag: 'div', id: 'main', children: [
                 new あ({ tag: 'p', class: ['fancy'], text: 'Favourite Things' }),
                 new あ({
@@ -291,7 +305,7 @@ html::-webkit-scrollbar {
                                     tag: 'h2', style: 'color: black', class: ['clickable'], text: '🍋Lemon🍋', events: [
                                         ['click', () => {
                                             for (let i = 10; i--;) {
-                                                let x = new a({ x: canvas.content.width+100, y: range(0, canvas.content.height), shape: '🍋', size: 20 + range(1, 10) })
+                                                let x = new a({ x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: '🍋', size: 20 + range(1, 10) })
                                                 x.velocity = { x: frange(1, 5), y: 0, a: range(-0.1, 0.1), s: 0, o: 0 }
 
                                             }
@@ -388,16 +402,16 @@ html::-webkit-scrollbar {
                         }),
                     ]
                 }),
-              /*  new あ({
-                    tag: 'div', class: ['holder'], style: 'background-color:darkgrey', children: [
-                        new あ({
-                            tag: 'div', children: [
-                                new あ({ tag: 'p', style: 'color: black', text: 'Symbol: <b>Whatever this is</b>' }),
-                                new あ({ tag: 'a', href: 'https://graphemica.com/%D9%BC/glyphs/times-new-roman-regular', style: 'color: white; font-size: 40px', text: 'ټ' }),
-                            ]
-                        }),
-                    ]
-                }),*/
+                /*  new あ({
+                      tag: 'div', class: ['holder'], style: 'background-color:darkgrey', children: [
+                          new あ({
+                              tag: 'div', children: [
+                                  new あ({ tag: 'p', style: 'color: black', text: 'Symbol: <b>Whatever this is</b>' }),
+                                  new あ({ tag: 'a', href: 'https://graphemica.com/%D9%BC/glyphs/times-new-roman-regular', style: 'color: white; font-size: 40px', text: 'ټ' }),
+                              ]
+                          }),
+                      ]
+                  }),*/
                 new あ({
                     tag: 'div', class: ['holder'], style: 'background-color:#34baeb', children: [
                         new あ({
@@ -464,18 +478,22 @@ html::-webkit-scrollbar {
                                 new あ({ tag: 'p', style: 'color: black', text: 'Messages:' }),
                                 new あ({ tag: 'p', style: 'color: black', text: '(tap image to go to the next one)' }),
 
-                                new あ({tag:'div',children: [
-                            new あ({tag:'fig', children: [
+                                new あ({
+                                    tag: 'div', children: [
+                                        new あ({
+                                            tag: 'fig', children: [
 
-                                new あ({tag:'img', id:'msgImg', class:['clickable', 'preview'], title:'Mila being hyper', src:'./media/fig1.png',events:{click(){cycleImage()}}}),
-                                new あ({tag:'figcaption', id:'caption', class:['cursive'],text:'Exhibit A'}),
-                            ]}),
-                            new あ({ tag: 'p', style: 'color: black', id: 'desc', text: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!' }),
+                                                new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.png', events: { click() { cycleImage() } } }),
+                                                new あ({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
+                                            ]
+                                        }),
+                                        new あ({ tag: 'p', style: 'color: black', id: 'desc', text: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!' }),
 
-                                ]})
+                                    ]
+                                })
                             ]
                         }),
-                       
+
                     ]
                 }),
                 new あ({
@@ -483,8 +501,7 @@ html::-webkit-scrollbar {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                                new あ({ tag: 'img', class:['preview'], src: 'https://i.pinimg.com/originals/df/e5/98/dfe5988c6c8f9be105310000826726c3.gif', title: 'Gravity Falls',id:'preview' }),
-
+                                new あ({tag:'iframe',  loading:'lazy', src:'https://www.youtube.com/embed/o2E2wLm_LlY',frameborder: 0,allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',referrerpolicy:"strict-origin-when-cross-origin",allowfullscreen:true})
                             ]
                         }),
                     ]
@@ -494,7 +511,8 @@ html::-webkit-scrollbar {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Number:' }),
-                                new あ({ tag: 'h1', class:['clickable'],text: '49' , events: [
+                                new あ({
+                                    tag: 'h1', class: ['clickable'], text: '49', events: [
                                         ['click', () => {
                                             for (let i = 10; i--;) {
                                                 let x = new a({ x: canvas.content.width + 100, y: range(0, canvas.content.height), shape: '49', size: 20 + range(1, 10) })
@@ -503,7 +521,8 @@ html::-webkit-scrollbar {
                                             }
 
                                         }]
-                                    ]}),
+                                    ]
+                                }),
 
                             ]
                         }),
@@ -511,7 +530,7 @@ html::-webkit-scrollbar {
                 }),
             ]
         }, true)
-     
+
         function newName() {
             if (confirm('Would you like a random name?')) {
                 let str = ''
@@ -533,7 +552,7 @@ html::-webkit-scrollbar {
             src: './media/fig1.png',
             description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
             title: 'Mila being hyper'
-        },{
+        }, {
             src: './media/cicada.png',
             description: 'When you say stupid stuff that makes me laugh for no reason',
             title: 'CICADA'
@@ -541,11 +560,11 @@ html::-webkit-scrollbar {
             src: './media/copy.png',
             description: 'When you copy me',
             title: 'STARRRRRRRRRR'
-        },{
+        }, {
             src: './media/hearts.png',
             description: 'When you show me stuff you made!! Even if you think its bad! (i dont have an example for this one, so just take the hearts <3)',
             title: '<3'
-        },  ]
+        },]
         const letters = 'abcdefghijklmnopqrstuvwxyz'
         let current = 0
         function cycleImage() {
@@ -553,6 +572,9 @@ html::-webkit-scrollbar {
             if (!examples[current]) {
                 current = 0
             }
+            あ['#msgImg'].noevent('click')
+            あ['#msgImg'].anim({class: 'fade-in-tr'},function(){this.content.removeClass('fade-in-tr'); this.content.addevent({click: cycleImage})})
+
 
             あ['#msgImg'].src = examples[current].src
             あ['#msgImg'].title = examples[current].title ?? ''

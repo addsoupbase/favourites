@@ -250,7 +250,7 @@ export class Elem {
     static clear() {
         while (Elem.elements.length) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for', 'href', 'innerHTML', 'type', 'download', 'style', 'value', 'name', 'checked', 'src', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height']
+    static attributes = ['for', 'href', 'innerHTML', 'type', 'download', 'style', 'value','loading', 'name', 'checked', 'src', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height','frameborder','allow','allowfullscreen']
     static $(query) {
         if (query.includes('#')) {
             return document.getElementById(query.replace('#', ''))?.content
@@ -402,6 +402,7 @@ export class Elem {
                 kid.parent = this
             }
         }
+        opts.start?.call?.(this)
     }
     highlight() {
         this.content.style.zIndex = '999999'
@@ -474,7 +475,9 @@ export class Elem {
         return this
     }
     addevent(...events) {
-
+if (!Array.isArray(events[0]) && typeof events[0] == 'object' && arguments.length === 1) {
+    events = Object.entries(events[0])
+}
         for (let [eventName, event] of events) {
             Elem.listeners++
             this.content.addEventListener(eventName, event)
@@ -553,10 +556,3 @@ window.Elem = Elem
 window.$search = $search
 
 
-//Async
-
-export class Pro {
-    constructor(opts) {
-        this.promise = new Promise((resolve, reject) => opts.func?.())
-    }
-}
