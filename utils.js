@@ -336,6 +336,7 @@ export class Elem {
         if (Elem.logLevels.debug) {
             let arr = ''
             for (let [key, value] of Object.entries(opts)) {
+              
                 arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
             }
             Elem.debug(`New <${opts.tag}> element:\n ${arr}`)
