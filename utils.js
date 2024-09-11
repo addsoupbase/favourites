@@ -568,11 +568,9 @@ export class Elem {
         return this
     }
     fadeOut() {
-        this.removeClass('fadeIn')
         this.anim({ class: 'fadeOut' },()=>this.content.style.opacity=0)
     }
     fadeIn() {
-        this.removeClass('fadeOut')
         this.anim({ class: 'fadeIn' },()=>this.content.style.opacity=1)
     }
     show() {

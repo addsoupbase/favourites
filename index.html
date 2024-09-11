@@ -5,14 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Favourites</title>
+    <link rel="icon" type="image/x-icon" href="media/favicon.png" defer>
     <link rel="stylesheet" href="animations.css">
     <style>
+        #avatars {
+            border-radius: 20000px;
+        }
         button {
             border-radius: 5px;
             border-color: #a4712d;
             background-color: #a4712d;
         }
-
+        #foot {
+            text-align: center;
+    position: fixed;
+    z-index: 100;
+    top: 95%;
+        }
+        .emoji {
+            max-width: 25px;
+        }
         div {
             overflow-wrap: anywhere;
             margin: auto;
@@ -37,9 +49,11 @@
         .preview {
             width: 100%
         }
+
         iframe {
             width: 100%
         }
+
         audio {
             max-width: 250px;
         }
@@ -137,7 +151,7 @@
         canvas.ctx = ctx
         canvas.resize = function () { this.content.width = window.innerWidth; this.content.height = window.innerHeight }; canvas.frame = 0; canvas.toKill = []; canvas.all = [];
         canvas.update = function () {
-            requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize();  ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
+            requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize(); ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
             canvas.toKill.forEach(o => canvas.all.deleteWithin(o)); canvas.toKill = []
             for (let context of [canvas.ctx]) {
                 context.textAlign = 'center';
@@ -156,7 +170,7 @@
                 o.draw?.(canvas.frame, o.set.ctx)
 
             });
-        
+
             (canvas.frame % 50) || ((o => {
 
                 let x = new a({
@@ -203,7 +217,7 @@
                     //       v.shadowBlur = 5
                 }
                 v.strokeStyle = v.fillStyle = this.color
-          
+
                 if (!this.shape || this.shape === 1) { ctx.arc(0, 0, this.size, 0, Math.PI * 2) }
 
                 else if (typeof this.shape === 'string') {
@@ -242,10 +256,30 @@
         }
         new あ({
             start() {
-                this.anim({ class: 'bounce-in-top' }, canvas.update)
+                this.anim({ class: 'bounce-in-top' }, 
+                ()=>{canvas.update();        
+                    addEventListener('mousedown', (ev) => {
+            let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
+            x.velocity.s = 1
+            x.velocity.o = 0.01
+            for (let i = 10; i--;) {
+                let n = new a({shape:[...'✧⋆'].pick(),size: frange(7,10),color:r.pink,x:ev.x,y:ev.y})
+                n.velocity.x = range(-1,1)
+                n.velocity.y = range(-1,1)
+                n.velocity.o = 0.005
+            }
+        })
+                    new あ({tag:'img',src:'./media/hearts.gif', class:['emoji','clickable'],start(){this.fadeIn()}, id:'foot',events:{
+                        click(){
+                          this.content.fadeOut()
+                        }
+                    }},true)
+
+
+            })
             },
             tag: 'div', id: 'main', children: [
-                new あ({ tag: 'p', class: ['fancy'], text: 'Favourite Things' }),
+                new あ({ tag: 'p', class: ['fancy'], text: '<img class="emoji" src="./media/stars.gif"> Favourite Things <img class="emoji" src="./media/stars.gif">' }),
                 new あ({
                     tag: 'div', class: ['holder'], id: 'colors', style: 'background-color:#20a6a6', children: [
                         new あ({
@@ -394,11 +428,13 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
-                                new あ({ tag: 'img', src: './media/hugs.png', title: 'big hugs', class:['clickable'],events:{
-                                    click(){
-                                        this.content.anim({class:'wobble-hor-bottom'})
+                                new あ({
+                                    tag: 'img', src: './media/hugs.png', title: 'big hugs', class: ['clickable'], events: {
+                                        click() {
+                                            this.content.anim({ class: 'wobble-hor-bottom' })
+                                        }
                                     }
-                                } }),
+                                }),
                             ]
                         }),
                     ]
@@ -420,7 +456,7 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                                new あ({ tag: 'img', style: 'width:100%; height:100%;', src:'./media/winter.png', title: 'Winter', }),
+                                new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.png', title: 'Winter', }),
 
                             ]
                         }),
@@ -447,7 +483,7 @@
                         new あ({
                             tag: 'div', style: 'width:70%;', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Messages:' }),
-                                new あ({ tag: 'p', style: 'color: black', text: '(tap image to go to the next one)' }),
+                                new あ({ tag: 'p', style: 'color: black',id:'help1', text: '(tap image to go to the next one)' }),
 
                                 new あ({
                                     tag: 'div', children: [
@@ -472,7 +508,7 @@
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                                new あ.youtube({src: 'https://www.youtube.com/embed/o2E2wLm_LlY'}),
+                                new あ.youtube({ src: 'https://www.youtube.com/embed/o2E2wLm_LlY' }),
                             ]
                         }),
                     ]
@@ -505,19 +541,54 @@
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Websites:' }),
                                 new あ({
-                                    tag: 'div', style:'display:grid;', children: [new あ({ tag: 'a', text: 'MDN Web Docs', href: 'https://developer.mozilla.org/en-US/' }),
-                                   new あ({tag:'a',text:'W3Schools',href:'https://www.w3schools.com/'}),
+                                    tag: 'div', style: 'display:grid;', children: [new あ({ tag: 'a', text: 'MDN Web Docs', href: 'https://developer.mozilla.org/en-US/' }),
+                                    new あ({ tag: 'a', text: 'W3Schools', href: 'https://www.w3schools.com/' }),
                                     new あ({ tag: 'a', text: 'Animista', href: 'https://animista.net/' }),
-                                    new あ({tag:'a',text:'Skribbl.io',href:'https://skribbl.io/'})
+                                    new あ({ tag: 'a', text: 'Skribbl.io', href: 'https://skribbl.io/' })
                                     ]
                                 })
                             ]
                         }),
                     ]
                 }),
+                new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:	#f263d8', children: [
+                        new あ({
+                            tag: 'div', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
+                                new あ({
+                                    tag: 'img', class: ['preview', 'clickable'], src: './media/kirby.jpeg', title: 'Kirby\'s Return to Dreamland (2011)', events: {
+                                        click() {
+                                            this.content.anim({ class: 'wobble-hor-bottom' })
+                                        }
+                                    }
+                                }),
+
+                            ]
+                        }),
+                    ]
+                }),    new あ({
+                    tag: 'div', class: ['holder'], style: 'background-color:#781e1e', children: [
+                        new あ({
+                            tag: 'div', style: 'width:70%;', children: [
+                                new あ({ tag: 'p', style: 'color: black', text: 'Avatars (not my art):' }),
+                                new あ({ tag: 'p', style: 'color: black', id:'help2', text: '(tap image to go to the next one)' }),
+
+                                new あ({
+                                    tag: 'div', children: [
+
+                                                new あ({ tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: './media/towa.gif', events: { click() { 
+                                                    cycleAvatar() } } }),
+
+                                    ]
+                                })
+                            ]
+                        }),
+
+                    ]
+                }),
             ]
         }, true)
-
         function newName() {
             if (confirm('Would you like a random name?')) {
                 let str = ''
@@ -525,12 +596,8 @@
                 alert(`Your new name is ${str}!`)
             }
         }
-    
-        addEventListener('mousedown', (ev) => {
-            let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
-            x.velocity.s = 1
-            x.velocity.o = 0.01
-        })
+
+       
         let examples = [{
             src: './media/fig1.png',
             description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
@@ -549,14 +616,28 @@
             title: '<3'
         },]
         const letters = 'abcdefghijklmnopqrstuvwxyz'
-        let current = 0
+        let current = 0,
+        current2 = 0;
+        let avatars = ['./media/towa.gif','./media/marnie.gif','./media/kiss.gif','./media/thing.gif','./media/mismagius.gif','./media/poke.gif','./media/coffee.gif','./media/rorochan.png']
+        function cycleAvatar() {
+            あ['#help2']?.kill()
+
+            current2++
+            if (!(avatars[current2])) current2=0;
+            let m =      あ['#avatars']
+            m.noevent('click')
+
+            m.anim({ class: 'fade-in-tr' }, function () { this.content.addevent({ click: cycleAvatar }) })
+            m.src = avatars[current2]
+        }
         function cycleImage() {
+            あ['#help1']?.kill()
             current++
             if (!examples[current]) {
                 current = 0
             }
             あ['#msgImg'].noevent('click')
-            あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () {this.content.addevent({ click: cycleImage }) })
+            あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () { this.content.addevent({ click: cycleImage }) })
 
 
             あ['#msgImg'].src = examples[current].src
