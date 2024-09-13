@@ -448,8 +448,11 @@
         })
         class Elem {
             static textStyle(message, options) {
+                this.history[message] ??= 0
+                this.history[message]++
                 console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
             }
+            static history = {}
             static loaded = [];
             static img(src) {
                 if (Elem.loaded.includes(src)) {
@@ -460,8 +463,8 @@
                 if (!src) {
                     throw TypeError('No source for image provided.')
                 }
-                x.onerror = function(err){
-                    Elem.error(`Image error: ${err}`)                 
+                x.onerror = function (err) {
+                    Elem.error(`Image error: ${err}`)
                 }
                 Elem.loaded.push(src)
                 Elem.info(`Preloading Image: ${x.src}`)
@@ -917,7 +920,7 @@
                 context.lineWidth = 1;
                 context.textRendering = 'optimizeSpeed'
             }
-            canvas.all.forEach(o => {
+            canvas.all/*.sort((a,b)=>a.layer-b.layer)*/.forEach(o => {
                 ctx.beginPath()
                 ctx.rect(-100, 0, canvas.content.width * 2, canvas.content.height * 1.5)
                 if (!ctx.isPointInPath(o.x, o.y)) {
@@ -927,7 +930,9 @@
                 o.draw?.(canvas.frame, o.set.ctx)
 
             });
-
+if (!(canvas.frame % 1000) || canvas.frame === 1) {
+    canvas.addParticles()
+}
             (canvas.frame % 50) || ((o => {
 
                 let x = new a({
@@ -951,20 +956,24 @@
         }
         class a {
 
-            velocity = { x: 0, y: 0, a: 0, s: 0, o: 0 }; fill = false; random = ran.range(-1, 1); glow = true; angle = 0; opacity = 1; constructor(o) {
+            velocity = { x: 0, y: 0, a: 0, s: 0, o: 0 }; layer=0; fill = false; random2 = ran.range(-1,1); random = ran.range(-1, 1); glow = true; angle = 0; opacity = 1; constructor(o) {
                 //  setTimeout(()=>this.kill(),30000)
                 this.set = o.set ?? canvas
                 this.set.all.push(this)
                 this.x = o.x ?? 0; this.y = o.y ?? 0; this.size = o.size ?? 10; this.shape = o.shape ?? 3; this.color = o.color ?? Object.values(r).pick()
             }
             draw(f, v) {
+                
                 this.x -= this.velocity.x; this.y -= this.velocity.y; this.angle += this.velocity.a; this.size += this.velocity.s;
                 //    this.x < -100 - this.size || this.x > (this.set.content.width + this.size + 100) && this.kill()
                 //   this.y < -100 - this.size || this.y > (this.set.content.height + this.size + 100) && this.kill()
-                this.opacity <= 0 && this.kill()
+                if (this.opacity <= 0) {
+                    this.kill()
+                    return
+                }
                 this.opacity -= this.velocity.o
-                this.opacity = Math.max(this.opacity, 0)
-                v.save()
+                this.opacity = Math.max(0,this.opacity)
+                    v.save()
                 v.globalAlpha = this.opacity
                 v.translate(this.x, this.y)
                 v.rotate(this.angle)
@@ -976,7 +985,15 @@
                 v.strokeStyle = v.fillStyle = this.color
 
                 if (!this.shape || this.shape === 1) { ctx.arc(0, 0, this.size, 0, Math.PI * 2) }
-
+                else if (this.shape == 'bg') {
+                    this.fill ||= true
+                        let pos = {
+                        x: this.random > 0 ? cos(f/100) : sin(f/100),
+                        y: this.random > 0 ? sin(f/100) : cos(f/100),
+                    }
+                    v.globalAlpha = Math.min(f/100,this.opacity)
+                    v.arc(pos.x *this.size*2, pos.y*this.size*2, this.size*10, 0, Math.PI * 2)
+                }
                 else if (typeof this.shape === 'string') {
                     if (this.set === canvas) {
                         v.rotate(-this.angle)
@@ -1009,13 +1026,21 @@
                 v.clip()
                 v.restore()
             }
-            kill() { this.set.toKill.includes(this) || this.set.toKill.push(this) }
+            kill() { 
+                this.set.toKill.includes(this) || this.set.toKill.push(this) }
         }
         new あ({
             start() {
                 this.anim({ class: 'bounce-in-top' },
                     () => {
                         canvas.update();
+                     for (let i = 30; i--;) {
+                       let z= new a({shape: '♥', x: ran.range(0,canvas.width),y:canvas.height})
+                       z.velocity.y = ran.range(1,5)
+                       z.velocity.s = 0.1
+                       z.fill = true
+                       z.velocity.o = 0.004
+                     }
                         addEventListener('mousedown', (ev) => {
                             let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
                             x.velocity.s = 1
@@ -1384,17 +1409,17 @@
         let current = 0,
             current2 = 0;
         let avatars = [Elem.img('./media/towa.gif'), Elem.img('./media/marnie.gif'), Elem.img('./media/kiss.gif'),
-        Elem.img( './media/thing.gif'),
-        Elem.img( './media/mismagius.gif'),
-        Elem.img( './media/poke.gif'),
-        Elem.img( './media/coffee.gif'), 
+        Elem.img('./media/thing.gif'),
+        Elem.img('./media/mismagius.gif'),
+        Elem.img('./media/poke.gif'),
+        Elem.img('./media/coffee.gif'),
         Elem.img('./media/rorochan.png'),
         Elem.img('./media/magolor.png'),
         Elem.img('./media/magolor.gif'),
         Elem.img('./media/mawile.gif'),
         Elem.img('./media/swords.gif'),
         Elem.img('./media/cute.gif'),
-    ]
+        ]
         function cycleAvatar() {
             あ['#help2']?.kill()
 
@@ -1420,6 +1445,19 @@
             あ['#msgImg'].title = examples[current].title ?? ''
             あ['#desc'].content.innerHTML = examples[current].description
             あ['#caption'].content.innerHTML = `Exhibit ${letters[current].toUpperCase()}`
+        }
+        canvas.addParticles = ()=> {
+            canvas.all.forEach(o=>{
+                if (o.shape == 'bg') {
+                    o.kill()
+                }
+            })
+            for (let i = 4; i--;) {
+                            let m = new a({ shape: 'bg',size:  ran.range(10,20), color: ran.choose('#FF0000', '#00FF00', '#0000FF'), x: ran.range(0, canvas.width), y: ran.range(0,canvas.height) })
+                            m.opacity = 0.2
+                            m.layer = 1
+
+                        }
         }
     </script>
 </body>
