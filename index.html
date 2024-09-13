@@ -360,7 +360,18 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
-                                new あ({
+                                new あ({tag:'img', class: ['clickable', 'preview'], src: './media/js.webp', events: {
+                                    click(){
+                                        this.content.anim({class:'rotate-center',},()=>{
+                                            for (let i = 10; i--;) {
+                                                let x = new a({ x: canvas.content.width + 100, y: ran.range(0, canvas.content.height), shape: 'JavaScript', size: 20 + ran.range(1, 10) })
+                                                x.velocity = { x: ran.frange(1, 5), y: 0, a: ran.range(-0.1, 0.1), s: 0, o: 0 }
+
+                                            }
+                                        })
+                                    }
+                                }, style:'border-radius: 10%;'})
+                          /*      new あ({
                                     tag: 'div', id: 'code', events: [
                                         ['click', newName]
                                     ], children: [
@@ -372,9 +383,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                                         new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'confirm' }),
                                         new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
                                         new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `"Would you like a random name?"` }),
-
                                         new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
-
                                         new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: ')' }),
                                         new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '{' }),
 
@@ -434,7 +443,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
 
 
                                     ]
-                                }),
+                                }),*/
                             ]
                         }),
                     ]
