@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>Favourites</title>
-    <link rel="icon" type="image/x-icon" href="media/favicon.png" defer>
+    <link rel="icon" type="image/x-icon" href="media/favicon.webp" defer>
     <link rel="stylesheet" href="animations.css">
     <style>
         #avatars {
@@ -1053,7 +1053,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                             }
                         })
                         new あ({
-                            tag: 'img', src: './media/hearts.gif', class: ['emoji', 'clickable'], start() { this.fadeIn() }, id: 'foot', events: {
+                            tag: 'img', src: './media/hearts.webp', class: ['emoji', 'clickable'], start() { this.fadeIn() }, id: 'foot', events: {
                                 click() {
                                     this.content.fadeOut()
                                 }
@@ -1064,7 +1064,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                     })
             },
             tag: 'div', id: 'main', children: [
-                new あ({ tag: 'p', class: ['fancy'], text: '<img class="emoji" src="./media/stars.gif"> Favourite Things <img class="emoji" src="./media/stars.gif">' }),
+                new あ({ tag: 'p', class: ['fancy'], text: '<img class="emoji" src="./media/stars.webp"> Favourite Things <img class="emoji" src="./media/stars.webp">' }),
                 new あ({
                     tag: 'div', class: ['holder'], id: 'color', style: 'background-color:#20a6a6', children: [
                         new あ({
@@ -1214,7 +1214,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
                                 new あ({
-                                    tag: 'img', src: './media/hugs.png', title: 'big hugs', class: ['clickable'], events: {
+                                    tag: 'img', src: './media/hugs.webp', title: 'big hugs', class: ['clickable'], events: {
                                         click() {
                                             this.content.anim({ class: 'wobble-hor-bottom' })
                                         }
@@ -1229,8 +1229,8 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
-                                new あ({ tag: 'img', src: './media/200.gif', title: 'Misdreavus', width: 100, height: 100 }),
-                                new あ({ tag: 'img', src: './media/misdreavus1.png', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
+                                new あ({ tag: 'img', src: './media/200.webp', title: 'Misdreavus', width: 100, height: 100 }),
+                                new あ({ tag: 'img', src: './media/misdreavus1.webp', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
 
                             ]
                         }),
@@ -1241,7 +1241,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                         new あ({
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                                new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.png', title: 'Winter', }),
+                                new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.webp', title: 'Winter', }),
 
                             ]
                         }),
@@ -1275,7 +1275,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                                         new あ({
                                             tag: 'fig', children: [
 
-                                                new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.png', events: { click() { cycleImage() } } }),
+                                                new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: { click() { cycleImage() } } }),
                                                 new あ({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
                                             ]
                                         }),
@@ -1342,7 +1342,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                             tag: 'div', children: [
                                 new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
                                 new あ({
-                                    tag: 'img', class: ['preview', 'clickable'], src: './media/kirby.jpeg', title: 'Kirby\'s Return to Dreamland (2011)', events: {
+                                    tag: 'img', class: ['preview', 'clickable'], src: './media/kirby.webp', title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                         click() {
                                             this.content.anim({ class: 'wobble-hor-bottom' })
                                         }
@@ -1363,7 +1363,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                                     tag: 'div', children: [
 
                                         new あ({
-                                            tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: './media/towa.gif', events: {
+                                            tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: './media/towa.webp', events: {
                                                 click() {
                                                     cycleAvatar()
                                                 }
@@ -1389,36 +1389,35 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
 
 
         let examples = [{
-            src: Elem.img('./media/fig1.png'),
+            src: Elem.img('./media/fig1.webp'),
             description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
             title: 'Mila being hyper'
         }, {
-            src: Elem.img('./media/cicada.png'),
+            src: Elem.img('./media/cicada.webp'),
             description: 'When you say stupid stuff that makes me laugh for no reason',
             title: 'CICADA'
         }, {
-            src: Elem.img('./media/copy.png'),
+            src: Elem.img('./media/copy.webp'),
             description: 'When you copy me',
             title: 'STARRRRRRRRRR'
         }, {
-            src: Elem.img('./media/hearts.png'),
+            src: Elem.img('./media/hearts.webp'),
             description: 'When you show me stuff you made!! Even if you think its bad! (i dont have an example for this one, so just take the hearts <3)',
             title: '<3'
         },]
         const letters = 'abcdefghijklmnopqrstuvwxyz'
         let current = 0,
             current2 = 0;
-        let avatars = [Elem.img('./media/towa.gif'), Elem.img('./media/marnie.gif'), Elem.img('./media/kiss.gif'),
-        Elem.img('./media/thing.gif'),
-        Elem.img('./media/mismagius.gif'),
-        Elem.img('./media/poke.gif'),
-        Elem.img('./media/coffee.gif'),
-        Elem.img('./media/rorochan.png'),
-        Elem.img('./media/magolor.png'),
-        Elem.img('./media/magolor.gif'),
-        Elem.img('./media/mawile.gif'),
-        Elem.img('./media/swords.gif'),
-        Elem.img('./media/cute.gif'),
+        let avatars = [Elem.img('./media/towa.webp'), Elem.img('./media/marnie.webp'), Elem.img('./media/kiss.webp'),
+        Elem.img('./media/thing.webp'),
+        Elem.img('./media/mismagius.webp'),
+        Elem.img('./media/poke.webp'),
+        Elem.img('./media/coffee.webp'),
+        Elem.img('./media/rorochan.webp'),
+        Elem.img('./media/magolor.webp'),
+        Elem.img('./media/mawile.webp'),
+        Elem.img('./media/swords.webp'),
+        Elem.img('./media/cute.webp'),
         ]
         function cycleAvatar() {
             あ['#help2']?.kill()
