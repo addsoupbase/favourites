@@ -8,6 +8,9 @@
     <link rel="icon" type="image/x-icon" href="media/favicon.webp" defer>
     <link rel="stylesheet" href="animations.css">
     <style>
+        input{
+            margin: 10px;
+        }
         #avatars {
             border-radius: 20000px;
             width: 100%;
@@ -112,9 +115,7 @@
             font-size: 12px;
         }
 
-        input {
-            cursor: pointer;
-        }
+ 
 
         .clickable {
             cursor: pointer;
@@ -322,7 +323,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
                             tag: 'div', children: [
                                 new あ({ tag: 'p', text: 'Color: <b>Teal</b>' }),
                                 new あ({
-                                    tag: 'input', type: 'color', events: [
+                                    tag: 'input', type: 'color', class:['clickable'], events: [
                                         ['change', function () {
                                             あ.$('#color').content.style.backgroundColor = this.value
                                         }]
@@ -643,6 +644,48 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
 
                     ]
                 }),
+                new あ({
+                    tag: 'div', class: ['holder'], id:'formtab', style: 'background-color:#3bc736', children: [
+                      new あ({tag:'p',text:'Send me a message if you want :3'}),
+                      new あ({tag:'form', id:'mainform', events: {
+                        submit(a) {
+                            a.preventDefault();
+                            あ['#submitBtn'].noevent('click')
+                            あ['#formtab'].anim({class:'slide-out-right'}, function(){
+                                this.content.kill()
+                            })
+                        ;(async ()=>{
+                            const data = new URLSearchParams();
+                            let actionUrl = あ['#mainform'].content.action
+                            data.append('name',あ['#formName'].content.value)
+                            data.append('message',あ['#formMessage'].content.value)
+                            console.log(actionUrl)
+                            let x = await fetch(actionUrl,{
+                                method: 'POST',
+                                body: data,
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'Accept': 'application/json'
+                                }
+                            
+                            })
+
+                            if (x.ok) {
+                                alert(1)
+                            }
+                        })()
+                        }
+                      },action:'https://formspree.io/f/mgvwbzvd',method: 'POST', children: [
+                        new あ({tag:'label', text:'Name (optional)', children: [
+                            new あ({tag: 'input', id:'formName', name:'name', value: 'anonymous'})
+                        ]}),
+                         new あ({tag:'button', type:'submit', id:'submitBtn',
+                         text:'Send'}),
+                         new あ({tag:'textarea',  id:'formMessage',name: 'message', required: 'true',placeholder:'Your message here...'})
+                      ]}),
+
+                    ]
+                }),
             ]
         }, true)
         function newName() {
@@ -725,6 +768,7 @@ if (!(canvas.frame % 1000) || canvas.frame === 1) {
 
                         }
         }
+        
     </script>
 </body>
 
