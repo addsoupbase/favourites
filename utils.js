@@ -1,19 +1,68 @@
-export const darkenHexColor = function (hex, percent) {
-    hex = hex.replace(/^#/, ''); let r = parseInt(hex.substring(0, 2), 16), g = parseInt(hex.substring(2, 4), 16), b = parseInt(hex.substring(4, 6), 16); r = Math.round(r * (1 - percent / 100)); g = Math.round(g * (1 - percent / 100)); b = Math.round(b * (1 - percent / 100)); r = Math.min(255, Math.max(0, r)); g = Math.min(255, Math.max(0, g)); b = Math.min(255, Math.max(0, b)); return '#' + [r, g, b].map(c => { const hex = c.toString(16); return hex.length === 1 ? '0' + hex : hex; }).join('');
+'use strict';
+
+const ran = {
+    choose: (...a) => a[Math.floor(Math.random() * a.length)],
+    range: (min, max) => Math.random() * (max - min) + min
 }
-export const choose = (...a) => a[Math.floor(Math.random() * a.length)]
-export const range = function getRandomInRange(min, max) {
-    return Math.random() * (max - min) + min;
+ran.frange = (min, max) => Math.floor(ran.range(min, max))
+String.prototype.last = Array.prototype.last = function () {
+    return this[this.length - 1]
 }
-export const frange = (min, max) => Math.floor(range(min, max))
-Object.defineProperty(Array.prototype, "last", { get: function () { return this[this.length - 1] } })
+const sane = {
+    isInt: n => Math.trunc(n) === n,
+    sanitize: num => (num === num) && num !== null && isFinite(num),
+    equality: (...target) => target.every(o => Object.is(o, target[0])),
+    arreq: function (...targets) {
+        if (targets.length < 2) {
+            throw RangeError('At least 2 arguments required.')
+        }
+        let lengths = []
+        for (let i = 0, len = targets.length; i < len; i++) {
+            if (!Array.isArray(targets[i])) {
+                throw TypeError('Argument #' + (i + 1) + ' is not an Array.')
+            }
+            lengths.push(targets[i].length)
+        }
+        for (let i = 0, max = Math.max(...lengths); i < max; i++) {
+            for (let comparisons of targets) {
+                if (!equality(targets[0][i], comparisons[i])) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+}
+Array.prototype.backwards = function (func) {
+    for (let i = this.length; i--;) {
+        if (i in this) {
+            func(this[i], i, this)
+
+        }
+    }
+}
+Array.prototype.order = function (type) {
+    if (type == 'lth') return this.toSorted((a, b) => a - b);
+    return this.toSorted((a, b) => b - a)
+}
 Array.prototype.center = function () {
     return this[Math.floor(this.length / 2)]
 
 }
-export const sanitize = function (num) {
-    return (num === num) && isFinite(num)
+String.prototype.toOrdinal = function () {
+    switch (this.last()) {
+        case '1':
+            return this + 'st'
+        case '2':
+            return this + 'nd'
+        case '3':
+            return this + 'rd'
+        default:
+            return this + 'th'
+    }
 }
+
+
 Array.prototype.average = function (type) {
     if (this.length === 0) return NaN; // Handle empty array case
 
@@ -45,7 +94,6 @@ Array.prototype.average = function (type) {
     }
 };
 
-Object.defineProperty(String.prototype, "last", { get: function () { return this[this.length - 1] } })
 String.prototype.reverse = function () {
     return [...this].reverse().join("")
 }
@@ -57,18 +105,17 @@ String.prototype.upper = function () {
 
 
 Array.prototype.swap = function (a, b) {
+    [this[a], this[b]] = [this[b], this[a]]
 
-    let temp = this[a]
-    this[a] = this[b]
-    this[b] = temp
     return this
 }
 Array.prototype.swapWithin = function (a, b) {
-    let slot = this.indexOf(index)
-    if (slot === -1) {
+    let slot = this.indexOf(a),
+        slot2 = this.indexOf(b);
+    if (slot === -1 || slot2 === -1) {
         return this
     }
-    this.swap(this.indexOf(a), this.indexOf(b))
+    this.swap(slot, slot2)
     return this
 }
 Array.prototype.delete = function (index) {
@@ -98,9 +145,9 @@ Array.prototype.shuffle = function () {
     return out;
 };
 Array.prototype.pick = function () {
-    return choose(...this)
+    return ran.choose(...this)
 }
-export const Colors = {
+const color = {
     aliceblue: "#f0f8ff",
     antiquewhite: "#faebd7",
     aqua: "#00ffff",
@@ -244,9 +291,35 @@ export const Colors = {
     yellow: "#ffff00",
     yellowgreen: "#9acd32"
 };
-export class Elem {
+Object.defineProperty(color, 'dhk', {
+    value(hex, percent = 40) {
+        hex = hex.replace(/^#/, ''); let r = parseInt(hex.substring(0, 2), 16), g = parseInt(hex.substring(2, 4), 16), b = parseInt(hex.substring(4, 6), 16); r = Math.round(r * (1 - percent / 100)); g = Math.round(g * (1 - percent / 100)); b = Math.round(b * (1 - percent / 100)); r = Math.min(255, Math.max(0, r)); g = Math.min(255, Math.max(0, g)); b = Math.min(255, Math.max(0, b)); return '#' + [r, g, b].map(c => { const hex = c.toString(16); return hex.length === 1 ? '0' + hex : hex; }).join('');
+    }, enumerable: false
+})
+class Elem {
     static textStyle(message, options) {
+        this.history[message] ??= 0
+        this.history[message]++
         console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
+    }
+    static history = {}
+    static loaded = [];
+    static img(src) {
+        if (Elem.loaded.includes(src)) {
+            return
+        }
+        let x = new Image()
+        x.src = src
+        if (!src) {
+            throw TypeError('No source for image provided.')
+        }
+        x.onerror = function (err) {
+            Elem.error(`Image error: ${err}`)
+        }
+        Elem.loaded.push(src)
+        Elem.info(`Preloading Image: ${x.src}`)
+        return src
+
     }
     static youtube = class extends this {
         constructor(opts) {
@@ -258,6 +331,78 @@ export class Elem {
             this.referrerpolicy = 'strict-origin-when-cross-origin'
             this.allowfullscreen = true
         }
+    }
+    static canvas = class extends this {
+        fill(col) {
+            let old = this.ctx.fillStyle
+            this.ctx.fillStyle = col ?? old
+            this.ctx.fill()
+            this.ctx.fillStyle = old
+
+        }
+        stroke(col) {
+            let old = this.ctx.strokeStyle
+            this.ctx.strokeStyle = col ?? old
+            this.ctx.stroke()
+            this.ctx.strokeStyle = old
+
+        }
+        o = class {
+            velocity = {
+                x: 0,
+                y: 0,
+                a: 0
+            }
+            constructor(opts) {
+                this.context = opts.context
+                if (!this.context) {
+                    throw TypeError('No context provided.')
+                }
+                this.context.region.all.push(this)
+                this.x = opts.x ?? 0
+                this.y = opts.y ?? 0
+                this.angle = 0
+            }
+            draw() {
+                let { ctx } = this.context
+                ctx.save()
+                ctx.translate(this.x, this.y)
+                ctx.rotate(this.angle)
+                ctx.beginPath()
+                ctx.arc(0, 0, 30, 0, Math.PI * 2)
+                ctx.fill()
+                this.illustrate?.()
+                ctx.restore()
+            }
+        }
+        constructor(opts) {
+            throw TypeError('This feature is currently not yet supported.')
+            opts.tag = 'canvas'
+            super(opts)
+            Elem.contexts ??= []
+            Elem.contexts.push(this)
+            this.ctx = this.content.getContext('2d')
+            this.frame = 0
+            this.ctx.textAlign = 'center'
+            this.ctx.textBaseline = 'middle'
+            this.resize = opts.resize ?? false
+            this.update = () => {
+                this.frame++
+                if (this.resize) {
+                    this.width = window.innerWidth
+                    this.height = window.innerHeight
+                }
+                this.ctx.clearRect(0, 0, this.width, this.height)
+                this.region.toKill.forEach(o => this.region.all.deleteWithin(o))
+                this.region.toKill = []
+                this.region.all.forEach(o => o.draw())
+            }
+            this.region = {
+                all: [],
+                toKill: []
+            }
+        }
+
     }
     static clear() {
         while (Elem.elements.length) Elem.elements.forEach(o => o.kill())
@@ -275,23 +420,24 @@ export class Elem {
         }
     }
     static {
+
         let s = document.createElement('style')
         s.innerHTML = `.fadeOut{-webkit-animation:fadeOut 1s ease-out both;animation:fadeOut 1s ease-out both}
-        /* ----------------------------------------------
- * Generated by Animista on 2024-9-10 16:55:54
- * Licensed under FreeBSD License.
- * See http://animista.net/license for more info. 
- * w: http://animista.net, t: @cssanimista
- * ---------------------------------------------- */
+    /* ----------------------------------------------
+* Generated by Animista on 2024-9-10 16:55:54
+* Licensed under FreeBSD License.
+* See http://animista.net/license for more info. 
+* w: http://animista.net, t: @cssanimista
+* ---------------------------------------------- */
 
 @-webkit-keyframes fadeOut{0%{opacity:1}100%{opacity:0}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}
 .fadeIn{-webkit-animation:fadeIn 1.2s cubic-bezier(.39,.575,.565,1.000) both;animation:fadeIn 1.2s cubic-bezier(.39,.575,.565,1.000) both}
 /* ----------------------------------------------
- * Generated by Animista on 2024-9-10 16:56:42
- * Licensed under FreeBSD License.
- * See http://animista.net/license for more info. 
- * w: http://animista.net, t: @cssanimista
- * ---------------------------------------------- */
+* Generated by Animista on 2024-9-10 16:56:42
+* Licensed under FreeBSD License.
+* See http://animista.net/license for more info. 
+* w: http://animista.net, t: @cssanimista
+* ---------------------------------------------- */
 
 @-webkit-keyframes fadeIn{0%{opacity:0}100%{opacity:1}}@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}`
         document.head.appendChild(s)
@@ -302,13 +448,13 @@ export class Elem {
         if (!Elem.logLevels.warn) {
             return
         }
-        Elem.textStyle(`[WARN] ${message}`, { textColor: Colors.yellow, size: 15 })
+        Elem.textStyle(`[WARN] ${message}`, { textColor: color.yellow, size: 15 })
     }
     static error(message) {
         if (!Elem.logLevels.error) {
             return
         }
-        Elem.textStyle(`[ERROR] ${message}`, { textColor: Colors.red, size: 15 })
+        Elem.textStyle(`[ERROR] ${message}`, { textColor: color.red, size: 15 })
     }
     static findClass(className) {
         const styleSheets = document.styleSheets;
@@ -333,13 +479,13 @@ export class Elem {
         if (!Elem.logLevels.success) {
             return
         }
-        Elem.textStyle(`[SUCCESS] ${message}`, { textColor: Colors.lightgreen, size: 15 })
+        Elem.textStyle(`[SUCCESS] ${message}`, { textColor: color.lightgreen, size: 15 })
     }
     static debug(message) {
         if (!Elem.logLevels.debug) {
             return
         }
-        Elem.textStyle(`[DEBUG] ${message}`, { textColor: Colors.orange, size: 10 })
+        Elem.textStyle(`[DEBUG] ${message}`, { textColor: color.orange, size: 10 })
     }
     static messages = {
         noclass(msg) {
@@ -568,10 +714,10 @@ export class Elem {
         return this
     }
     fadeOut() {
-        this.anim({ class: 'fadeOut' },()=>this.content.style.opacity=0)
+        this.anim({ class: 'fadeOut' }, () => this.content.style.opacity = 0)
     }
     fadeIn() {
-        this.anim({ class: 'fadeIn' },()=>this.content.style.opacity=1)
+        this.anim({ class: 'fadeIn' }, () => this.content.style.opacity = 1)
     }
     show() {
         this.content.style.display = this.#display
@@ -594,7 +740,7 @@ for (let attribute of Elem.attributes) {
     });
 }
 
-export function $search(query) {
+function $search(query) {
     let result;
     if (query.includes('#')) {
         result = document.getElementById(query.replaceAll('#', ''))
@@ -604,7 +750,3 @@ export function $search(query) {
     }
     return result
 }
-window.Elem = Elem
-window.$search = $search
-
-
