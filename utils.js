@@ -730,7 +730,7 @@ for (let attribute of Elem.attributes) {
             return this.content.getAttribute(`${attribute}`)
         },
         set(val) {
-            Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
+           // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
             if (attribute === 'id') {
                 if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
                 Elem[`#${val}`] = this
