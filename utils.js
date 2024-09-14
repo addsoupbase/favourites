@@ -644,9 +644,9 @@ class Elem {
         return this
     }
 
-    anim(target, callback) {
+    anim(target, callback, keepClass) {
         this.add(target)
-        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this.content); this.removeClass(target.class) }])
+        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this.content); keepClass || this.removeClass(target.class) }])
         return this
     }
     removeClass(...className) {
