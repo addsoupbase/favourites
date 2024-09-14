@@ -710,7 +710,7 @@ class Elem {
     }
 
     hide(type) {
-        this.content.style.display = type ?? 'none'
+        this.content.style.display = 'hidden'
         return this
     }
     fadeOut() {
@@ -720,7 +720,7 @@ class Elem {
         this.anim({ class: 'fadeIn' }, () => this.content.style.opacity = 1)
     }
     show() {
-        this.content.style.display = this.#display
+        this.content.style.display = ''
         return this
     }
 }
