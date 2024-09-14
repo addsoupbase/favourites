@@ -319,7 +319,7 @@ class Elem {
             Elem.progress(-1)
         }
         x.onload = () =>{
-            Elem.progress(1)
+            Elem.progress(-1)
         }
         Elem.loaded.push(src)
         Elem.info(`Preloading Image: ${x.src}`)
