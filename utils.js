@@ -657,7 +657,7 @@ display: none
                 } else if ([...this.content.classList].includes($class)) {
                     Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
                 }
-                else { Elem.success(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }
+                else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }
                 this.content.classList.add($class)
             }
         }
