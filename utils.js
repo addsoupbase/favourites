@@ -439,7 +439,11 @@ class Elem {
 * w: http://animista.net, t: @cssanimista
 * ---------------------------------------------- */
 
-@-webkit-keyframes fadeIn{0%{opacity:0}100%{opacity:1}}@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}`
+@-webkit-keyframes fadeIn{0%{opacity:0}100%{opacity:1}}@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+.hidden {
+display: none
+}
+`
         document.head.appendChild(s)
     }
     static tracking = {}
@@ -710,7 +714,7 @@ class Elem {
     }
 
     hide(type) {
-        this.content.style.display = 'hidden'
+        this.addClass('hidden')
         return this
     }
     fadeOut() {
@@ -720,7 +724,7 @@ class Elem {
         this.anim({ class: 'fadeIn' }, () => this.content.style.opacity = 1)
     }
     show() {
-        this.content.style.display = ''
+        this.removeClass('hidden')
         return this
     }
 }
