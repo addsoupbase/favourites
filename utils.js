@@ -308,6 +308,7 @@ class Elem {
         if (Elem.loaded.includes(src)) {
             return
         }
+        Elem.progress(1)
         let x = new Image()
         x.src = src
         if (!src) {
@@ -315,6 +316,10 @@ class Elem {
         }
         x.onerror = function (err) {
             Elem.error(`Image error: ${err}`)
+            Elem.progress(-1)
+        }
+        x.onload = () =>{
+            Elem.progress(1)
         }
         Elem.loaded.push(src)
         Elem.info(`Preloading Image: ${x.src}`)
@@ -419,7 +424,14 @@ class Elem {
             return arr
         }
     }
+    static progress(b=-1) {
+        Elem.assetsToLoad += b
+        if (!Elem.assetsToLoad) {
+            Elem.assetsComplete?.()
+        }
+    }
     static {
+        document.body.onload =  ()=>Elem.progress(-1);
 
         let s = document.createElement('style')
         s.innerHTML = `.fadeOut{-webkit-animation:fadeOut 1s ease-out both;animation:fadeOut 1s ease-out both}
@@ -448,6 +460,7 @@ display: none
     }
     static tracking = {}
     static listeners = 0;
+    static assetsToLoad = 1;
     static warn(message) {
         if (!Elem.logLevels.warn) {
             return
