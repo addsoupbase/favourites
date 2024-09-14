@@ -429,8 +429,15 @@ class Elem {
     static progress(b=-1) {
         Elem.assetsToLoad += b
         if (!Elem.assetsToLoad) {
-            Elem.success('All assets pre-loaded.')
-            Elem.assetsComplete?.()
+            setTimeout(()=>{
+                if (!Elem.assetsToLoad) {
+                    Elem.success('All assets pre-loaded.')
+                    Elem.assetsComplete?.()
+                    delete Elem.assetsComplete
+                    delete Elem.assetsToLoad
+                }
+            },1000)
+      
         }
     }
     static {
