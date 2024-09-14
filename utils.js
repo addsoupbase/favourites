@@ -297,8 +297,8 @@ Object.defineProperty(color, 'dhk', {
     }, enumerable: false
 })
 Object.defineProperty(color,'log', {
-    value(color){
-        console.log('%c ◼', `color: ${color};font-size: 100px;`)
+    value(colr){
+        console.log('%c ◼', `color: ${colr};font-size: 100px;`)
     },
     enumerable:false,
 } )
