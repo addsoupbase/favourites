@@ -465,6 +465,14 @@ class Elem {
 .hidden {
 display: none
 }
+.center {
+margin: auto;
+position: fixed;
+align-items: center;
+justify-content: center;
+left: 50%;
+top: 50%;
+}
 `
         document.head.appendChild(s)
     }
