@@ -424,9 +424,12 @@ class Elem {
             return arr
         }
     }
+    static assetsComplete() {
+    }
     static progress(b=-1) {
         Elem.assetsToLoad += b
         if (!Elem.assetsToLoad) {
+            Elem.success('All assets pre-loaded.')
             Elem.assetsComplete?.()
         }
     }
