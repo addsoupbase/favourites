@@ -346,7 +346,8 @@ class Elem {
             throw TypeError('No source for image provided.')
         }
         x.onerror = function (err) {
-            Elem.error(`Image error: ${err.message}`)
+            console.log(err)
+            Elem.error(`Image error: ${x.src}`)
             Elem.progress(-1)
         }
         x.onload = () =>{
