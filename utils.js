@@ -460,7 +460,7 @@ class Elem {
     }
     static progress(b=-1) {
         Elem.assetsToLoad += b
-        if (!Elem.assetsToLoad) {
+      /*  if (!Elem.assetsToLoad) {
             setTimeout(()=>{
                 if (!Elem.assetsToLoad) {
                     Elem.success('All assets pre-loaded.')
@@ -468,9 +468,9 @@ class Elem {
                     delete Elem.assetsComplete
                     delete Elem.assetsToLoad
                 }
-            },1000)
+            },3000)
       
-        }
+        }*/
     }
     static {
         document.body.onload =  ()=>Elem.progress(-1);
