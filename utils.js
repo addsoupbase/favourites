@@ -622,7 +622,7 @@ top: 50%;
 for (let attribute of Elem.attributes) {
     Object.defineProperty(Elem.prototype, `${attribute}`, {
         get() {
-            return this.content.getAttribute(`${attribute}`)
+            return this.content[`${attribute}`]
         },
         set(val) {
             // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
@@ -630,7 +630,7 @@ for (let attribute of Elem.attributes) {
                 if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
                 Elem[`#${val}`] = this
             }
-            this.content.setAttribute(`${attribute}`, val)
+            this.content[`${attribute}`] = val
         }
     });
 }
