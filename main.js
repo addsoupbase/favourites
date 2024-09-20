@@ -1,12 +1,32 @@
 'use strict';
+document.querySelector('progress').remove()
 let あ = Elem, r = color
 あ.logLevels.debug = あ.logLevels.warn = あ.logLevels.error = あ.logLevels.info = あ.logLevels.success = true
 const canvas = new あ({ tag: 'canvas', id: 'bg' }, true),
     ctx = canvas.content.getContext('2d');
 const { sin, cos } = Math;
+let path =  new Path2D(`M601 2099 c-66 -13 -178 -70 -244 -123 -160 -131 -235 -369 -177
+    -558 41 -133 125 -220 334 -347 344 -209 604 -431 728 -622 17 -27 34 -49 38
+    -49 3 0 26 30 50 66 52 79 215 248 325 336 98 79 295 214 430 293 113 67 229
+    174 265 245 73 142 64 339 -23 490 -94 165 -294 280 -487 280 -209 0 -409
+    -126 -500 -315 -21 -44 -41 -101 -45 -127 -8 -61 -21 -61 -30 -1 -16 106 -106
+    251 -200 322 -138 104 -299 142 -464 110z m209 -39 c180 -28 355 -182 406
+    -358 9 -29 26 -65 39 -80 23 -26 24 -26 44 -8 11 10 28 41 37 70 50 152 145
+    266 276 330 296 145 657 -23 733 -340 39 -161 -1 -310 -110 -420 -45 -44 -78
+    -67 -260 -180 -278 -172 -487 -345 -629 -522 -32 -39 -62 -72 -66 -72 -4 0
+    -32 30 -62 68 -162 199 -384 376 -760 605 -159 98 -244 218 -255 360 -12 155
+    37 289 146 398 127 126 282 177 461 149z`);
+  
 window.canvas = canvas;
 canvas.ctx = ctx
-canvas.resize = function () { this.content.width = window.innerWidth; this.content.height = window.innerHeight }; canvas.frame = 0; canvas.toKill = []; canvas.all = [];
+canvas.resize = function () { 
+    if (this.content.width !== window.innerWidth) {
+        this.content.width = window.innerWidth; 
+    }
+    if (this.content.height !== window.innerHeight) {
+        this.content.height = window.innerHeight; 
+    }
+  }; canvas.frame = 0; canvas.toKill = []; canvas.all = [];
 canvas.update = function () {
     requestAnimationFrame(canvas.update); canvas.frame++; canvas.resize(); ctx.clearRect(0, 0, canvas.content.width, canvas.content.height)
     canvas.toKill.forEach(o => canvas.all.deleteWithin(o)); canvas.toKill = []
@@ -16,6 +36,8 @@ canvas.update = function () {
         context.lineCap = ctx.lineJoin = 'round';
         context.lineWidth = 1;
         context.textRendering = 'optimizeSpeed'
+     //   context.filter = "drop-shadow(0px 0px 3px #FFF)";
+
     }
     canvas.all/*.sort((a,b)=>a.layer-b.layer)*/.forEach(o => {
         ctx.beginPath()
@@ -27,9 +49,9 @@ canvas.update = function () {
         o.draw?.(canvas.frame, o.set.ctx)
 
     });
-if (!(canvas.frame % 1000) || canvas.frame === 1) {
-canvas.addParticles()
-}
+    if (!(canvas.frame % 1000) || canvas.frame === 1) {
+        canvas.addParticles()
+    }
     (canvas.frame % 50) || ((o => {
 
         let x = new a({
@@ -53,14 +75,14 @@ canvas.addParticles()
 }
 class a {
 
-    velocity = { x: 0, y: 0, a: 0, s: 0, o: 0 }; layer=0; fill = false; random2 = ran.range(-1,1); random = ran.range(-1, 1); glow = true; angle = 0; opacity = 1; constructor(o) {
+    velocity = { x: 0, y: 0, a: 0, s: 0, o: 0 }; layer = 0; fill = false; random2 = ran.range(-1, 1); random = ran.range(-1, 1); glow = true; angle = 0; opacity = 1; constructor(o) {
         //  setTimeout(()=>this.kill(),30000)
         this.set = o.set ?? canvas
         this.set.all.push(this)
         this.x = o.x ?? 0; this.y = o.y ?? 0; this.size = o.size ?? 10; this.shape = o.shape ?? 3; this.color = o.color ?? Object.values(r).pick()
     }
     draw(f, v) {
-        
+
         this.x -= this.velocity.x; this.y -= this.velocity.y; this.angle += this.velocity.a; this.size += this.velocity.s;
         //    this.x < -100 - this.size || this.x > (this.set.content.width + this.size + 100) && this.kill()
         //   this.y < -100 - this.size || this.y > (this.set.content.height + this.size + 100) && this.kill()
@@ -69,8 +91,8 @@ class a {
             return
         }
         this.opacity -= this.velocity.o
-        this.opacity = Math.max(0,this.opacity)
-            v.save()
+        this.opacity = Math.max(0, this.opacity)
+        v.save()
         v.globalAlpha = this.opacity
         v.translate(this.x, this.y)
         v.rotate(this.angle)
@@ -84,13 +106,34 @@ class a {
         if (!this.shape || this.shape === 1) { ctx.arc(0, 0, this.size, 0, Math.PI * 2) }
         else if (this.shape == 'bg') {
             this.fill ||= true
-                let pos = {
-                x: this.random > 0 ? cos(f/100) : sin(f/100),
-                y: this.random > 0 ? sin(f/100) : cos(f/100),
+            let pos = {
+                x: this.random > 0 ? cos(f / 100) : sin(f / 100),
+                y: this.random > 0 ? sin(f / 100) : cos(f / 100),
             }
-            v.globalAlpha = Math.min(f/100,this.opacity)
-            v.arc(pos.x *this.size*2, pos.y*this.size*2, this.size*10, 0, Math.PI * 2)
+            v.globalAlpha = Math.min(f / 100, this.opacity)
+            v.arc(pos.x * this.size * 2, pos.y * this.size * 2, this.size * 10, 0, Math.PI * 2)
         }
+        else if (this.shape == '[heart]') {
+        v.beginPath()
+        /*v.scale(0.04,0.04)
+        v.rotate(Math.PI)
+           v.translate(0,-3000)
+         v.fill(path)
+         v.stroke(path)*/
+         v.arc(0,0,this.size,0,Math.PI*2)
+         v.stroke()
+
+        }
+        else if (this.shape == '[sparkle]') {
+            v.beginPath()
+            v.moveTo(0,this.size)
+            v.lineTo(0,-this.size)
+            v.moveTo(this.size,0)
+            v.lineTo(-this.size,0)
+
+            v.stroke()
+    
+            }
         else if (typeof this.shape === 'string') {
             if (this.set === canvas) {
                 v.rotate(-this.angle)
@@ -123,29 +166,31 @@ class a {
         v.clip()
         v.restore()
     }
-    kill() { 
-        this.set.toKill.includes(this) || this.set.toKill.push(this) }
+    kill() {
+        this.set.toKill.includes(this) || this.set.toKill.push(this)
+    }
 }
 new あ({
     start() {
         this.anim({ class: 'bounce-in-top' },
             () => {
                 canvas.update();
-             for (let i = 30; i--;) {
-               let z= new a({shape: '♡', x: ran.range(0,canvas.width),y:canvas.height})
-               z.velocity.y = ran.range(1,5)
-               z.velocity.s = 0.1
-               z.fill = true
-               z.velocity.o = 0.004
-             }
+                for (let i = 30; i--;) {
+                    let z = new a({ shape: '[heart]', x: ran.range(0, canvas.width), y: canvas.height })
+                    z.velocity.y = ran.range(1, 5)
+                    z.velocity.s = 0.1
+                    z.fill = true
+                    z.velocity.o = 0.004
+                }
                 addEventListener('mousedown', (ev) => {
                     let x = new a({ shape: 0, size: 1, x: ev.x, y: ev.y, color: '#FFFFFF' })
                     x.velocity.s = 1
                     x.velocity.o = 0.01
                     for (let i = 10; i--;) {
-                        let n = new a({ shape: [...'✧⋆'].pick(), size: ran.frange(7, 10), color: r.pink, x: ev.x, y: ev.y })
+                        let n = new a({ shape: '[sparkle]', size: ran.frange(5, 10), color: r.pink, x: ev.x, y: ev.y })
                         n.velocity.x = ran.range(-1, 1)
                         n.velocity.y = ran.range(-1, 1)
+                        n.velocity.a=ran.range(-0.01,0.01)
                         n.velocity.o = 0.005
                     }
                 })
@@ -155,6 +200,7 @@ new あ({
                             this.content.noevent('click')
                             this.content.removeClass('clickable')
                             this.content.fadeOut()
+                            あ['#main'].fadeOut(thanks)
                         }
                     }
                 }, true)
@@ -170,7 +216,7 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', text: 'Color: <b>Teal</b>' }),
                         new あ({
-                            tag: 'input', type: 'color', class:['clickable'], events: [
+                            tag: 'input', type: 'color', class: ['clickable'], events: [
                                 ['change', function () {
                                     あ.$('#color').content.style.backgroundColor = this.value
                                 }]
@@ -208,90 +254,92 @@ new あ({
                 new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
-                        new あ({tag:'img', class: ['clickable', 'preview'], src: './media/js.webp', events: {
-                            click(){
-                                this.content.anim({class:'rotate-center',},()=>{
-                                    for (let i = 10; i--;) {
-                                        let x = new a({ x: canvas.content.width + 100, y: ran.range(0, canvas.content.height), shape: 'JavaScript', size: 20 + ran.range(1, 10) })
-                                        x.velocity = { x: ran.frange(1, 5), y: 0, a: ran.range(-0.1, 0.1), s: 0, o: 0 }
+                        new あ({
+                            tag: 'img', class: ['clickable', 'preview'], src: './media/js.webp', events: {
+                                click() {
+                                    this.content.anim({ class: 'rotate-center', }, () => {
+                                        for (let i = 10; i--;) {
+                                            let x = new a({ x: canvas.content.width + 100, y: ran.range(0, canvas.content.height), shape: 'JavaScript', size: 20 + ran.range(1, 10) })
+                                            x.velocity = { x: ran.frange(1, 5), y: 0, a: ran.range(-0.1, 0.1), s: 0, o: 0 }
 
-                                    }
-                                })
-                            }
-                        }, style:'border-radius: 10%;'})
-                  /*      new あ({
-                            tag: 'div', id: 'code', events: [
-                                ['click', newName]
-                            ], children: [
-                                new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'function ' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'newName' }),
-                                new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '() {' }),
-                                new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'if' }),
-                                new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'confirm' }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `"Would you like a random name?"` }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
-                                new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: ')' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '{' }),
-
-                                new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
-                                new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `""` }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
-                                new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'for' }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '5' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '--;' }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '+=' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'String' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'fromCharCode' }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'floor' }),
-
-                                new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'random' }),
-                                new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '()' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '* 0xFFFF' }),
-
-                                new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: ')' }),
-
-
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
-
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'alert' }),
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "`Your new name is " }),
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '${' }),
-                                new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
-
-                                new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '}' }),
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "!`" }),
-
-                                new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
-
-                                new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '}' }),
-
-                                new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '}' }),
-
-
-
-                            ]
-                        }),*/
+                                        }
+                                    })
+                                }
+                            }, style: 'border-radius: 10%;'
+                        })
+                        /*      new あ({
+                                  tag: 'div', id: 'code', events: [
+                                      ['click', newName]
+                                  ], children: [
+                                      new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'function ' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'newName' }),
+                                      new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '() {' }),
+                                      new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'if' }),
+                                      new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'confirm' }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `"Would you like a random name?"` }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+                                      new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: ')' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '{' }),
+      
+                                      new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
+                                      new あ({ tag: 'code', style: 'color: green', class: ['raw'], text: `""` }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+                                      new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: 'for' }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: cyan', class: ['raw'], text: 'let ' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '=' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '5' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'i' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '--;' }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '+=' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'String' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'fromCharCode' }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'floor' }),
+      
+                                      new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'Math' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '.' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'random' }),
+                                      new あ({ tag: 'code', style: 'color: #8b3dd9', class: ['raw'], text: '()' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '* 0xFFFF' }),
+      
+                                      new あ({ tag: 'code', style: 'color: yellow', class: ['raw'], text: ')' }),
+      
+      
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: `;` }),
+      
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: 'alert' }),
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: '(' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "`Your new name is " }),
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '${' }),
+                                      new あ({ tag: 'code', style: 'color: magenta', class: ['raw'], text: 'str' }),
+      
+                                      new あ({ tag: 'code', style: 'color: grey', class: ['raw'], text: '}' }),
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: "!`" }),
+      
+                                      new あ({ tag: 'code', style: 'color: lightblue', class: ['raw'], text: ')' }),
+      
+                                      new あ({ tag: 'code', style: 'color: pink', class: ['raw'], text: '}' }),
+      
+                                      new あ({ tag: 'code', style: 'color: orange', class: ['raw'], text: '}' }),
+      
+      
+      
+                                  ]
+                              }),*/
                     ]
                 }),
             ]
@@ -401,12 +449,14 @@ new あ({
                 new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                        new あ({tag:'img', class:['preview', 'clickable'], title:'Gravity Falls (2012)', src: Elem.img('./media/gravityfalls.webp'), events: {
-                            click(){
-                                open('https://www.youtube.com/watch?v=o2E2wLm_LlY&list=PLg6R6yXKSLYBomPPcqXGzaQI0pCZc8uZA')
+                        new あ({
+                            tag: 'img', class: ['preview', 'clickable'], title: 'Gravity Falls (2012)', src: Elem.img('./media/gravityfalls.webp'), events: {
+                                click() {
+                                    open('https://www.youtube.com/watch?v=o2E2wLm_LlY&list=PLg6R6yXKSLYBomPPcqXGzaQI0pCZc8uZA')
+                                }
                             }
-                        }})
-                    //    new あ.youtube({ src: 'https://www.youtube.com/embed/o2E2wLm_LlY' }),
+                        })
+                        //    new あ.youtube({ src: 'https://www.youtube.com/embed/o2E2wLm_LlY' }),
                     ]
                 }),
             ]
@@ -419,7 +469,7 @@ new あ({
                         new あ({
                             tag: 'h1', class: ['clickable'], text: '49', id: '49', events: [
                                 ['click', () => {
-                                    あ['#49'].anim({class:'jello-horizontal'})
+                                    あ['#49'].anim({ class: 'jello-horizontal' })
                                     for (let i = 10; i--;) {
                                         let x = new a({ x: canvas.content.width + 100, y: ran.range(0, canvas.content.height), shape: '49', size: 20 + ran.range(1, 10) })
                                         x.velocity = { x: ran.frange(1, 5), y: 0, a: ran.range(-0.1, 0.1), s: 0, o: 0 }
@@ -492,53 +542,80 @@ new あ({
             ]
         }),
         new あ({
-            tag: 'div', class: ['holder'], id:'formtab', style: 'background-color:#3bc736', children: [
-              new あ({tag:'p',text:'Send me a message if you want :3'}),
-              new あ({tag:'form', id:'mainform', events: {
-                submit(a) {
-                    a.preventDefault();
-                    あ['#submitBtn'].noevent('click')
-                    あ['#formtab'].anim({class:'slide-out-right'}, function(){
-                        this.content.kill()
-                    })
-                ;(async ()=>{
-                    const data = new URLSearchParams();
-                    let actionUrl = あ['#mainform'].content.action
-                    data.append('name',あ['#formName'].content.value)
-                    data.append('message',あ['#formMessage'].content.value)
-                    console.log(actionUrl)
-                    let x = await fetch(actionUrl,{
-                        method: 'POST',
-                        body: data,
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'Accept': 'application/json'
+            tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
+                new あ({ tag: 'p', text: 'Send me a message if you want :3' }),
+                new あ({
+                    tag: 'div', id: 'mainform', children: [
+                        new あ({
+                            tag: 'label', text: 'Name (optional)', for:'formName'
+                        }),
+                        new あ({ tag: 'input', class:['cute-input'],id: 'formName', name: 'name',placeholder:'namey name', value: 'anonymous' }),
+                     
+                        new あ({ tag: 'input', class:['cute-input'],id: 'formMessage', name: 'message', placeholder: 'Your message here...', events:{click(){
+                            this.content.placeholder=`Your message here...`
+                        }} }),
+                        
+                    ]
+                }),
+                new あ({
+                    tag: 'button', id: 'submitBtn',class:['cute-button'], events: {
+                        click() {
+                            if (!あ['#formMessage'].content.value) {
+                                あ['#formMessage'].placeholder='PUT A MESSAGE SILLY'
+                                あ['#formMessage'].anim({class:'shake-horizontal'})
+                                return
+                            }
+                            あ['#submitBtn'].noevent('click')
+                            あ['#submitBtn'].kill()
+                            あ['#loading'].show()
+                            あ['#formMessage'].disabled = あ['#formName'].disabled = true
+                            
+                                ; (async () => {
+                                 let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
+                                        method: 'POST',
+                                        body: `name=${あ['#formName'].content.value||'anonymous'}&message=${あ['#formMessage'].content.value}`,
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                            'Accept': 'application/json'
+                                        }
+                                    })
+                                 
+                                    if (x.ok) {
+                                        あ['#formtab'].anim({ class: 'slide-out-right' }, function () {
+                                            this.content.kill()
+                                        })
+                                    }
+                                    else {
+                                        confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
+                                    }
+                                })()
                         }
-                    
-                    })
+                    }, 
+                    text: 'Send'
+                }),
 
-                 
-                })()
-                }
-              },action:'https://formspree.io/f/mgvwbzvd',method: 'POST', children: [
-                new あ({tag:'label', text:'Name (optional)', children: [
-                    new あ({tag: 'input', id:'formName', name:'name', value: 'anonymous'})
-                ]}),
-                 new あ({tag:'button', type:'submit', id:'submitBtn',
-                 text:'Send'}),
-                 new あ({tag:'textarea',  id:'formMessage',name: 'message', required: 'true',placeholder:'Your message here...'})
-              ]}),
+                new あ({tag:'img', class:['emoji2','hidden'],id:'loading',src:'./media/heartmessage.webp'}),
+           /*     new あ({tag:'div',class:['hidden'],id:'loading',children:[
+                    new あ({tag:'img', class:['emoji'],src:'./media/yb.webp'}),
+                    new あ({tag:'img', class:['emoji'],src:'./media/tb.webp'})
 
+
+                ]})*/
             ]
         }),
     ]
 }, true)
-function newName() {
-    if (confirm('Would you like a random name?')) {
-        let str = ''
-        for (let i = 5; i--;) str += String.fromCharCode(Math.floor(Math.random() * 0xFFFF))
-        alert(`Your new name is ${str}!`)
-    }
+
+function thanks() {
+    あ['#main'].kill()
+ let n =  new あ({tag:'div', start(){this.hide},children: [
+        new あ({tag:'p',text:'THANK YOU FOR VIEWING THIS IT MEANS A LOT TO ME HONESTLY!!<br>I MADE IT MYSELF'}),
+        new あ({tag:'img', src: Elem.img('./media/grouphug.webp')}),
+        new あ({tag:'p',text:'Message me a screenshot if you see this'}),
+    
+    ],id:'main2'},true)
+    n.anim({class:'roll-in-left'})
+    
 }
 
 
@@ -562,7 +639,8 @@ let examples = [{
 const letters = 'abcdefghijklmnopqrstuvwxyz'
 let current = 0,
     current2 = 0;
-let avatars = [Elem.img('./media/towa.webp'), Elem.img('./media/marnie.webp'), Elem.img('./media/kiss.webp'),
+let avatars = [
+    Elem.img('./media/towa.webp'), Elem.img('./media/marnie.webp'), Elem.img('./media/kiss.webp'),
 Elem.img('./media/mismagius.webp'),
 Elem.img('./media/poke.webp'),
 Elem.img('./media/coffee.webp'),
@@ -600,17 +678,16 @@ function cycleImage() {
     あ['#desc'].content.innerHTML = examples[current].description
     あ['#caption'].content.innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
-canvas.addParticles = ()=> {
-    canvas.all.forEach(o=>{
+canvas.addParticles = () => {
+    canvas.all.forEach(o => {
         if (o.shape == 'bg') {
             o.kill()
         }
     })
     for (let i = 4; i--;) {
-                    let m = new a({ shape: 'bg',size:  ran.range(10,20), color: ran.choose('#FF0000', '#00FF00', '#0000FF'), x: ran.range(0, canvas.width), y: ran.range(0,canvas.height) })
-                    m.opacity = 0.2
-                    m.layer = 1
+        let m = new a({ shape: 'bg', size: ran.range(10, 20), color: ran.choose('#FF0000', '#00FF00', '#0000FF'), x: ran.range(0, canvas.width), y: ran.range(0, canvas.height) })
+        m.opacity = 0.2
+        m.layer = 1
 
-                }
+    }
 }
-

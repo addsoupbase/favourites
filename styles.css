@@ -7,23 +7,88 @@ input{
     height: 100%;
 }
 
-button {
-    border-radius: 5px;
-    border-color: #a4712d;
-    background-color: #a4712d;
+.cute-button {
+    padding: 15px 25px;
+    font-size: 16px;
+    color: white;
+    background-color: #ff6b81; /* Soft pink color */
+    border: none;
+    border-radius: 25px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
+.cute-button:hover {
+    background-color: #ff4d69; /* Darker pink on hover */
+    transform: scale(1.05); /* Slightly larger on hover */
+}
+
+.cute-button:active {
+    transform: scale(0.95); /* Smaller when clicked */
+}
+.cute-input {
+    padding: 15px;
+    font-size: 16px;
+    color: #333;
+    border: 2px solid #ff6b81; /* Soft pink border */
+    border-radius: 25px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    outline: none; /* Remove default outline */
+    filter: drop-shadow(0 0mm 0mm rgb(160, 0, 210));
+    transition: border-color 0.3s, box-shadow 0.3s, filter 0.3s;
+}
+body {
+       display: flex;
+            align-items: center;
+            justify-content: center;
+}
+.cutesy {
+    color: magenta;
+    font-family: 'Chococooky';
+    font-size: 30px;
+    margin: 0px;
+}
+@font-face {
+    src: url('./media/Chococooky.ttf');
+    font-family:'Chococooky';
+    font-style: normal;
+  }
+.cute-input:focus {
+    filter: drop-shadow(0 0mm 1mm rgb(160, 0, 210));
+    transition: filter 0.3s;
+    border-color: #ff4d69; /* Darker pink on focus */
+    box-shadow: 0 0 8px rgba(255, 107, 129, 0.5); /* Glow effect */
+}
+
+.cute-input::placeholder {
+    color: #aaa; /* Lighter color for placeholder */
+    opacity: 1; /* Make sure the placeholder is visible */
+}
 #foot {
     text-align: center;
     position: fixed;
     z-index: 100;
     top: 95%;
+    left:1%
 }
 
 .emoji {
     max-width: 25px;
 }
+.emoji2 {
+    max-width: 50px;
+    animation: shrinkGrow 1s infinite ease-in-out; /* Infinite animation */
 
+}
+@keyframes shrinkGrow {
+    0%, 100% {
+        transform: scale(1); /* Original size */
+    }
+    50% {
+        transform: scale(0.5); /* Shrink to 50% */
+    }
+}
 div {
     overflow-wrap: anywhere;
     margin: auto;
@@ -31,7 +96,7 @@ div {
 
 }
 
-#main {
+#main,#main2 {
     border-style: dotted;
     border-color:  rgba(186, 23, 164, 0.2);
     position: relative;
@@ -45,6 +110,14 @@ div {
     max-width: fit-content;
     max-height: 50%;
     overflow-y: hidden;
+}
+#main2 {
+    border-color:  rgba(23, 186, 175, 0.2);
+    background-color: rgba(23, 186, 175, 0.2);
+    position: fixed;
+    top:25%;
+    max-width: 300px;
+
 }
 
 .preview {
