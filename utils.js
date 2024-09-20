@@ -1,5 +1,7 @@
 'use strict';
-
+Math.toRad=deg=>deg*Math.PI/180;
+Math.toDeg=rad=>rad*180/Math.PI;
+Math.diff=(a,b)=>Math.abs(a-b);Math.clamp=(val,min,max)=>{if(val>max)return max;if(val<min)return min;return val}
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min
