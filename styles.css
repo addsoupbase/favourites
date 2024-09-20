@@ -37,6 +37,8 @@ input{
     outline: none; /* Remove default outline */
     filter: drop-shadow(0 0mm 0mm rgb(160, 0, 210));
     transition: border-color 0.3s, box-shadow 0.3s, filter 0.3s;
+    margin-left: auto;
+    margin-right: auto;
 }
 body {
        display: flex;
