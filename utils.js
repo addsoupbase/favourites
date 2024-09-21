@@ -281,7 +281,7 @@ class Elem {
     static clear() {
         while (Elem.elements.length) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','disabled', 'href', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for','disabled', 'href', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src','maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static $(query) {
         if (query.includes('#')) {
             return document.getElementById(query.replace('#', ''))?.content
