@@ -10,6 +10,13 @@ ran.frange = (min, max) => Math.floor(ran.range(min, max))
 String.prototype.last = Array.prototype.last = function () {
     return this[this.length - 1]
 }
+String.prototype.shorten = function (len=32) {
+    let newstr = this
+    if (newstr.length > len) {
+        newstr=newstr.slice(0,len)
+    }
+    return newstr
+}
 const sane = {
     isInt: n => Math.trunc(n) === n,
     sanitize: num => (num == num) && num !== null && isFinite(num),
