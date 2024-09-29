@@ -568,6 +568,7 @@ class Elem {
             this.styleMe(...opts.styles)
         }
         if (opts.parent) {
+            if (typeof opts.parent == 'string') opts.parent = Elem[`#${opts.parent}`]
             this.appendTo(opts.parent)
         }
         this.current = this.content
@@ -595,8 +596,8 @@ class Elem {
      */
     appendTo(parent) {
         if (typeof parent === 'string') {
-            Elem.$('#' + parent).content.appendChild(this.content)
-            return
+          Elem.error('Cannot use string as parent value')
+          return
         }
         try {
             parent.appendChild(this.content)
@@ -988,7 +989,9 @@ const body = window.body
 async function getDataUrl(url) {
     let response;
     try { 
-        response = await fetch(url);
+        response = await fetch(url,{   method: 'GET',
+            mode: 'cors'
+            })
         if (!response.ok) {
             Elem.error(`Failed to fetch image. Status: ${response.status}`);
             throw '';
