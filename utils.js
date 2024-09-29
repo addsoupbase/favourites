@@ -991,11 +991,11 @@ async function getDataUrl(url) {
         response = await fetch(url);
         if (!response.ok) {
             Elem.error(`Failed to fetch image. Status: ${response.status}`);
-            return '';
+            throw '';
         }
     } catch (e) { 
         Elem.error(`Image Error: ${url} - ${e.message}`); 
-        return ''; 
+        throw ''; 
     }
 
     let data;
