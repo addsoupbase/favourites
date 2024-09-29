@@ -1,22 +1,29 @@
 'use strict';
-Math.toRad=deg=>deg*Math.PI/180;
-Math.toDeg=rad=>rad*180/Math.PI;
-Math.diff=(a,b)=>Math.abs(a-b);Math.clamp=(val,min,max)=>{if(val>max)return max;if(val<min)return min;return val}
+// "var" indicates the code is not mine.
+
+/* Gif to webp: 
+
+gif2webp file.gif -o file.webp
+
+*/
+/* Png to webp
+
+cwebp file.png -o file.webp
+
+*/
+
+/* NUMBER STUFF */
+Math.toRad = deg => deg * Math.PI / 180;
+Math.toDeg = rad => rad * 180 / Math.PI;
+Math.diff = (a, b) => Math.abs(a - b);
+Math.clamp = (val, min, max) => { if (val > max) return max; if (val < min) return min; return val }
+
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
-    range: (min, max) => Math.random() * (max - min) + min
+    range: (min, max) => Math.random() * (max - min) + min,
+    frange: (min, max) => Math.floor(ran.range(min, max))
 }
-ran.frange = (min, max) => Math.floor(ran.range(min, max))
-String.prototype.last = Array.prototype.last = function () {
-    return this[this.length - 1]
-}
-String.prototype.shorten = function (len=32) {
-    let newstr = this
-    if (newstr.length > len) {
-        newstr=newstr.slice(0,len)
-    }
-    return newstr
-}
+
 const sane = {
     isInt: n => Math.trunc(n) === n,
     sanitize: num => (num == num) && num !== null && isFinite(num),
@@ -42,6 +49,49 @@ const sane = {
         return true
     }
 }
+
+Number.prototype.comma = function () {
+    return `${this}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+}
+
+/* STRING STUFF */
+String.prototype.last = Array.prototype.last = function () {
+    return this[this.length - 1]
+}
+String.prototype.shorten = function (len = 32) {
+    let newstr = this
+    if (newstr.length > len) {
+        newstr = newstr.slice(0, len)
+    }
+    return newstr
+}
+String.prototype.toOrdinal = function () {
+    switch (this.last()) {
+        case '1':
+            return this + 'st'
+        case '2':
+            return this + 'nd'
+        case '3':
+            return this + 'rd'
+        default:
+            return this + 'th'
+    }
+}
+String.prototype.reverse = function () {
+    return [...this].reverse().join("")
+}
+String.prototype.upper = function () {
+    return this[0].toUpperCase() + this.slice(1)
+}
+/* ARRAY STUFF */
+Array.prototype.insertAt = function (item, index) {
+    let leftSide = this.slice(0, index),
+        rightSide = this.slice(index, this.length)
+
+    this.length = 0;
+    return this.push(...leftSide, item, ...rightSide), this
+};
 Array.prototype.backwards = function (func) {
     for (let i = this.length; i--;) {
         if (i in this) {
@@ -58,20 +108,6 @@ Array.prototype.center = function () {
     return this[Math.floor(this.length / 2)]
 
 }
-String.prototype.toOrdinal = function () {
-    switch (this.last()) {
-        case '1':
-            return this + 'st'
-        case '2':
-            return this + 'nd'
-        case '3':
-            return this + 'rd'
-        default:
-            return this + 'th'
-    }
-}
-
-
 Array.prototype.average = function (type) {
     if (!this.length) return NaN; // Handle empty array case
 
@@ -102,17 +138,6 @@ Array.prototype.average = function (type) {
         return sorted.reduce((a, b) => a + b, 0) / sorted.length;
     }
 };
-
-String.prototype.reverse = function () {
-    return [...this].reverse().join("")
-}
-
-String.prototype.upper = function () {
-    return this[0].toUpperCase() + this.slice(1)
-}
-
-
-
 Array.prototype.swap = function (a, b) {
     [this[a], this[b]] = [this[b], this[a]]
 
@@ -154,43 +179,92 @@ Array.prototype.shuffle = function () {
 Array.prototype.pick = function () {
     return ran.choose(...this)
 }
-const color = Object.defineProperties({ aliceblue: "#f0f8ff", antiquewhite: "#faebd7", aqua: "#00ffff", aquamarine: "#7fffd4", azure: "#f0ffff", beige: "#f5f5dc", bisque: "#ffe4c4", black: "#000000", blanchedalmond: "#ffebcd", blue: "#0000ff", blueviolet: "#8a2be2", brown: "#a52a2a", burlywood: "#deb887", cadetblue: "#5f9ea0", chartreuse: "#7fff00", chocolate: "#d2691e", coral: "#ff7f50", cornflowerblue: "#6495ed", cornsilk: "#fff8dc", crimson: "#dc143c", cyan: "#00ffff", darkblue: "#00008b", darkcyan: "#008b8b", darkgoldenrod: "#b8860b", darkgray: "#a9a9a9", darkgreen: "#006400", darkkhaki: "#bdb76b", darkmagenta: "#8b008b", darkolivegreen: "#556b2f", darkorange: "#ff8c00", darkorchid: "#9932cc", darkred: "#8b0000", darksalmon: "#e9967a", darkseagreen: "#8fbc8f", darkslateblue: "#483d8b", darkslategray: "#2f4f4f", darkturquoise: "#00ced1", darkviolet: "#9400d3", deeppink: "#ff1493", deepskyblue: "#00bfff", dimgray: "#696969", dodgerblue: "#1e90ff", firebrick: "#b22222", floralwhite: "#fffaf0", forestgreen: "#228b22", fuchsia: "#ff00ff", gainsboro: "#dcdcdc", ghostwhite: "#f8f8ff", gold: "#ffd700", goldenrod: "#daa520", gray: "#808080", grey: "#808080", green: "#008000", greenyellow: "#adff2f", honeydew: "#f0fff0", hotpink: "#ff69b4", indianred: "#cd5c5c", indigo: "#4b0082", ivory: "#fffff0", khaki: "#f0e68c", lavender: "#e6e6fa", lavenderblush: "#fff0f5", lawngreen: "#7cfc00", lemonchiffon: "#fffacd", lightblue: "#add8e6", lightcoral: "#f08080", lightcyan: "#e0ffff", lightgoldenrodyellow: "#fafad2", lightgray: "#d3d3d3", lightgreen: "#90ee90", lightpink: "#ffb6c1", lightsalmon: "#ffa07a", lightseagreen: "#20b2aa", lightskyblue: "#87cefa", lightslategray: "#778899", lightsteelblue: "#b0c4de", lightyellow: "#ffffe0", lime: "#00ff00", limegreen: "#32cd32", linen: "#faf0e6", magenta: "#ff00ff", maroon: "#800000", mediumaquamarine: "#66cdaa", mediumblue: "#0000cd", mediumorchid: "#ba55d3", mediumpurple: "#9370db", mediumseagreen: "#3cb371", mediumslateblue: "#7b68ee", mediumspringgreen: "#00fa9a", mediumturquoise: "#48d1cc", mediumvioletred: "#c71585", midnightblue: "#191970", mintcream: "#f5fffa", mistyrose: "#ffe4e1", moccasin: "#ffe4b5", navajowhite: "#ffdead", navy: "#000080", oldlace: "#fdf5e6", olive: "#808000", olivedrab: "#6b8e23", orange: "#ffa500", orangered: "#ff4500", orchid: "#da70d6", palegoldenrod: "#eee8aa", palegreen: "#98fb98", paleturquoise: "#afeeee", palevioletred: "#db7093", papayawhip: "#ffefd5", peachpuff: "#ffdab9", peru: "#cd853f", pink: "#ffc0cb", plum: "#dda0dd", powderblue: "#b0e0e6", purple: "#800080", rebeccapurple: "#663399", red: "#ff0000", rosybrown: "#bc8f8f", royalblue: "#4169e1", saddlebrown: "#8b4513", salmon: "#fa8072", sandybrown: "#f4a460", seagreen: "#2e8b57", seashell: "#fff5ee", sienna: "#a0522d", silver: "#c0c0c0", skyblue: "#87ceeb", slateblue: "#6a5acd", slategray: "#708090", snow: "#fffafa", springgreen: "#00ff7f", steelblue: "#4682b4", tan: "#d2b48c", teal: "#008080", thistle: "#d8bfd8", tomato: "#ff6347", turquoise: "#40e0d0", violet: "#ee82ee", wheat: "#f5deb3", white: "#ffffff", whitesmoke: "#f5f5f5", yellow: "#ffff00", yellowgreen: "#9acd32" }, { dhk: { value(e, f = 40) { let $ = parseInt((e = e.replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join("") }, enumerable: !1 }, log: { value(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }, enumerable: !1 }, opposite: { value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error("Invalid HEX color."); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + padZero(f) + padZero($) + padZero(a) }, enumerable: !1 } });
-Object.entries({
-    //Extra colors ^
-}).forEach(o => { color[o[0]] = o[1] })
 
-function padZero(str, len=2) {
+
+
+
+
+
+
+
+
+
+/* MISC FUNCTIONS */
+function gen(len = 6) {
+    let str;
+    do {
+        str = ''
+        for (let i = len; i--;) str += ran.choose(..._alphabet, ..._numbers, ..._ALPHABET);
+    } while (gen.previouslyGenerated.has(str))
+    gen.previouslyGenerated.add(str)
+    return str
+}
+gen.previouslyGenerated = new Set
+let _alphabet = 'qwertyuiopasdfghjklzxcvbnm', _numbers = '0123456789',
+    _ALPHABET = _alphabet.toLocaleUpperCase()
+
+function getNodeSize(node) {
+    let t = node.getBoundingClientRect()
+    t.center = {
+        x: t.left + t.width / 2,
+        y: t.top + t.height / 2
+
+    }
+    return t
+}
+function checkVisible(elm) {
+  //  if (checkVisible.blured) return true
+    var rect = elm.getBoundingClientRect();
+    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
+
+    return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0);
+}
+checkVisible.blured = false;
+function padZero(str, len = 2) {
     var zeros = new Array(len).join('0');
     return (zeros + str).slice(-len);
 }
+//addEventListener('blur', ()=>checkVisible.blured=true)
+//addEventListener('focus', ()=>checkVisible.blured=false)
+
+/* CLASSES */
 class Elem {
-    age=Date.now()
+    age = Date.now()
     static textStyle(message, options) {
         this.history[message] ??= 0
         this.history[message]++
         console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     }
-    static history = {}
-    static loaded = [];
-    static img(src) {
-        if (Elem.loaded.includes(src)) {
-            return
+    styleMe(...prop) {
+        if (!Array.isArray(prop[0]) && typeof prop[0] == 'object' && arguments.length === 1) {
+            prop = Object.entries(prop[0])
         }
-        Elem.progress(1)
-        let x = new Image()
-        x.src = src
+        for (let [propName, propValue] of prop) {
+            this.content.style.setProperty(propName, propValue)
+        }
+    }
+    static history = {}
+    static loaded = new Set;
+    static failed = new Set
+    static img(src) {
+        if (Elem.loaded.has(src)) {
+            return src
+        }
+     
         if (!src) {
             throw TypeError('No source for image provided.')
         }
+        let x = new Image()
+        x.src = src
         x.onerror = function (err) {
-            console.log(err)
+            console.error('Error: ',err)
             Elem.error(`Image error: ${x.src}`)
-            Elem.progress(-1)
+            Elem.failed.add(x.src)
         }
         x.onload = () => {
-            Elem.progress(-1)
         }
-        Elem.loaded.push(src)
+        Elem.loaded.add(src)
         Elem.info(`Preloading Image: ${x.src}`)
         return src
 
@@ -279,11 +353,34 @@ class Elem {
 
     }*/
     static clear() {
-        while (Elem.elements.length) Elem.elements.forEach(o => o.kill())
+        while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','disabled', 'href', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src','maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for', 'disabled', 'href', 'draggable', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static {
+       
+        for (let attribute of this.attributes) {
+            Object.defineProperty(Elem.prototype, `${attribute}`, {
+                get() {
+                    return this.content[`${attribute}`]
+                },
+                set(val) {
+                    // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
+                    if (attribute === 'id') {
+                        if (this[`#${val}`]) this.warn(`Duplicate ID name: ${val}`);
+                        this[`#${val}`] = this
+                    }
+                    else if (attribute === 'style') {
+                        Elem.warn(`Use "styles" instead of "style"`)
+                    }
+                    this.content[`${attribute}`] = val
+                }
+            });
+        }
+
+    }
     static $(query) {
         if (query.includes('#')) {
+            Elem.warn(`Use あ['${query}'] instead of あ.$`)
             return document.getElementById(query.replace('#', ''))?.content
         } else {
             let arr = []
@@ -293,59 +390,6 @@ class Elem {
             return arr
         }
     }
-    static assetsComplete() {
-    }
-    static progress(b = -1) {
-        Elem.assetsToLoad += b
-        /*  if (!Elem.assetsToLoad) {
-              setTimeout(()=>{
-                  if (!Elem.assetsToLoad) {
-                      Elem.success('All assets pre-loaded.')
-                      Elem.assetsComplete?.()
-                      delete Elem.assetsComplete
-                      delete Elem.assetsToLoad
-                  }
-              },3000)
-        
-          }*/
-    }
-    static {
-        document.body.onload = () => Elem.progress(-1);
-
-        let s = document.createElement('style')
-        s.innerHTML = `.fadeOut{-webkit-animation:fadeOut 1s ease-out both;animation:fadeOut 1s ease-out both}
-    /* ----------------------------------------------
-* Generated by Animista on 2024-9-10 16:55:54
-* Licensed under FreeBSD License.
-* See http://animista.net/license for more info. 
-* w: http://animista.net, t: @cssanimista
-* ---------------------------------------------- */
-
-@-webkit-keyframes fadeOut{0%{opacity:1}100%{opacity:0}}@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}
-.fadeIn{-webkit-animation:fadeIn 1.2s cubic-bezier(.39,.575,.565,1.000) both;animation:fadeIn 1.2s cubic-bezier(.39,.575,.565,1.000) both}
-/* ----------------------------------------------
-* Generated by Animista on 2024-9-10 16:56:42
-* Licensed under FreeBSD License.
-* See http://animista.net/license for more info. 
-* w: http://animista.net, t: @cssanimista
-* ---------------------------------------------- */
-
-@-webkit-keyframes fadeIn{0%{opacity:0}100%{opacity:1}}@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
-.hidden {
-display: none
-}
-.center {
-margin: auto;
-position: fixed;
-align-items: center;
-justify-content: center;
-left: 50%;
-top: 50%;
-}
-`
-        document.head.appendChild(s)
-    }
-    static tracking = {}
     static listeners = 0;
     static assetsToLoad = 1;
     static warn(message) {
@@ -361,6 +405,7 @@ top: 50%;
         Elem.textStyle(`[ERROR] ${message}`, { textColor: color.red, size: 15 })
     }
     static findClass(className) {
+        return true
         const styleSheets = document.styleSheets;
         // Loop through each stylesheet
         for (let i = 0; i < styleSheets.length; i++) {
@@ -393,10 +438,10 @@ top: 50%;
     }
     static messages = {
         noclass(msg) {
-            Elem.warn(`"${msg}" currently does not exist within the documents Style Sheets`)
+            Elem.warn(`"${msg}" currently does not exist withinto the documents Style Sheets`)
         }
     }
-    static elements = []
+    static elements = new Set
     static logLevels = {
         debug: false,
         warn: false,
@@ -404,26 +449,69 @@ top: 50%;
         info: false,
         success: false,
     }
-    static select(identifier) {
-        let element = $search(identifier)
-        Object.setPrototypeOf(element, this.prototype)
-        return element.current
+    static select(element) {
+        let out = new Elem({ self: element })
+        if (out.content.children) {
+            for (let node of out.content.children) {
+                if (node.nodeName.match(/NOSCRIPT|SCRIPT/)) continue
+                if ('content' in node && node instanceof Elem) {
+                    out.children.push(node)
+                    node.content.parent = out
+                }
+                else {
+                    let f = Elem.select(node)
+                    f.parent = out
+                }
+            }
+        }
+
+        return out
     }
-  
+    static {
+        let body = window.body = this.select(document.body);
+        let head = [...document.head.children]
+        let charSet = false, name = false, ogDesc = false, ogImage = false, ogUrl = false, viewport = false, ogTitle
+        head.forEach(o => {
+            let butes = o.attributes
+            // console.log(butes)
+            if (butes.charset) charSet = true
+            if (butes.name) name = true;
+            if (butes[0]?.textContent === 'og:description') ogDesc ||= true
+            if (butes[0]?.textContent === 'og:image') ogImage ||= true
+            if (butes[0]?.textContent === 'og:url') ogUrl ||= true
+            if (butes[0]?.textContent === 'og:title') ogTitle ||= true
+            if (butes[0]?.nodeValue === 'viewport' && butes[1]?.nodeValue === 'width=device-width') viewport ||= true
+
+        })
+        if (document.title?.match?.(/Untitled|Document/) || !document.title) console.warn('Consider giving this document a title.')
+        if (!charSet) console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
+        if (!viewport) console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width"> into the head of this document.')
+        if (!ogImage) console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
+        if (!ogTitle) console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
+
+    }
     constructor(opts, immediate) {
-        if (!opts?.tag) {
+        if (!opts?.tag && !opts.self) {
             Elem.error('No tag was provided so i cannot make the new node.')
             return
         }
-        if (Elem.logLevels.debug) {
+        if (Elem.logLevels.debug && !opts.self) {
             let arr = ''
             for (let [key, value] of Object.entries(opts)) {
+                if (typeof value == 'object') {
+                    value = Object.entries(value)
+                    let str = ''
+                    for (let [_key, _value] of value) {
+                        str += `${_key}: ${_value}\n`
+                    }
+                    value = str
+                }
 
                 arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
             }
             Elem.debug(`New <${opts.tag}> element:\n ${arr}`)
         }
-      
+
         this.eventNames = {}
         Object.defineProperty(this.eventNames, 'trigger', {
             enumerable: false, value: (search) => {
@@ -438,19 +526,30 @@ top: 50%;
                 }
             }
         })
-        this.content = document.createElement(opts.tag)
-        Elem.elements.push(this)
+        if (opts.self) {
+            this.content = opts.self
+            opts.self.getAttribute('id') && (opts.id = opts.self.getAttribute('id'))    
+        }
+        else {
+            this.content = document.createElement(opts.tag)
+
+        }
+        Elem.elements.add(this)
         this.content.content = this
         for (let attr of Elem.attributes) {
             if (attr in opts) this[attr] = opts[attr]
         }
+        if (opts.text) {
 
-        /*    opts.type && this.content.setAttribute('type', opts.type);opts.for && this.content.setAttribute('for', opts.for);opts.download && this.content.setAttribute('download', opts.download);opts.style && this.content.setAttribute('style', opts.style);opts.value && this.content.setAttribute('value', opts.value);opts.name && this.content.setAttribute('name', opts.name);opts.checked != null && (this.content.setAttribute('checked', opts.checked));opts.src && this.content.setAttribute('src', opts.src);opts.accept && this.content.setAttribute('accept', opts.accept);opts.placeholder && this.content.setAttribute('placeholder', opts.placeholder);opts.title && this.content.setAttribute('title', opts.title);opts.controls && this.content.setAttribute('controls', opts.controls);opts.id && this.content.setAttribute('id', opts.id);opts.readonly && this.content.setAttribute('readonly', opts.readonly);opts.width && this.content.setAttribute('width', opts.width);opts.height && this.content.setAttribute('height', opts.height);opts.href && this.content.setAttribute('href', opts.href)*/
-        this.content.innerHTML = opts.text ?? ''
+            this.content.innerHTML = opts.text
+        }
         this.parent = null
 
         this.children = []
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
+        if (opts.id) {
+            Elem[`#${opts.id}`] = this
+        }
         if (opts.class) {
             for (let $class of opts.class) {
                 this.content.classList.add($class)
@@ -462,12 +561,18 @@ top: 50%;
             }
             this.addevent(...opts.events)
         }
+        if (opts.styles) {
+            if (!Array.isArray(opts.styles)) {
+                opts.styles = Object.entries(opts.styles)
+            }
+            this.styleMe(...opts.styles)
+        }
         if (opts.parent) {
             this.appendTo(opts.parent)
         }
         this.current = this.content
         if (immediate) {
-            this.appendTo(document.body)
+            this.appendTo(body)
         }
         if (opts.children) {
             for (let kid of opts.children) {
@@ -481,7 +586,7 @@ top: 50%;
     highlight() {
         this.content.style.zIndex = '999999'
     }
-  
+
     /**
      * 
      * @param {Element} parent 
@@ -600,9 +705,10 @@ top: 50%;
         delete Elem[`#${this.id}`]
         this.killChildren()
         this?.parent?.children?.deleteWithin?.(this)
-        Elem.elements.deleteWithin(this)
-        this.content.remove()
-        return this
+        Elem.elements.delete(this)
+
+        this.content.remove?.()
+        return
     }
     killChildren() {
         while (this.children.length) {
@@ -626,29 +732,255 @@ top: 50%;
         return this
     }
 }
-for (let attribute of Elem.attributes) {
-    Object.defineProperty(Elem.prototype, `${attribute}`, {
-        get() {
-            return this.content[`${attribute}`]
-        },
-        set(val) {
-            // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
-            if (attribute === 'id') {
-                if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
-                Elem[`#${val}`] = this
+
+
+class SceneryElem extends Elem {
+    static all = new Set
+    #position = {
+        x: 0,
+        y: 0
+    }
+    #rotation = 0;
+    #angular = 0;
+    #mirror = 0;
+    #lifetime = 0;
+    #hasBeenSeen = false;
+    flip(){this.#mirror+= 180}
+    #velocity = {
+        x: 0,
+        y: 0,
+        a: 0
+    }
+    constructor(opts = {}, i) {
+        opts.tag ??= 'div'
+        super(opts, i)
+        new.target.all.add(this)
+        this.styleMe({ position: 'absolute', margin: 'auto' })
+        this.#position.x = +opts.x ?? 0
+        this.#position.y = +opts.y ?? 0
+        this.update()
+
+    }
+
+    setRotation(rot = 0) {
+        this.#rotation = rot
+    }
+    rotate(rot = 0) {
+        this.#rotation += rot
+    }
+    setAV(speed = 0) {
+        this.#angular = speed
+    }
+
+    outofbounds() {
+        this.kill()
+    }
+
+        update() {
+            this.#lifetime++
+            if (this.#lifetime>1) {
+                if (!checkVisible(this.content)) {
+                    if (this.#hasBeenSeen) this.outofbounds?.()
+                  } else this.#hasBeenSeen = true
             }
-            this.content[`${attribute}`] = val
+  
+        this.styleMe({
+            transform:`rotate(${this.#rotation}rad) 
+            rotateY(${this.#mirror}deg) 
+            translate(${Math.trunc(this.#position.x)}px, ${Math.trunc(this.#position.y)}px)`})
+        this.rotate(this.#angular)
+        this.#position.x += this.#velocity.x
+        this.#position.y += this.#velocity.y
+
+        // Do not use this ⤵️
+       // this.style.left = `${Math.trunc(this.#position.x)}px`
+      //  this.style.top = `${Math.trunc(this.#position.y)}px`
+
+
+    }
+    set velocity({
+        x = this.#velocity.x,
+        y = this.#velocity.y
+    }) {
+        this.#velocity = {
+            x: x,
+            y: y
         }
-    });
+    }
+    get velocity() {
+        return this.#velocity
+    }
+    get position() {
+        return this.#position
+    }
+    set position({
+        x = this.#position.x - (parseInt(this.content.clientWidth) / 2),
+        y = this.#position.y - (parseInt(this.content.clientHeight) / 2)
+    }) {
+        this.#position = {
+            x: x - (parseInt(this.content.clientWidth) / 2),
+            y: y - (parseInt(this.content.clientHeight) / 2),
+        }
+
+    }
 }
 
-function $search(query) {
-    let result;
-    if (query.includes('#')) {
-        result = document.getElementById(query.replaceAll('#', ''))
-    }
-    else {
-        result = document.querySelectorAll(query)
-    }
-    return result
-}
+/* COLOR (goes last because it's so long) */
+const color = Object.defineProperties({
+    "aliceblue": "#f0f8ff",
+    "antiquewhite": "#faebd7",
+    "aqua": "#00ffff",
+    "aquamarine": "#7fffd4",
+    "azure": "#f0ffff",
+    "beige": "#f5f5dc",
+    "bisque": "#ffe4c4",
+    "black": "#000000",
+    "blanchedalmond": "#ffebcd",
+    "blue": "#0000ff",
+    "blueviolet": "#8a2be2",
+    "brown": "#a52a2a",
+    "burlywood": "#deb887",
+    "cadetblue": "#5f9ea0",
+    "chartreuse": "#7fff00",
+    "chocolate": "#d2691e",
+    "coral": "#ff7f50",
+    "cornflowerblue": "#6495ed",
+    "cornsilk": "#fff8dc",
+    "crimson": "#dc143c",
+    "cyan": "#00ffff",
+    "darkblue": "#00008b",
+    "darkcyan": "#008b8b",
+    "darkgoldenrod": "#b8860b",
+    "darkgray": "#a9a9a9",
+    "darkgreen": "#006400",
+    "darkkhaki": "#bdb76b",
+    "darkmagenta": "#8b008b",
+    "darkolivegreen": "#556b2f",
+    "darkorange": "#ff8c00",
+    "darkorchid": "#9932cc",
+    "darkred": "#8b0000",
+    "darksalmon": "#e9967a",
+    "darkseagreen": "#8fbc8f",
+    "darkslateblue": "#483d8b",
+    "darkslategray": "#2f4f4f",
+    "darkturquoise": "#00ced1",
+    "darkviolet": "#9400d3",
+    "deeppink": "#ff1493",
+    "deepskyblue": "#00bfff",
+    "dimgray": "#696969",
+    "dodgerblue": "#1e90ff",
+    "firebrick": "#b22222",
+    "floralwhite": "#fffaf0",
+    "forestgreen": "#228b22",
+    "fuchsia": "#ff00ff",
+    "gainsboro": "#dcdcdc",
+    "ghostwhite": "#f8f8ff",
+    "gold": "#ffd700",
+    "goldenrod": "#daa520",
+    "gray": "#808080",
+    "grey": "#808080",
+    "green": "#008000",
+    "greenyellow": "#adff2f",
+    "honeydew": "#f0fff0",
+    "hotpink": "#ff69b4",
+    "indianred": "#cd5c5c",
+    "indigo": "#4b0082",
+    "ivory": "#fffff0",
+    "khaki": "#f0e68c",
+    "lavender": "#e6e6fa",
+    "lavenderblush": "#fff0f5",
+    "lawngreen": "#7cfc00",
+    "lemonchiffon": "#fffacd",
+    "lightblue": "#add8e6",
+    "lightcoral": "#f08080",
+    "lightcyan": "#e0ffff",
+    "lightgoldenrodyellow": "#fafad2",
+    "lightgray": "#d3d3d3",
+    "lightgreen": "#90ee90",
+    "lightpink": "#ffb6c1",
+    "lightsalmon": "#ffa07a",
+    "lightseagreen": "#20b2aa",
+    "lightskyblue": "#87cefa",
+    "lightslategray": "#778899",
+    "lightsteelblue": "#b0c4de",
+    "lightyellow": "#ffffe0",
+    "lime": "#00ff00",
+    "limegreen": "#32cd32",
+    "linen": "#faf0e6",
+    "magenta": "#ff00ff",
+    "maroon": "#800000",
+    "mediumaquamarine": "#66cdaa",
+    "mediumblue": "#0000cd",
+    "mediumorchid": "#ba55d3",
+    "mediumpurple": "#9370db",
+    "mediumseagreen": "#3cb371",
+    "mediumslateblue": "#7b68ee",
+    "mediumspringgreen": "#00fa9a",
+    "mediumturquoise": "#48d1cc",
+    "mediumvioletred": "#c71585",
+    "midnightblue": "#191970",
+    "mintcream": "#f5fffa",
+    "mistyrose": "#ffe4e1",
+    "moccasin": "#ffe4b5",
+    "navajowhite": "#ffdead",
+    "navy": "#000080",
+    "oldlace": "#fdf5e6",
+    "olive": "#808000",
+    "olivedrab": "#6b8e23",
+    "orange": "#ffa500",
+    "orangered": "#ff4500",
+    "orchid": "#da70d6",
+    "palegoldenrod": "#eee8aa",
+    "palegreen": "#98fb98",
+    "paleturquoise": "#afeeee",
+    "palevioletred": "#db7093",
+    "papayawhip": "#ffefd5",
+    "peachpuff": "#ffdab9",
+    "peru": "#cd853f",
+    "pink": "#ffc0cb",
+    "plum": "#dda0dd",
+    "powderblue": "#b0e0e6",
+    "purple": "#800080",
+    "rebeccapurple": "#663399",
+    "red": "#ff0000",
+    "rosybrown": "#bc8f8f",
+    "royalblue": "#4169e1",
+    "saddlebrown": "#8b4513",
+    "salmon": "#fa8072",
+    "sandybrown": "#f4a460",
+    "seagreen": "#2e8b57",
+    "seashell": "#fff5ee",
+    "sienna": "#a0522d",
+    "silver": "#c0c0c0",
+    "skyblue": "#87ceeb",
+    "slateblue": "#6a5acd",
+    "slategray": "#708090",
+    "snow": "#fffafa",
+    "springgreen": "#00ff7f",
+    "steelblue": "#4682b4",
+    "tan": "#d2b48c",
+    "teal": "#008080",
+    "thistle": "#d8bfd8",
+    "tomato": "#ff6347",
+    "turquoise": "#40e0d0",
+    "violet": "#ee82ee",
+    "wheat": "#f5deb3",
+    "white": "#ffffff",
+    "whitesmoke": "#f5f5f5",
+    "yellow": "#ffff00",
+    "yellowgreen": "#9acd32"
+}, {
+
+    //Darken Hex Colour
+    dhk: { value(e, f = 40) { let $ = parseInt((e = e.replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join("") }, enumerable: !1 },
+    //Log colour to console
+    choose: { value() { return ran.choose(...Object.values(this)) }, enumerable: !1 },
+    log: { value(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }, enumerable: !1 },
+    opposite: { value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error("Invalid HEX color."); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + padZero(f) + padZero($) + padZero(a) }, enumerable: !1 }
+});
+
+Object.entries({
+    //Extra colors go here
+}).forEach(o => color[o[0]] = o[1])
+const body = window.body
+

@@ -2,11 +2,19 @@ input{
     margin: 10px;
 }
 #avatars {
-    border-radius: 20000px;
-    width: 100%;
-    height: 100%;
+    border-radius: 100%;
+    width: 300px;
+    height: 300px;
+    min-width: 300px;
+    min-height: 300px;
+    max-height: 300px;
+    max-width: 300px;
+    object-fit:cover;
 }
 
+#49 {
+    font-size: 30px;
+}
 .cute-button {
     padding: 15px 25px;
     font-size: 16px;
@@ -29,6 +37,8 @@ input{
 }
 .cute-input {
     padding: 15px;
+    caret-color: red;
+    caret-shape:block;
     font-size: 16px;
     color: #333;
     border: 2px solid #ff6b81; /* Soft pink border */
@@ -40,9 +50,18 @@ input{
     margin-left: auto;
     margin-right: auto;
 }
+
+.wings {
+    background-image: url('./media/wings.webp');
+}
+.wings2 {
+    background-image: url('./media/wings.webp');
+    transform: rotateY(180deg);
+}
+
 body {
        display: flex;
-            align-items: center;
+         /*   align-items: center;*/
             justify-content: center;
 }
 .cutesy {
@@ -141,6 +160,42 @@ audio {
     position: fixed;
     top: 0;
     left: 0;
+    display:none
+}
+.test {
+    max-width: 100%;
+    background-color: red;
+   
+}
+.introCircles {
+animation: grow 15s forwards;
+position: absolute;
+}
+@keyframes grow {
+    0% {
+        opacity: 0.7;
+        width: 50px;
+        height: 50px;
+    }
+    100% {
+        opacity: 0;
+        width: 300px;
+        height: 300px;
+    }
+}
+#box {
+    width:100%;
+    height:100%;
+    position: fixed;
+    background-color: rgb(0, 0, 0);
+    z-index: -1;
+    margin: 0px;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    padding: 0px;
+    overflow: hidden;
+
 }
 
 .holder {
