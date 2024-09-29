@@ -213,7 +213,7 @@ function getNodeSize(node) {
     return t
 }
 function checkVisible(elm) {
-  //  if (checkVisible.blured) return true
+    //  if (checkVisible.blured) return true
     var rect = elm.getBoundingClientRect();
     var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
     var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
@@ -251,14 +251,14 @@ class Elem {
         if (Elem.loaded.has(src)) {
             return src
         }
-     
+
         if (!src) {
             throw TypeError('No source for image provided.')
         }
         let x = new Image()
         x.src = src
         x.onerror = function (err) {
-            console.error('Error: ',err)
+            console.error('Error: ', err)
             Elem.error(`Image error: ${x.src}`)
             Elem.failed.add(x.src)
         }
@@ -357,7 +357,7 @@ class Elem {
     }
     static attributes = ['for', 'disabled', 'href', 'draggable', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
-       
+
         for (let attribute of this.attributes) {
             Object.defineProperty(Elem.prototype, `${attribute}`, {
                 get() {
@@ -528,7 +528,7 @@ class Elem {
         })
         if (opts.self) {
             this.content = opts.self
-            opts.self.getAttribute('id') && (opts.id = opts.self.getAttribute('id'))    
+            opts.self.getAttribute('id') && (opts.id = opts.self.getAttribute('id'))
         }
         else {
             this.content = document.createElement(opts.tag)
@@ -745,7 +745,7 @@ class SceneryElem extends Elem {
     #mirror = 0;
     #lifetime = 0;
     #hasBeenSeen = false;
-    flip(){this.#mirror+= 180}
+    flip() { this.#mirror += 180 }
     #velocity = {
         x: 0,
         y: 0,
@@ -776,25 +776,26 @@ class SceneryElem extends Elem {
         this.kill()
     }
 
-        update() {
-            this.#lifetime++
-            if (this.#lifetime>1) {
-                if (!checkVisible(this.content)) {
-                    if (this.#hasBeenSeen) this.outofbounds?.()
-                  } else this.#hasBeenSeen = true
-            }
-  
+    update() {
+        this.#lifetime++
+        if (this.#lifetime > 1) {
+            if (!checkVisible(this.content)) {
+                if (this.#hasBeenSeen) this.outofbounds?.()
+            } else this.#hasBeenSeen = true
+        }
+
         this.styleMe({
-            transform:`rotate(${this.#rotation}rad) 
+            transform: `rotate(${this.#rotation}rad) 
             rotateY(${this.#mirror}deg) 
-            translate(${Math.trunc(this.#position.x)}px, ${Math.trunc(this.#position.y)}px)`})
+            translate(${Math.trunc(this.#position.x)}px, ${Math.trunc(this.#position.y)}px)`
+        })
         this.rotate(this.#angular)
         this.#position.x += this.#velocity.x
         this.#position.y += this.#velocity.y
 
         // Do not use this ⤵️
-       // this.style.left = `${Math.trunc(this.#position.x)}px`
-      //  this.style.top = `${Math.trunc(this.#position.y)}px`
+        // this.style.left = `${Math.trunc(this.#position.x)}px`
+        //  this.style.top = `${Math.trunc(this.#position.y)}px`
 
 
     }
@@ -984,3 +985,31 @@ Object.entries({
 }).forEach(o => color[o[0]] = o[1])
 const body = window.body
 
+async function getDataUrl(url) {
+    let response;
+    try { 
+        response = await fetch(url);
+        if (!response.ok) {
+            Elem.error(`Failed to fetch image. Status: ${response.status}`);
+            return '';
+        }
+    } catch (e) { 
+        Elem.error(`Image Error: ${url} - ${e.message}`); 
+        return ''; 
+    }
+
+    let data;
+    try {
+        data = await response.blob();
+    } catch (e) {
+        Elem.error(`Failed to convert response to blob: ${e.message}`);
+        return '';
+    }
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(data); // Convert blob to data URL
+    });
+}
