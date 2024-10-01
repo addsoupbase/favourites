@@ -628,7 +628,7 @@ class Elem {
      */
     appendTo(parent) {
         if (typeof parent === 'string') {
-            parent = あ[`#${parent}`]
+            parent = Elem[`#${parent}`]
             //Elem.error('Cannot use string as parent value')
          //   return
         }
