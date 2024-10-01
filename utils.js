@@ -628,8 +628,9 @@ class Elem {
      */
     appendTo(parent) {
         if (typeof parent === 'string') {
-            Elem.error('Cannot use string as parent value')
-            return
+            parent = あ[`#${parent}`]
+            //Elem.error('Cannot use string as parent value')
+         //   return
         }
         try {
             parent.appendChild(this.content)
