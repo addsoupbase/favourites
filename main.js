@@ -36,7 +36,7 @@ new あ({
                     }, x: 300, y: -200
                 })
                 div.fadeIn()
-                div.velocity = { y: -1 }
+                div.setVelocity({ y: -1 })
                 for (let i of ['wings', 'wings2']) {
                     let x = i !== 'wings' ? '180deg' : '0deg'
                     let f = new Elem({
@@ -82,7 +82,7 @@ new あ({
                             border: 'solid ' + color.dhk(_c)
                         }, class: ['introCircles'],
                     })
-                    em.velocity = { y: -1 * ran.range(2, 10) }
+                    em.setVelocity({ y: -1 * ran.range(2, 10) })
                 }
 
             })
@@ -366,12 +366,13 @@ new あ({
                             あ['#submitBtn'].kill()
                             あ['#loading'].show()
                             あ['#formMessage'].disabled = あ['#formName'].disabled = true
-
+                            let NAME = あ['#formName'].value
+                            let MESSAGE = あ['#formMessage'].value
                                 ; (async () => {
                                     try {
                                         let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
                                             method: 'POST',
-                                            body: `name=${あ['#formName'].content.value || 'anonymous'}&message=${あ['#formMessage'].content.value}`,
+                                            body: `name=${encodeURIComponent(NAME) || 'anonymous'}&message=${encodeURIComponent(MESSAGE)}`,
                                             headers: {
                                                 'Content-Type': 'application/x-www-form-urlencoded',
                                                 'Accept': 'application/json'
@@ -498,9 +499,6 @@ let bo = new あ({ tag: 'div', id: 'box' }, true)
 
 const loop = function () {
     requestAnimationFrame(loop)
-    for (let e of SceneryElem.all) {
-        if (Elem.elements.has(e)) e.update()
-        else SceneryElem.all.delete(e)
-    }
+    SceneryElem.update()
 }
 loop()

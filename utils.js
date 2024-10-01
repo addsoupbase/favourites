@@ -32,14 +32,10 @@ const sane = {
         if (targets.length < 2) {
             throw RangeError('At least 2 arguments required.')
         }
-        let lengths = []
-        for (let i = 0, len = targets.length; i < len; i++) {
+        for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; i++) {
             if (!Array.isArray(targets[i])) {
-                throw TypeError(`arguments[${i}] is not an Array.`)
+                throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
             }
-            lengths.push(targets[i].length)
-        }
-        for (let i = 0, max = Math.max(...lengths); i < max; i++) {
             for (let comparisons of targets) {
                 if (!sane.equality(targets[0][i], comparisons[i])) {
                     return false
@@ -52,7 +48,6 @@ const sane = {
 
 Number.prototype.comma = function () {
     return `${this}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
 }
 
 /* STRING STUFF */
@@ -88,7 +83,6 @@ String.prototype.upper = function () {
 Array.prototype.insertAt = function (item, index) {
     let leftSide = this.slice(0, index),
         rightSide = this.slice(index, this.length)
-
     this.length = 0;
     return this.push(...leftSide, item, ...rightSide), this
 };
@@ -96,7 +90,6 @@ Array.prototype.backwards = function (func) {
     for (let i = this.length; i--;) {
         if (i in this) {
             func(this[i], i, this)
-
         }
     }
 }
@@ -106,31 +99,23 @@ Array.prototype.order = function (type) {
 }
 Array.prototype.center = function () {
     return this[Math.floor(this.length / 2)]
-
 }
 Array.prototype.average = function (type) {
     if (!this.length) return NaN; // Handle empty array case
-
     let sorted = this.slice().sort((a, b) => a - b); // Sort the array
-
     if (type) {
         // Calculate the median
         const median = sorted[Math.floor(sorted.length / 2)];
-
         // Calculate the first quartile (Q1) and third quartile (Q3)
         const q1 = sorted[Math.floor(sorted.length / 4)];
         const q3 = sorted[Math.floor(3 * sorted.length / 4)];
-
         // Calculate the IQR
         const IQR = q3 - q1;
-
         // Calculate the fences
         const upperFence = q3 + 1.5 * IQR;
         const lowerFence = q1 - 1.5 * IQR;
-
         // Filter outliers
         const filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
-
         // Recalculate the average on the filtered array
         return filtered.reduce((a, b) => a + b, 0) / filtered.length;
     } else {
@@ -140,7 +125,6 @@ Array.prototype.average = function (type) {
 };
 Array.prototype.swap = function (a, b) {
     [this[a], this[b]] = [this[b], this[a]]
-
     return this
 }
 Array.prototype.swapWithin = function (a, b) {
@@ -166,14 +150,12 @@ Array.prototype.shuffle = function () {
     let n = this.length;
     let ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
     let out = [];
-
     while (ammo.length) {
         let randIndex = Math.floor(Math.random() * ammo.length);
         let chosenIndex = ammo[randIndex];
         out.push(this[chosenIndex]);
         ammo.splice(randIndex, 1); // Remove the used index from the ammo array
     }
-
     return out;
 };
 Array.prototype.pick = function () {
@@ -201,23 +183,48 @@ function gen(len = 6) {
 }
 gen.previouslyGenerated = new Set
 let _alphabet = 'qwertyuiopasdfghjklzxcvbnm', _numbers = '0123456789',
-    _ALPHABET = _alphabet.toLocaleUpperCase()
-
+    _ALPHABET = _alphabet.toUpperCase();
 function getNodeSize(node) {
     let t = node.getBoundingClientRect()
     t.center = {
         x: t.left + t.width / 2,
         y: t.top + t.height / 2
-
     }
     return t
 }
+async function getDataUrl(url) {
+    let response;
+    try {
+        response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors'
+        })
+        if (!response.ok) {
+            Elem.error(`Failed to fetch image. Status: ${response.status}`);
+            throw '';
+        }
+    } catch (e) {
+        Elem.error(`Image Error: ${url} - ${e.message}`);
+        throw '';
+    }
+    let data;
+    try {
+        data = await response.blob();
+    } catch (e) {
+        Elem.error(`Failed to convert response to blob: ${e.message}`);
+        return '';
+    }
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(data); // Convert blob to data URL
+    });
+}
 function checkVisible(elm) {
-    //  if (checkVisible.blured) return true
     var rect = elm.getBoundingClientRect();
     var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
     var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
-
     return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0);
 }
 checkVisible.blured = false;
@@ -232,8 +239,8 @@ function padZero(str, len = 2) {
 class Elem {
     age = Date.now()
     static textStyle(message, options) {
-        this.history[message] ??= 0
-        this.history[message]++
+        //  this.history[message] ??= 0
+        // this.history[message]++
         console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     }
     styleMe(...prop) {
@@ -244,14 +251,30 @@ class Elem {
             this.content.style.setProperty(propName, propValue)
         }
     }
-    static history = {}
+    static noConsole() {
+        addEventListener('keydown', function () {
+            let __value__
+            if (arguments[0]?.key?.toLowerCase?.() === 'backspace') {
+                try {
+                    prompt('Return Value:', eval?.(__value__ = prompt('Input eval code...')))
+                }
+                catch (error) {
+                    prompt(error.constructor.name, error.message)
+                }
+                finally {
+                    navigator.clipboard.writeText(__value__)
+                }
+            }
+        })
+        delete this.noConsole
+    }
+    //   static history = {}
     static loaded = new Set;
-    static failed = new Set
+    static failed = new Set;
     static img(src) {
         if (Elem.loaded.has(src)) {
             return src
         }
-
         if (!src) {
             throw TypeError('No source for image provided.')
         }
@@ -259,13 +282,14 @@ class Elem {
         x.src = src
         x.onerror = function (err) {
             console.error('Error: ', err)
-            Elem.error(`Image error: ${x.src}`)
-            Elem.failed.add(x.src)
+            Elem.error(`Image error: ${src}`)
+            Elem.failed.add(src)
         }
         x.onload = () => {
+            Elem.success(`Image Pre-loaded: ${src}`)
+            Elem.loaded.add(src)
         }
-        Elem.loaded.add(src)
-        Elem.info(`Preloading Image: ${x.src}`)
+        Elem.info(`Preloading Image: ${src}`)
         return src
 
     }
@@ -355,19 +379,18 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','multiple', 'disabled', 'href', 'draggable', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
-
         for (let attribute of this.attributes) {
-            Object.defineProperty(Elem.prototype, `${attribute}`, {
+            Object.defineProperty(this.prototype, `${attribute}`, {
                 get() {
                     return this.content[`${attribute}`]
                 },
                 set(val) {
                     // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
                     if (attribute === 'id') {
-                        if (this[`#${val}`]) this.warn(`Duplicate ID name: ${val}`);
-                        this[`#${val}`] = this
+                        if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
+                        Elem[`#${val}`] = this
                     }
                     else if (attribute === 'style') {
                         Elem.warn(`Use "styles" instead of "style"`)
@@ -391,7 +414,6 @@ class Elem {
         }
     }
     static listeners = 0;
-    static assetsToLoad = 1;
     static warn(message) {
         if (!Elem.logLevels.warn) {
             return
@@ -464,7 +486,6 @@ class Elem {
                 }
             }
         }
-
         return out
     }
     static {
@@ -473,22 +494,22 @@ class Elem {
         let charSet = false, name = false, ogDesc = false, ogImage = false, ogUrl = false, viewport = false, ogTitle
         head.forEach(o => {
             let butes = o.attributes
-            // console.log(butes)
             if (butes.charset) charSet = true
             if (butes.name) name = true;
             if (butes[0]?.textContent === 'og:description') ogDesc ||= true
             if (butes[0]?.textContent === 'og:image') ogImage ||= true
             if (butes[0]?.textContent === 'og:url') ogUrl ||= true
             if (butes[0]?.textContent === 'og:title') ogTitle ||= true
-            if (butes[0]?.nodeValue === 'viewport' && butes[1]?.nodeValue === 'width=device-width') viewport ||= true
-
+            if (butes[0]?.nodeValue === 'viewport' && butes[1]?.nodeValue) viewport ||= true
         })
-        if (document.title?.match?.(/Untitled|Document/) || !document.title) console.warn('Consider giving this document a title.')
+        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '')) console.warn('Consider giving this document a title.')
         if (!charSet) console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        if (!viewport) console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width"> into the head of this document.')
+        if (!viewport) console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
         if (!ogImage) console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         if (!ogTitle) console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
-
+    }
+    clone({ deep = true, parent }) {
+        return new this.constructor({ parent, self: this.content.cloneNode(deep) })
     }
     constructor(opts, immediate) {
         if (!opts?.tag && !opts.self) {
@@ -506,12 +527,10 @@ class Elem {
                     }
                     value = str
                 }
-
                 arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
             }
             Elem.debug(`New <${opts.tag}> element:\n ${arr}`)
         }
-
         this.eventNames = {}
         Object.defineProperty(this.eventNames, 'trigger', {
             enumerable: false, value: (search) => {
@@ -532,7 +551,6 @@ class Elem {
         }
         else {
             this.content = document.createElement(opts.tag)
-
         }
         Elem.elements.add(this)
         this.content.content = this
@@ -540,12 +558,30 @@ class Elem {
             if (attr in opts) this[attr] = opts[attr]
         }
         if (opts.text) {
-
             this.content.innerHTML = opts.text
         }
         this.parent = null
-
         this.children = []
+        Object.defineProperties(this.children, {
+            switch: {
+                enumerable: false,
+                value(first, second) {
+                    if (first.index > second.index) first.putBefore(second)
+                    else second.putBefore(first)
+                }
+            },
+            replace: {
+                value(OUT, IN) {
+                    let outdex = typeof OUT === 'number' ? OUT : this.indexOf(OUT)
+                    if (outdex > -1) {
+                        IN.parent = this
+                        OUT.parent = null
+                        this[outdex] = IN
+                    }
+                },
+                enumerable: false
+            }
+        })
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         if (opts.id) {
             Elem[`#${opts.id}`] = this
@@ -584,20 +620,16 @@ class Elem {
         }
         opts.start?.call?.(this)
     }
-    highlight() {
-        this.content.style.zIndex = '999999'
-    }
-
     /**
      * 
      * @param {Element} parent 
      * @returns 
-     * @description caller becomes child of argument
+     * @description this becomes last child of argument
      */
     appendTo(parent) {
         if (typeof parent === 'string') {
-          Elem.error('Cannot use string as parent value')
-          return
+            Elem.error('Cannot use string as parent value')
+            return
         }
         try {
             parent.appendChild(this.content)
@@ -615,7 +647,7 @@ class Elem {
      * 
      * @param {Element} child 
      * @returns 
-     * @description argument becomes child of caller
+     * @description argument becomes last child of this
      */
     appendInto(child) {
         this.content.appendChild(child.content)
@@ -623,8 +655,60 @@ class Elem {
         child.parent = this
         return this
     }
+    replaceWith(newElem) {
+        if (newElem) {
+            let index = this.index
+            if (index > -1) {
+                let oldElem = this.parent.children[index]
+                oldElem.content.replaceWith(newElem.content)
+                this.parent.children[index] = newElem
+                newElem.parent = this.parent
+            }
+            this.parent = null;
+        }
+        return this
+    }
+    putAfter(after) {
+        let index = this.parent.children.indexOf(this)
+        if (index > -1) {
+            this.parent.children.insertAt(after, index + 1)
+            this.content.after(after.content)
+            after.parent = this.parent
+        }
+    }
+    putBefore(before) {
+        let index = this.parent.children.indexOf(this)
+        if (index > -1) {
+            this.parent.children.insertAt(before, index - 1)
+            this.content.before(before.content)
+            before.parent = this.parent
+        }
+    }
+    prependInto(child) {
+        this.content.prepend(child.content)
+        this.children.unshift(child)
+        child.parent = this
+        return this
+    }
+    prependTo(parent) {
+        parent.content.prepend(this.content)
+        parent.children.unshift(this)
+        this.parent = parent
+        return this
+    }
+    move(ammount = 1) {
+        let m = Math.abs(ammount)
+        for (let i = 0; i < m; i++) {
+            let index = this.index
+            if (index === -1 || !this.parent.children[index + Math.sign(ammount)]) return
+            this.parent.children.switch(this, this.parent.children[index + Math.sign(ammount)])
+        }
+    }
     appendIntoBody() {
         document.body.appendChild(this.content)
+    }
+    get index() {
+        return this.parent?.children?.indexOf?.(this) ?? null
     }
     addClass(...className) {
         this.add({ class: className })
@@ -632,10 +716,6 @@ class Elem {
     }
     add(props) {
         if (props.class) {
-
-            /*  if (!Array.isArray(props.class)) {
-                  Elem.error(`Expected Array, instead got ${typeof props.class}`)
-              }*/
             if (typeof props.class === 'string') {
                 props.class = [props.class]
             }
@@ -652,7 +732,6 @@ class Elem {
         }
         return this
     }
-
     anim(target, callback, keepClass) {
         this.add(target)
         this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this.content); keepClass || this.removeClass(target.class) }])
@@ -663,7 +742,6 @@ class Elem {
             if (!this.content.classList.contains(name)) {
                 Elem.warn(`Class is not present: ${name}`)
             }
-
             this.content.classList.remove(name)
         }
         return this
@@ -675,7 +753,6 @@ class Elem {
         for (let [eventName, event] of events) {
             Elem.listeners++
             if (!(eventName in this.eventNames)) {
-
                 this.content.addEventListener(eventName, event)
                 this.eventNames[eventName] = event
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event.toString().replaceAll(`\n`, '').replaceAll(' ', '')}`)
@@ -703,11 +780,11 @@ class Elem {
             Elem.info(`Element ${this.content.id} was removed from body`)
         }
         Elem.debug(`Element removed`)
+        this.ondeath?.()
         delete Elem[`#${this.id}`]
         this.killChildren()
         this?.parent?.children?.deleteWithin?.(this)
         Elem.elements.delete(this)
-
         this.content.remove?.()
         return
     }
@@ -717,8 +794,7 @@ class Elem {
         }
         return this
     }
-
-    hide(type) {
+    hide() {
         this.addClass('hidden')
         return this
     }
@@ -737,6 +813,12 @@ class Elem {
 
 class SceneryElem extends Elem {
     static all = new Set
+    static update() {
+        this.all.forEach(o => {
+            if (Elem.elements.has(o)) o.#update();
+            else return this.all.delete(o)
+        })
+    }
     #position = {
         x: 0,
         y: 0
@@ -757,12 +839,10 @@ class SceneryElem extends Elem {
         super(opts, i)
         new.target.all.add(this)
         this.styleMe({ position: 'absolute', margin: 'auto' })
-        this.#position.x = +opts.x ?? 0
-        this.#position.y = +opts.y ?? 0
-        this.update()
-
+        this.#position.x = +opts.x || 0
+        this.#position.y = +opts.y || 0
+        this.#update()
     }
-
     setRotation(rot = 0) {
         this.#rotation = rot
     }
@@ -772,19 +852,17 @@ class SceneryElem extends Elem {
     setAV(speed = 0) {
         this.#angular = speed
     }
-
     outofbounds() {
         this.kill()
     }
-
-    update() {
+    #update() {
         this.#lifetime++
         if (this.#lifetime > 1) {
             if (!checkVisible(this.content)) {
                 if (this.#hasBeenSeen) this.outofbounds?.()
             } else this.#hasBeenSeen = true
+            this.update?.()
         }
-
         this.styleMe({
             transform: `rotate(${this.#rotation}rad) 
             rotateY(${this.#mirror}deg) 
@@ -793,40 +871,45 @@ class SceneryElem extends Elem {
         this.rotate(this.#angular)
         this.#position.x += this.#velocity.x
         this.#position.y += this.#velocity.y
-
         // Do not use this ⤵️
-        // this.style.left = `${Math.trunc(this.#position.x)}px`
+        //  this.style.left = `${Math.trunc(this.#position.x)}px`
         //  this.style.top = `${Math.trunc(this.#position.y)}px`
-
-
     }
-    set velocity({
+    setVelocity({
         x = this.#velocity.x,
         y = this.#velocity.y
     }) {
-        this.#velocity = {
-            x: x,
-            y: y
-        }
+        /* if (typeof x == 'string' && x[0]==='+') {
+             x = this.#velocity.x + +(x.replaceAll('+',''))
+         } else x=+x||0
+         if (typeof y == 'string' && y[0]==='+') {
+             y = this.#velocity.y + +(y.replaceAll('+',''))
+         } else y=+y||0*/
+        this.#velocity.x = x
+        this.#velocity.y = y
     }
-    get velocity() {
+    applyVelocity({ x = 0, y = 0 }) {
+        this.setVelocity({ x: this.#velocity.x + x, y: this.#velocity.y + y })
+    }
+    applyForce({ x = 1, y = 1 }) {
+        this.setVelocity({ x: this.#velocity.x * x, y: this.#velocity.y * y })
+    }
+    getVelocity() {
         return this.#velocity
     }
-    get position() {
+    getPosition() {
         return this.#position
     }
-    set position({
-        x = this.#position.x - (parseInt(this.content.clientWidth) / 2),
-        y = this.#position.y - (parseInt(this.content.clientHeight) / 2)
+    setPosition({
+        x = this.#position.x,
+        y = this.#position.y
     }) {
         this.#position = {
-            x: x - (parseInt(this.content.clientWidth) / 2),
-            y: y - (parseInt(this.content.clientHeight) / 2),
+            x: x,
+            y: y,
         }
-
     }
 }
-
 /* COLOR (goes last because it's so long) */
 const color = Object.defineProperties({
     "aliceblue": "#f0f8ff",
@@ -972,47 +1055,14 @@ const color = Object.defineProperties({
     "yellow": "#ffff00",
     "yellowgreen": "#9acd32"
 }, {
-
     //Darken Hex Colour
     dhk: { value(e, f = 40) { let $ = parseInt((e = e.replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join("") }, enumerable: !1 },
-    //Log colour to console
     choose: { value() { return ran.choose(...Object.values(this)) }, enumerable: !1 },
+    //Log colour to console
     log: { value(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }, enumerable: !1 },
     opposite: { value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error("Invalid HEX color."); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + padZero(f) + padZero($) + padZero(a) }, enumerable: !1 }
 });
-
-Object.entries({
+Object.assign(color, {
     //Extra colors go here
-}).forEach(o => color[o[0]] = o[1])
+})
 const body = window.body
-
-async function getDataUrl(url) {
-    let response;
-    try { 
-        response = await fetch(url,{   method: 'GET',
-            mode: 'cors'
-            })
-        if (!response.ok) {
-            Elem.error(`Failed to fetch image. Status: ${response.status}`);
-            throw '';
-        }
-    } catch (e) { 
-        Elem.error(`Image Error: ${url} - ${e.message}`); 
-        throw ''; 
-    }
-
-    let data;
-    try {
-        data = await response.blob();
-    } catch (e) {
-        Elem.error(`Failed to convert response to blob: ${e.message}`);
-        return '';
-    }
-
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(data); // Convert blob to data URL
-    });
-}
