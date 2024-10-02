@@ -36,7 +36,7 @@ new あ({
                     }, x: 300, y: -200
                 })
                 div.fadeIn()
-                div.setVelocity({ y: -1 })
+                div.velocity.set(0,-1)
                 for (let i of ['wings', 'wings2']) {
                     let x = i !== 'wings' ? '180deg' : '0deg'
                     let f = new Elem({
@@ -82,7 +82,7 @@ new あ({
                             border: 'solid ' + color.dhk(_c)
                         }, class: ['introCircles'],
                     })
-                    em.setVelocity({ y: -1 * ran.range(2, 10) })
+                    em.velocity.set(0, -1 * ran.range(2, 10))
                 }
 
             })
@@ -264,9 +264,9 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Number:' }),
                         new あ({
-                            tag: 'p', class: ['clickable'], text: '49', id: '49', events: [
-                                ['click', () => {
-                                    あ['#49'].anim({ class: 'jello-horizontal' })
+                            tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
+                                ['click', function() {
+                                    this.content.anim({ class: 'jello-horizontal' })
 
 
                                 }]

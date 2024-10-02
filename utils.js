@@ -46,6 +46,198 @@ const sane = {
     }
 }
 
+
+class Vector2 {
+    x
+    y
+    constructor(x = 0, y = 0) {
+        if (arguments.length === 1 && x instanceof new.target) {
+            ({ x, y } = x)
+        }
+        Object.seal(this)
+        this.set(x, y)
+    }
+    static distance(vector, vector2) {
+        return Math.hypot(Vector2.x(vector) - Vector2.x(vector2), Vector2.y(vector) - Vector2.y(vector2))
+    }
+    static x(vectorLike) {
+        return vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
+    }
+    static y(vectorLike) {
+        return vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
+    }
+    static angle(first, second) {
+        let firstAngle = Math.atan2(Vector2.y(first), Vector2.x(first))
+        let secondAngle = Math.atan2(Vector2.y(second), Vector2.x(second))
+        let angle = secondAngle - firstAngle
+        return Math.abs(angle)
+    }
+    static average(...vectors) {
+        let x = vectors.map(o => Vector2.x(o))
+        let y = vectors.map(o => Vector2.y(o))
+        return new Vector2(x.average(), y.average())
+    }
+    static difference(vector, vector2) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        if (!Array.isArray(vector2)) {
+            vector2 = [...vector2]
+        }
+        let out = [...vector]
+        let length = out.length
+        for (let i = 0; i < length; i++) {
+            out[i] = Math.abs(vector2[i] - vector[i])
+        }
+        return new Vector2(...out)
+    }
+    static get up() {
+        return new Vector2(0, 1)
+    }
+    static get down() {
+        return new Vector2(0, -1)
+    }
+    static get left() {
+        return new Vector2(-1, 0)
+    }
+    static get right() {
+        return new Vector2(1, 0)
+    }
+    static max(vector, vector2) {
+        return new Vector2(Math.max(Vector2.x(vector2), Vector2.x(vector)), Math.max(Vector2.y(vector2), Vector2.y(vector)))
+    }
+    static min(vector, vector2) {
+        return new Vector2(Math.min(Vector2.x(vector2), Vector2.x(vector)), Math.min(Vector2.y(vector2), Vector2.y(vector)))
+    }
+    static equals(...vectors) {
+        let n = vectors.map(o => [Vector2.x(o), Vector2.y(o)])
+        return sane.arreq(...n)
+    }
+    set(...numbers) {
+        for (let i = 0; i < numbers.length; i++) {
+            let n = numbers[i]
+            if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER;
+            else if (n < Number.MIN_SAFE_INTEGER) n = Number.MIN_SAFE_INTEGER;
+            else n = +n
+            if (Object.keys(this)[i] in this) {
+                this[Object.keys(this)[i]] = n
+            }
+        }
+    }
+    pow(vector) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        let length = this.#val.length
+        for (let i = 0; i < length; i++) {
+            vector[i] = this[i] ** vector[i]
+        }
+        this.set(...vector)
+        return this
+    }
+    add(vector) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        let length = this.#val.length
+        for (let i = 0; i < length; i++) {
+            vector[i] = this[i] + vector[i]
+        }
+        this.set(...vector)
+        return this
+    }
+    subtract(vector) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        let length = this.#val.length
+        for (let i = 0; i < length; i++) {
+            vector[i] = this[i] - vector[i]
+        }
+        this.set(...vector)
+        return this
+    }
+    multiply(vector) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        let length = this.#val.length
+        for (let i = 0; i < length; i++) {
+            vector[i] = this[i] * vector[i]
+        }
+        this.set(...vector)
+        return this
+    }
+    divide(vector) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        let length = this.#val.length
+        for (let i = 0; i < length; i++) {
+            vector[i] = this[i] / vector[i]
+        }
+        this.set(...vector)
+        return this
+    }
+    normalize() {
+        this.set(...this.normalized)
+    }
+    randomize() {
+        this.set(ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
+    }
+    negate() {
+        this.set(...this.negated)
+    }
+    invert() {
+        this.set(...this.inverse)
+    }
+    get average() {
+        return [...this].average()
+    }
+    get inverse() {
+        return new Vector2(this.x ** -1, this.y ** -1)
+    }
+    get negated() {
+        return new Vector2(-this.x, -this.y)
+    }
+    get normalized() {
+        return new Vector2(...this.#val.map(o => o / this.magnitude||0))
+    }
+    get magnitude() {
+        return this.#val.reduce((a, b) => Math.abs(a + b))
+    }
+    get sqrtMag() {
+        return Math.sqrt(this.magnitude)
+    }
+    get #val() {
+        return Object.values(this)
+    }
+    get string() {
+        return `(${this.#val.join(', ')})`
+    }
+    get '0'() {
+        return this.x
+    }
+    get '1'() {
+        return this.y
+    }
+    *[Symbol.iterator]() {
+        yield* this.#val
+    }
+}
+/*class Vector3 extends Vector2 {
+    z
+    constructor(x = 0, y = 0, z = 0) {
+        super()
+        if (arguments.length === 1 && x instanceof new.target) {
+            ({z}=x)
+        }
+        this.set(x, y, z)
+    }
+    get '2'() {
+        return this.z
+    }
+}*/
 Number.prototype.comma = function () {
     return `${this}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -81,10 +273,7 @@ String.prototype.upper = function () {
 }
 /* ARRAY STUFF */
 Array.prototype.insertAt = function (item, index) {
-    let leftSide = this.slice(0, index),
-        rightSide = this.slice(index, this.length)
-    this.length = 0;
-    return this.push(...leftSide, item, ...rightSide), this
+    return this.splice(index, 0, item), this
 };
 Array.prototype.backwards = function (func) {
     for (let i = this.length; i--;) {
@@ -252,11 +441,12 @@ class Elem {
         }
     }
     static noConsole() {
+     console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
         addEventListener('keydown', function () {
             let __value__
             if (arguments[0]?.key?.toLowerCase?.() === 'backspace') {
                 try {
-                    prompt('Return Value:', eval?.(__value__ = prompt('Input eval code...')))
+                    prompt('Return Value:', eval?.('"use strict";' + (__value__ = prompt('Input eval code...'))))
                 }
                 catch (error) {
                     prompt(error.constructor.name, error.message)
@@ -271,7 +461,7 @@ class Elem {
     //   static history = {}
     static loaded = new Set;
     static failed = new Set;
-    static img(src) {
+    static img(src,callback) {
         if (Elem.loaded.has(src)) {
             return src
         }
@@ -286,6 +476,7 @@ class Elem {
             Elem.failed.add(src)
         }
         x.onload = () => {
+            callback?.(src)
             Elem.success(`Image Pre-loaded: ${src}`)
             Elem.loaded.add(src)
         }
@@ -379,7 +570,7 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
@@ -558,7 +749,10 @@ class Elem {
             if (attr in opts) this[attr] = opts[attr]
         }
         if (opts.text) {
-            this.content.innerHTML = opts.text
+            this.innerHTML = opts.text
+        }
+        if (opts.message) {
+            this.innerText = opts.message
         }
         this.parent = null
         this.children = []
@@ -630,7 +824,7 @@ class Elem {
         if (typeof parent === 'string') {
             parent = Elem[`#${parent}`]
             //Elem.error('Cannot use string as parent value')
-         //   return
+            //   return
         }
         try {
             parent.appendChild(this.content)
@@ -656,7 +850,7 @@ class Elem {
         child.parent = this
         return this
     }
-    replaceWith(newElem) {
+    replaceWith(newElem, persists) {
         if (newElem) {
             let index = this.index
             if (index > -1) {
@@ -667,6 +861,7 @@ class Elem {
             }
             this.parent = null;
         }
+        if (!persists) return this.kill();
         return this
     }
     putAfter(after) {
@@ -820,38 +1015,27 @@ class SceneryElem extends Elem {
             else return this.all.delete(o)
         })
     }
-    #position = {
-        x: 0,
-        y: 0
-    }
-    #rotation = 0;
-    #angular = 0;
+    position = new Vector2
+    rotation = 0;
+    angular = 0;
     #mirror = 0;
     #lifetime = 0;
     #hasBeenSeen = false;
     flip() { this.#mirror += 180 }
-    #velocity = {
-        x: 0,
-        y: 0,
-        a: 0
-    }
+    velocity = new Vector2
     constructor(opts = {}, i) {
         opts.tag ??= 'div'
         super(opts, i)
         new.target.all.add(this)
         this.styleMe({ position: 'absolute', margin: 'auto' })
-        this.#position.x = +opts.x || 0
-        this.#position.y = +opts.y || 0
+        this.position.set(+opts.x || 0, +opts.y || 0)
         this.#update()
     }
-    setRotation(rot = 0) {
-        this.#rotation = rot
-    }
     rotate(rot = 0) {
-        this.#rotation += rot
+        this.rotation += rot
     }
     setAV(speed = 0) {
-        this.#angular = speed
+        this.angular = speed
     }
     outofbounds() {
         this.kill()
@@ -864,52 +1048,21 @@ class SceneryElem extends Elem {
             } else this.#hasBeenSeen = true
             this.update?.()
         }
+
         this.styleMe({
-            transform: `rotate(${this.#rotation}rad) 
+            'transform': `rotate(${this.rotation - (this.parent?.getRotation?.() ?? 0)}rad) 
             rotateY(${this.#mirror}deg) 
-            translate(${Math.trunc(this.#position.x)}px, ${Math.trunc(this.#position.y)}px)`
+            translate(${Math.trunc(this.position.x)}px, ${Math.trunc(this.position.y)}px)`,
+            'transform-origin': 'center',
+
         })
-        this.rotate(this.#angular)
-        this.#position.x += this.#velocity.x
-        this.#position.y += this.#velocity.y
+        this.rotate(this.angular)
+        this.position.add(this.velocity)
         // Do not use this ⤵️
-        //  this.style.left = `${Math.trunc(this.#position.x)}px`
-        //  this.style.top = `${Math.trunc(this.#position.y)}px`
+        //  this.style.left = `${Math.trunc(this.position.x)}px`
+        //  this.style.top = `${Math.trunc(this.position.y)}px`
     }
-    setVelocity({
-        x = this.#velocity.x,
-        y = this.#velocity.y
-    }) {
-        /* if (typeof x == 'string' && x[0]==='+') {
-             x = this.#velocity.x + +(x.replaceAll('+',''))
-         } else x=+x||0
-         if (typeof y == 'string' && y[0]==='+') {
-             y = this.#velocity.y + +(y.replaceAll('+',''))
-         } else y=+y||0*/
-        this.#velocity.x = x
-        this.#velocity.y = y
-    }
-    applyVelocity({ x = 0, y = 0 }) {
-        this.setVelocity({ x: this.#velocity.x + x, y: this.#velocity.y + y })
-    }
-    applyForce({ x = 1, y = 1 }) {
-        this.setVelocity({ x: this.#velocity.x * x, y: this.#velocity.y * y })
-    }
-    getVelocity() {
-        return this.#velocity
-    }
-    getPosition() {
-        return this.#position
-    }
-    setPosition({
-        x = this.#position.x,
-        y = this.#position.y
-    }) {
-        this.#position = {
-            x: x,
-            y: y,
-        }
-    }
+    
 }
 /* COLOR (goes last because it's so long) */
 const color = Object.defineProperties({
