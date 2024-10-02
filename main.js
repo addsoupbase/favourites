@@ -36,7 +36,7 @@ new あ({
                     }, x: 300, y: -200
                 })
                 div.fadeIn()
-                div.velocity.set(0,-1)
+                div.velocity.set(0, -1)
                 for (let i of ['wings', 'wings2']) {
                     let x = i !== 'wings' ? '180deg' : '0deg'
                     let f = new Elem({
@@ -194,7 +194,15 @@ new あ({
                 new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                        new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.webp', title: 'Winter', }),
+                        new あ({
+                            id: 'snowfall', tag: 'div', styles: {
+                                width: '400px',
+                                height: '250px',
+                                overflow: 'hidden',
+                                position: 'relative'
+                            }
+                        })
+                        //new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.webp', title: 'Winter', }),
 
                     ]
                 }),
@@ -265,7 +273,7 @@ new あ({
                         new あ({ tag: 'p', style: 'color: black', text: 'Number:' }),
                         new あ({
                             tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
-                                ['click', function() {
+                                ['click', function () {
                                     this.content.anim({ class: 'jello-horizontal' })
 
 
@@ -496,9 +504,56 @@ function cycleImage() {
 
 let bo = new あ({ tag: 'div', id: 'box' }, true)
 
-
+let frame = 0;
 const loop = function () {
     requestAnimationFrame(loop)
+    frame++
     SceneryElem.update()
+    if (!(frame % 20)) {
+        let u =  function () {
+            if (this.rand > 0) {
+                this.velocity.add(Math.cos(frame / 100) / 100, 0)
+            }
+            else {
+                this.velocity.add(Math.sin(frame / 100) / 100, 0)
+
+            }
+        }
+        let f = new SceneryElem({
+            x: ran.range(0, 300),
+            y: -100,  
+            position: 'absolute',
+
+            children: [
+                new Elem({
+                    draggable: false,
+                    class: [ran.choose('spin', 'spin2'), 'snowflake'], tag: 'img', src: "./media/snow.svg", styles: { width: '30px', height: '30px' }
+                })
+            ], parent: snow,
+        })   
+        for (let i = 2; i--;) {
+            let k = new SceneryElem({
+                x: ran.range(0, 300),
+                y: -100,  
+           
+                parent: snow,
+                styles:{
+                width: '5px',
+                height: '5px',
+                'border-radius': '100%',
+                'background-color': 'white'
+            }})
+            k.velocity.set(0, 1)
+            k.rand = ran.choose(-1, 1)
+    k.update=u
+        }
+   
+        f.update = u
+        f.rand = ran.choose(-1, 1)
+        f.velocity.set(0, 1)
+        f.fadeIn()
+        f.angular = 0.1
+    }
 }
 loop()
+let snow = あ['#snowfall']

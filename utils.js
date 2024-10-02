@@ -137,6 +137,9 @@ class Vector2 {
     }
     add(vector) {
         if (!Array.isArray(vector)) {
+            if (1 in arguments) {
+                vector = [vector, arguments[1]]
+            }
             vector = [...vector]
         }
         let length = this.#val.length
@@ -148,6 +151,9 @@ class Vector2 {
     }
     subtract(vector) {
         if (!Array.isArray(vector)) {
+            if (1 in arguments) {
+                vector = [vector, arguments[1]]
+            }
             vector = [...vector]
         }
         let length = this.#val.length
@@ -159,6 +165,9 @@ class Vector2 {
     }
     multiply(vector) {
         if (!Array.isArray(vector)) {
+            if (1 in arguments) {
+                vector = [vector, arguments[1]]
+            }
             vector = [...vector]
         }
         let length = this.#val.length
@@ -170,6 +179,9 @@ class Vector2 {
     }
     divide(vector) {
         if (!Array.isArray(vector)) {
+            if (1 in arguments) {
+                vector = [vector, arguments[1]]
+            }
             vector = [...vector]
         }
         let length = this.#val.length
@@ -1050,9 +1062,9 @@ class SceneryElem extends Elem {
         }
 
         this.styleMe({
-            'transform': `rotate(${this.rotation - (this.parent?.getRotation?.() ?? 0)}rad) 
+            'transform': `
             rotateY(${this.#mirror}deg) 
-            translate(${Math.trunc(this.position.x)}px, ${Math.trunc(this.position.y)}px)`,
+            translate(${(this.position.x)}px, ${(this.position.y)}px)`,
             'transform-origin': 'center',
 
         })
