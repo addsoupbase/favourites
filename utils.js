@@ -903,6 +903,9 @@ class Elem {
     append(p) {
         p.content.append(this.content)
     }
+    becomeChild(p){
+        this.content.append(p.content   )
+    }
     prepend(p) {
         p.content.prepend(this.content)
     }
@@ -958,8 +961,14 @@ class Elem {
         return this
     }
     anim(target, callback, removeClass) {
+        let keep = false
+        if ('keep class' in target) {
+            delete target['keep class']
+            keep = true
+        }
         this.add(target)
-        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); removeClass && this.removeClass(target.class) }])
+        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); 
+            (removeClass || !keep) && this.removeClass(target.class) }])
         return this
     }
     removeClass(...className) {
