@@ -10,16 +10,16 @@ const { sin, cos } = Math;
 new あ({
     parent: body,
     start() {
-        this.anim({ class: 'bounce-in-top' },
+ this.anim({ class: 'bounce-in-top' },
             () => {
                 new あ({
                     tag: 'img', src: Elem.img('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
                         this.fadeIn(() => this.addevent({
                             click() {
-                                this.content.noevent('click')
-                                this.content.removeClass('clickable')
-                                this.content.fadeOut()
-                                あ['#main'].fadeOut(thanks)
+                                this.noevent('click')
+                                this.removeClass('clickable')
+                                this.fadeOut(this.kill)
+                                あ['#main'].fadeOut(()=>thanks())
                             }
                         }))
                     }, id: 'foot', events: {
@@ -28,7 +28,7 @@ new あ({
                 }, true)
                 let div = new SceneryElem({
 
-                    parent: box, styles: {
+                    parent: 'box', styles: {
                         'z-index': 3, width: '200px', height: '200px',
                         position: 'absolute', top: '100%', display: 'flex',
                         'align-items': 'center'
@@ -97,7 +97,7 @@ new あ({
                         new あ({
                             tag: 'input', type: 'color', class: ['clickable'], events: [
                                 ['change', function () {
-                                    あ.$('#color').content.style.backgroundColor = this.value
+                                    あ.$('#color').style.backgroundColor = this.value
                                 }]
                             ], value: '#20a6a6'
                         })
@@ -131,9 +131,9 @@ new あ({
                         new あ({
                             tag: 'img', class: ['clickable', 'preview'], src: './media/js.webp', events: {
                                 click() {
-                                    this.content.anim({ class: 'rotate-center', }, () => {
+                                    this.anim({ class: 'rotate-center', }, () => {
 
-                                    })
+                                    },true)
                                 }
                             }, style: 'border-radius: 10%;'
                         })
@@ -169,7 +169,7 @@ new あ({
                         new あ({
                             tag: 'img', src: './media/hugs.webp', title: 'big hugs', class: ['clickable'], events: {
                                 click() {
-                                    this.content.anim({ class: 'wobble-hor-bottom' })
+                                    this.anim({ class: 'wobble-hor-bottom' })
                                 }
                             }
                         }),
@@ -196,7 +196,7 @@ new あ({
                         new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
                         new あ({
                             id: 'snowfall', tag: 'div', styles: {
-                                width: '400px',
+                                width: 'inherit',
                                 height: '250px',
                                 overflow: 'hidden',
                                 position: 'relative'
@@ -274,7 +274,7 @@ new あ({
                         new あ({
                             tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
                                 ['click', function () {
-                                    this.content.anim({ class: 'jello-horizontal' })
+                                    this.anim({ class: 'jello-horizontal' },1,true)
 
 
                                 }]
@@ -296,7 +296,7 @@ new あ({
                             new あ({ tag: 'a', text: 'Animista', href: 'https://animista.net/' }),
                             new あ({ tag: 'a', text: 'Skribbl.io', href: 'https://skribbl.io/' })
                             ]
-                        })
+                        })  
                     ]
                 }),
             ]
@@ -307,9 +307,9 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
                         new あ({
-                            tag: 'img', class: ['preview', 'clickable'], src: './media/kirby.webp', title: 'Kirby\'s Return to Dreamland (2011)', events: {
+                            tag: 'img', class: ['preview', 'clickable'], src:Elem.img( './media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                 click() {
-                                    this.content.anim({ class: 'wobble-hor-bottom' })
+                                    this.anim({ class: 'wobble-hor-bottom' },1,true)
                                 }
                             }
                         }),
@@ -328,7 +328,7 @@ new あ({
                             tag: 'div', children: [
 
                                 new あ({
-                                    tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: './media/towa.webp', events: {
+                                    tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: Elem.img('./media/towa.webp'), events: {
                                         click() {
                                             cycleAvatar()
                                         }
@@ -355,7 +355,7 @@ new あ({
                         new あ({
                             tag: 'input', class: ['cute-input'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
                                 click() {
-                                    this.content.placeholder = `Your message here...`
+                                    this.placeholder = `Your message here...`
                                 }
                             }
                         }),
@@ -365,9 +365,9 @@ new あ({
                 new あ({
                     tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
                         click() {
-                            if (!あ['#formMessage'].content.value) {
+                            if (!あ['#formMessage'].value) {
                                 あ['#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                あ['#formMessage'].anim({ class: 'shake-horizontal' })
+                                あ['#formMessage'].anim({ class: 'shake-horizontal' },1,true)
                                 return
                             }
                             あ['#submitBtn'].noevent('click')
@@ -388,7 +388,7 @@ new あ({
                                         })
                                         if (x.ok) {
                                             あ['#formtab'].anim({ class: 'slide-out-right' }, function () {
-                                                this.content.kill()
+                                                this.kill()
                                             })
                                         }
                                         else {
@@ -428,7 +428,6 @@ new あ({
 })
 
 function thanks() {
-    あ['#main'].kill()
     let n = new あ({
         tag: 'div', start() { this.hide }, children: [
             new あ({ tag: 'p', text: 'THANK YOU FOR VIEWING THIS IT MEANS A LOT TO ME HONESTLY!!<br>I MADE IT MYSELF' }),
@@ -437,7 +436,7 @@ function thanks() {
 
         ], id: 'main2'
     }, true)
-    n.anim({ class: 'roll-in-left' })
+    n.anim({ class: 'roll-in-left' }, ()=>あ['#main'].kill())
 
 }
 
@@ -483,7 +482,7 @@ function cycleAvatar() {
     let m = あ['#avatars']
     m.noevent('click')
 
-    m.anim({ class: 'fade-in-tr' }, function () { this.content.addevent({ click: cycleAvatar }) })
+    m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) },true)
     m.src = avatars[current2]
 }
 function cycleImage() {
@@ -493,13 +492,13 @@ function cycleImage() {
         current = 0
     }
     あ['#msgImg'].noevent('click')
-    あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () { this.content.addevent({ click: cycleImage }) })
+    あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleImage }) })
 
 
     あ['#msgImg'].src = examples[current].src
     あ['#msgImg'].title = examples[current].title ?? ''
-    あ['#desc'].content.innerHTML = examples[current].description
-    あ['#caption'].content.innerHTML = `Exhibit ${letters[current].toUpperCase()}`
+    あ['#desc'].innerHTML = examples[current].description
+    あ['#caption'].innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
 
 let bo = new あ({ tag: 'div', id: 'box' }, true)
@@ -518,6 +517,9 @@ const loop = function () {
                 this.velocity.add(Math.sin(frame / 100) / 100, 0)
 
             }
+        }
+        if (!document.body.contains(snow.content)){
+            return
         }
         let f = new SceneryElem({
             x: ran.range(0, 300),

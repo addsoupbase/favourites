@@ -40,7 +40,7 @@ input{
     caret-shape:block;
     font-size: 16px;
     color: #333;
-    width: 50%;
+    width: 75%;
     border: 2px solid #ff6b81; /* Soft pink border */
     border-radius: 25px; /* Rounded corners */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);

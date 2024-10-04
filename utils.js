@@ -91,6 +91,20 @@ class Vector2 {
         }
         return new Vector2(...out)
     }
+    static combine(vector, vector2) {
+        if (!Array.isArray(vector)) {
+            vector = [...vector]
+        }
+        if (!Array.isArray(vector2)) {
+            vector2 = [...vector2]
+        }
+        let out = [...vector]
+        let length = out.length
+        for (let i = 0; i < length; i++) {
+            out[i] = Math.abs(vector2[i] + vector[i])
+        }
+        return new Vector2(...out)
+    }
     static get up() {
         return new Vector2(0, 1)
     }
@@ -114,6 +128,11 @@ class Vector2 {
         return sane.arreq(...n)
     }
     set(...numbers) {
+        if (numbers.length === 1) {
+            this.x = Vector2.x(numbers[0])
+            this.y = Vector2.y(numbers[0])
+            return
+        }
         for (let i = 0; i < numbers.length; i++) {
             let n = numbers[i]
             if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER;
@@ -128,7 +147,7 @@ class Vector2 {
         if (!Array.isArray(vector)) {
             vector = [...vector]
         }
-        let length = this.#val.length
+        let length = this.value.length
         for (let i = 0; i < length; i++) {
             vector[i] = this[i] ** vector[i]
         }
@@ -142,7 +161,7 @@ class Vector2 {
             }
             vector = [...vector]
         }
-        let length = this.#val.length
+        let length = this.value.length
         for (let i = 0; i < length; i++) {
             vector[i] = this[i] + vector[i]
         }
@@ -156,7 +175,7 @@ class Vector2 {
             }
             vector = [...vector]
         }
-        let length = this.#val.length
+        let length = this.value.length
         for (let i = 0; i < length; i++) {
             vector[i] = this[i] - vector[i]
         }
@@ -170,7 +189,7 @@ class Vector2 {
             }
             vector = [...vector]
         }
-        let length = this.#val.length
+        let length = this.value.length
         for (let i = 0; i < length; i++) {
             vector[i] = this[i] * vector[i]
         }
@@ -184,7 +203,7 @@ class Vector2 {
             }
             vector = [...vector]
         }
-        let length = this.#val.length
+        let length = this.value.length
         for (let i = 0; i < length; i++) {
             vector[i] = this[i] / vector[i]
         }
@@ -203,8 +222,15 @@ class Vector2 {
     invert() {
         this.set(...this.inverse)
     }
+    lerp({ to, time = 0.1 }) {
+        let sum = (this.minus(to)).multiply(time, time)
+        this.subtract(sum)
+    }
+    minus(other) {
+        return new Vector2(this).subtract(other)
+    }
     get average() {
-        return [...this].average()
+        return /*[...this]*/[this.x, this.y].average()
     }
     get inverse() {
         return new Vector2(this.x ** -1, this.y ** -1)
@@ -213,19 +239,19 @@ class Vector2 {
         return new Vector2(-this.x, -this.y)
     }
     get normalized() {
-        return new Vector2(...this.#val.map(o => o / this.magnitude||0))
+        return new Vector2(...this.value.map(o => o / this.magnitude || 0))
     }
     get magnitude() {
-        return this.#val.reduce((a, b) => Math.abs(a + b))
+        return this.value.reduce((a, b) => Math.abs(a + b))
     }
     get sqrtMag() {
         return Math.sqrt(this.magnitude)
     }
-    get #val() {
-        return Object.values(this)
+    get value() {
+        return [this.x, this.y]//Object.values(this)
     }
-    get string() {
-        return `(${this.#val.join(', ')})`
+    toString() {
+        return `(${this.value.join(', ')})`
     }
     get '0'() {
         return this.x
@@ -234,7 +260,9 @@ class Vector2 {
         return this.y
     }
     *[Symbol.iterator]() {
-        yield* this.#val
+        yield this.x
+        yield this.y
+        //    yield* this.value
     }
 }
 /*class Vector3 extends Vector2 {
@@ -453,7 +481,7 @@ class Elem {
         }
     }
     static noConsole() {
-     console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
+        console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
         addEventListener('keydown', function () {
             let __value__
             if (arguments[0]?.key?.toLowerCase?.() === 'backspace') {
@@ -473,7 +501,7 @@ class Elem {
     //   static history = {}
     static loaded = new Set;
     static failed = new Set;
-    static img(src,callback) {
+    static img(src, callback) {
         if (Elem.loaded.has(src)) {
             return src
         }
@@ -680,12 +708,12 @@ class Elem {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT/)) continue
                 if ('content' in node && node instanceof Elem) {
-                    out.children.push(node)
-                    node.content.parent = out
+                    //out.children.push(node)
+                    // node.content.parent = out
                 }
                 else {
                     let f = Elem.select(node)
-                    f.parent = out
+                    //    f.parent = out
                 }
             }
         }
@@ -766,8 +794,8 @@ class Elem {
         if (opts.message) {
             this.innerText = opts.message
         }
-        this.parent = null
-        this.children = []
+        //this.parent = null
+        //this.children = []
         Object.defineProperties(this.children, {
             switch: {
                 enumerable: false,
@@ -811,110 +839,50 @@ class Elem {
         }
         if (opts.parent) {
             if (typeof opts.parent == 'string') opts.parent = Elem[`#${opts.parent}`]
-            this.appendTo(opts.parent)
+            this.append(opts.parent)
         }
         this.current = this.content
         if (immediate) {
-            this.appendTo(body)
+            this.append(body)
         }
         if (opts.children) {
             for (let kid of opts.children) {
-                kid.appendTo(this.current)
-                this.children.push(kid)
-                kid.parent = this
+                kid.append(this)
+                //this.children.push(kid)
+                // kid.parent = this
             }
         }
         opts.start?.call?.(this)
     }
-    /**
-     * 
-     * @param {Element} parent 
-     * @returns 
-     * @description this becomes last child of argument
-     */
-    appendTo(parent) {
-        if (typeof parent === 'string') {
-            parent = Elem[`#${parent}`]
-            //Elem.error('Cannot use string as parent value')
-            //   return
-        }
-        try {
-            parent.appendChild(this.content)
-        }
-        catch (e) {
-            parent.content.appendChild(this.content)
-        }
-        if (parent instanceof Elem) {
-            parent.children.push(this)
-            this.parent = parent
-        }
-        return this
+    append(p) {
+        p.content.append(this.content)
     }
-    /**
-     * 
-     * @param {Element} child 
-     * @returns 
-     * @description argument becomes last child of this
-     */
-    appendInto(child) {
-        this.content.appendChild(child.content)
-        this.children.push(child)
-        child.parent = this
-        return this
+    prepend(p) {
+        p.content.prepend(this.content)
     }
-    replaceWith(newElem, persists) {
-        if (newElem) {
-            let index = this.index
-            if (index > -1) {
-                let oldElem = this.parent.children[index]
-                oldElem.content.replaceWith(newElem.content)
-                this.parent.children[index] = newElem
-                newElem.parent = this.parent
-            }
-            this.parent = null;
-        }
-        if (!persists) return this.kill();
-        return this
+
+    get parent() {
+        return this.content.parentElement?.content ?? null
     }
-    putAfter(after) {
-        let index = this.parent.children.indexOf(this)
-        if (index > -1) {
-            this.parent.children.insertAt(after, index + 1)
-            this.content.after(after.content)
-            after.parent = this.parent
-        }
+    get childCount() {
+        return this.children.length
     }
-    putBefore(before) {
-        let index = this.parent.children.indexOf(this)
-        if (index > -1) {
-            this.parent.children.insertAt(before, index - 1)
-            this.content.before(before.content)
-            before.parent = this.parent
-        }
+    get children() {
+        return [...this.content.children].filter(o => !(o.tagName.match(/SCRIPT|NOSCRIPT/))).map(o => o.content)
     }
-    prependInto(child) {
-        this.content.prepend(child.content)
-        this.children.unshift(child)
-        child.parent = this
-        return this
+    get parent() {
+        return this.content.parentNode?.content ?? null
     }
-    prependTo(parent) {
-        parent.content.prepend(this.content)
-        parent.children.unshift(this)
-        this.parent = parent
-        return this
+    get previous() {
+        return this.content.previousElementSibling?.content ?? null
     }
-    move(ammount = 1) {
-        let m = Math.abs(ammount)
-        for (let i = 0; i < m; i++) {
-            let index = this.index
-            if (index === -1 || !this.parent.children[index + Math.sign(ammount)]) return
-            this.parent.children.switch(this, this.parent.children[index + Math.sign(ammount)])
-        }
+    get next() {
+        return this.content.nextElementSibling?.content ?? null
     }
-    appendIntoBody() {
-        document.body.appendChild(this.content)
+    get firstChild() {
+        return this.content.firstElementChild?.content ?? null
     }
+
     get index() {
         return this.parent?.children?.indexOf?.(this) ?? null
     }
@@ -929,20 +897,23 @@ class Elem {
             }
 
             for (let $class of props.class) {
-                if (!Elem.findClass($class)) {
+             /*   if (!Elem.findClass($class)) {
                     Elem.messages.noclass($class)
                 } else if ([...this.content.classList].includes($class)) {
                     Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
                 }
-                else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }
-                this.content.classList.add($class)
+                else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
+                if ($class === 'fadeIn') this.toggle('fadeOut',false)
+                    if ($class === 'fadeOut') this.toggle('fadeIn',false)
+
+                this.toggle($class,true)
             }
         }
         return this
     }
-    anim(target, callback, keepClass) {
+    anim(target, callback, removeClass) {
         this.add(target)
-        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this.content); keepClass || this.removeClass(target.class) }])
+        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); removeClass && this.removeClass(target.class) }])
         return this
     }
     removeClass(...className) {
@@ -950,7 +921,7 @@ class Elem {
             if (!this.content.classList.contains(name)) {
                 Elem.warn(`Class is not present: ${name}`)
             }
-            this.content.classList.remove(name)
+            this.toggle(name,false)
         }
         return this
     }
@@ -961,8 +932,11 @@ class Elem {
         for (let [eventName, event] of events) {
             Elem.listeners++
             if (!(eventName in this.eventNames)) {
-                this.content.addEventListener(eventName, event)
-                this.eventNames[eventName] = event
+                let f = (e) => {
+                    event.call(this, e)
+                }
+                this.content.addEventListener(eventName, f)
+                this.eventNames[eventName] = f
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event.toString().replaceAll(`\n`, '').replaceAll(' ', '')}`)
             }
             else {
@@ -984,8 +958,8 @@ class Elem {
     }
     kill() {
         this.noevent(...Object.keys(this.eventNames))
-        if (this.content.id) {
-            Elem.info(`Element ${this.content.id} was removed from body`)
+        if (this.id) {
+            Elem.info(`Element ${this.id} was removed from body`)
         }
         Elem.debug(`Element removed`)
         this.ondeath?.()
@@ -993,29 +967,39 @@ class Elem {
         this.killChildren()
         this?.parent?.children?.deleteWithin?.(this)
         Elem.elements.delete(this)
-        this.content.remove?.()
+        if (body !== this) {
+
+            this.content.remove?.()
+        }
         return
     }
     killChildren() {
-        while (this.children.length) {
-            this.children.forEach(o => o.kill())
-        }
+        let c = this.children
+
+        c.forEach(o => {
+            while (this.content.contains(o?.content)) o.kill()
+        })
+
         return this
     }
     hide() {
-        this.addClass('hidden')
+        this.toggle('hidden',true)
         return this
+    }
+    show() {
+        this.toggle('hidden',false)
+        return this
+    }
+    toggle($,force) {
+        this.content.classList.toggle($,force)
     }
     fadeOut(callback) {
         this.anim({ class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
     }
     fadeIn(callback) {
-        this.anim({ class: 'fadeIn' }, () => { this.content.style.opacity = 1; callback?.call?.(this) })
+        this.anim({ class: 'fadeIn' }, () => { this.toggle('fadeIn',false);this.content.style.opacity = 1; callback?.call?.(this) })
     }
-    show() {
-        this.removeClass('hidden')
-        return this
-    }
+   
 }
 
 
@@ -1074,7 +1058,7 @@ class SceneryElem extends Elem {
         //  this.style.left = `${Math.trunc(this.position.x)}px`
         //  this.style.top = `${Math.trunc(this.position.y)}px`
     }
-    
+
 }
 /* COLOR (goes last because it's so long) */
 const color = Object.defineProperties({
