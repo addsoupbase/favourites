@@ -656,7 +656,7 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for','preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText','textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
@@ -968,7 +968,8 @@ class Elem {
         }
         this.add(target)
         this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); 
-            (removeClass || !keep) && this.removeClass(target.class) }])
+            (removeClass || !keep) && this.removeClass(target.class)
+         }])
         return this
     }
     removeClass(...className) {
