@@ -10,7 +10,7 @@ const { sin, cos } = Math;
 new あ({
     parent: body,
     start() {
- this.anim({ class: 'bounce-in-top' },
+        this.anim({ class: 'bounce-in-top' },
             () => {
                 new あ({
                     tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
@@ -19,25 +19,25 @@ new あ({
                                 this.noevent('click')
                                 this.removeClass('clickable')
                                 this.fadeOut(this.kill)
-                                あ['#main'].fadeOut(()=>thanks())
+                                あ['#main'].fadeOut(() => thanks())
                             }
                         }))
                     }, id: 'foot', events: {
 
                     }
                 }, true)
-         
 
-                Elem.bulk((first,second)=>{
+
+                Elem.bulk((first, second) => {
                     let div = new SceneryElem({
 
                         parent: 'box', styles: {
                             'z-index': 3, width: '200px', height: '200px',
                             position: 'absolute', top: '100%', display: 'flex',
                             'align-items': 'center'
-    
+
                         }, x: 300, y: -200
-                    })  
+                    })
                     div.fadeIn()
                     div.velocity.set(0, -1)
                     for (let i of ['wings', 'wings2']) {
@@ -55,7 +55,7 @@ new あ({
                             tag: 'img', parent: div,
                             src: second,
                             draggable: false,
-    
+
                             styles: {
                                 'box-shadow': '0 0 30px yellow',
                                 width: '100px',
@@ -69,9 +69,9 @@ new あ({
                             }
                         })
                     }
-    
-                },'./media/wings.webp','./media/art.webp')
-              
+
+                }, './media/wings.webp', './media/art.webp')
+
                 for (let i = 10; i--;) {
                     let _c = color.choose()
                     let em = new SceneryElem({
@@ -134,11 +134,11 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
                         new あ({
-                            tag: 'img', class: ['clickable', 'preview'], src: './media/js.webp', events: {
+                            tag: 'img', class: ['clickable', 'preview'], src: Elem.preload('./media/js.webp'), events: {
                                 click() {
                                     this.anim({ class: 'rotate-center', }, () => {
 
-                                    },true)
+                                    }, true)
                                 }
                             }, style: 'border-radius: 10%;'
                         })
@@ -161,7 +161,7 @@ new あ({
                 new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Sound: <b>Windows Logon Sound</b>' }),
-                        new あ({ tag: 'audio', src: './media/logonsound.mp3', controls: true, type: 'audio/mpeg' }),
+                        new あ({ tag: 'audio', src: Elem.preload('./media/logonsound.mp3'), controls: true, type: 'audio/mpeg' }),
                     ]
                 }),
             ]
@@ -172,7 +172,7 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
                         new あ({
-                            tag: 'img', src: './media/hugs.webp', title: 'big hugs', class: ['clickable'], events: {
+                            tag: 'img', src: Elem.preload('./media/hugs.webp'), title: 'big hugs', class: ['clickable'], events: {
                                 click() {
                                     this.anim({ class: 'wobble-hor-bottom' })
                                 }
@@ -241,12 +241,16 @@ new あ({
                                 new あ({
                                     tag: 'fig', children: [
 
-                                        new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: { click() { 
-                                this.anim({class:'fade-in-tr'},true,true)
-                                            cycleImage()
-                                            
-                                        
-                                         } } }),
+                                        new あ({
+                                            tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: {
+                                                click() {
+                                                    this.anim({ class: 'fade-in-tr' }, true, true)
+                                                    cycleImage()
+
+
+                                                }
+                                            }
+                                        }),
                                         new あ({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
                                     ]
                                 }),
@@ -284,7 +288,7 @@ new あ({
                         new あ({
                             tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
                                 ['click', function () {
-                                    this.anim({ class: 'jello-horizontal' },1,true)
+                                    this.anim({ class: 'jello-horizontal' }, 1, true)
 
 
                                 }]
@@ -306,7 +310,7 @@ new あ({
                             new あ({ tag: 'a', text: 'Animista', href: 'https://animista.net/' }),
                             new あ({ tag: 'a', text: 'Skribbl.io', href: 'https://skribbl.io/' })
                             ]
-                        })  
+                        })
                     ]
                 }),
             ]
@@ -317,9 +321,9 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
                         new あ({
-                            tag: 'img', class: ['preview', 'clickable'], src:Elem.preload( './media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
+                            tag: 'img', class: ['preview', 'clickable'], src: Elem.preload('./media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                 click() {
-                                    this.anim({ class: 'wobble-hor-bottom' },1,true)
+                                    this.anim({ class: 'wobble-hor-bottom' }, 1, true)
                                 }
                             }
                         }),
@@ -377,7 +381,7 @@ new あ({
                         click() {
                             if (!あ['#formMessage'].value) {
                                 あ['#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                あ['#formMessage'].anim({ class: 'shake-horizontal' },1,true)
+                                あ['#formMessage'].anim({ class: 'shake-horizontal' }, 1, true)
                                 return
                             }
                             あ['#submitBtn'].noevent('click')
@@ -446,7 +450,7 @@ function thanks() {
 
         ], id: 'main2'
     }, true)
-    n.anim({ class: 'roll-in-left' }, ()=>あ['#main'].kill())
+    n.anim({ class: 'roll-in-left' }, () => あ['#main'].kill())
 
 }
 
@@ -472,7 +476,7 @@ const letters = 'abcdefghijklmnopqrstuvwxyz'
 let current = 0,
     current2 = 0;
 let avatars = [
-    Elem.preload('./media/towa.webp'), Elem.preload('./media/marnie.webp'), Elem.preload('./media/kiss.webp'),
+    './media/towa.webp', Elem.preload('./media/marnie.webp'), Elem.preload('./media/kiss.webp'),
     Elem.preload('./media/mismagius.webp'),
     Elem.preload('./media/poke.webp'),
     Elem.preload('./media/coffee.webp'),
@@ -492,7 +496,7 @@ function cycleAvatar() {
     let m = あ['#avatars']
     m.noevent('click')
 
-    m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) },true)
+    m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) }, true)
     m.src = avatars[current2]
 }
 function cycleImage() {
@@ -517,7 +521,7 @@ const loop = function () {
     frame++
     SceneryElem.update()
     if (!(frame % 20)) {
-        let u =  function () {
+        let u = function () {
             if (this.rand > 0) {
                 this.velocity.add(Math.cos(frame / 100) / 100, 0)
             }
@@ -526,12 +530,12 @@ const loop = function () {
 
             }
         }
-        if (!document.body.contains(snow.content)){
+        if (!document.body.contains(snow.content)) {
             return
         }
         let f = new SceneryElem({
             x: ran.range(0, 300),
-            y: -100,  
+            y: -100,
             position: 'absolute',
 
             children: [
@@ -540,24 +544,25 @@ const loop = function () {
                     class: [ran.choose('spin', 'spin2'), 'snowflake'], tag: 'img', src: "./media/snow.svg", styles: { width: '30px', height: '30px' }
                 })
             ], parent: snow,
-        })   
+        })
         for (let i = 2; i--;) {
             let k = new SceneryElem({
                 x: ran.range(0, 300),
-                y: -100,  
-           
+                y: -100,
+
                 parent: snow,
-                styles:{
-                width: '5px',
-                height: '5px',
-                'border-radius': '100%',
-                'background-color': 'white'
-            }})
+                styles: {
+                    width: '5px',
+                    height: '5px',
+                    'border-radius': '100%',
+                    'background-color': 'white'
+                }
+            })
             k.velocity.set(0, 1)
             k.rand = ran.choose(-1, 1)
-    k.update=u
+            k.update = u
         }
-   
+
         f.update = u
         f.rand = ran.choose(-1, 1)
         f.velocity.set(0, 1)

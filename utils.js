@@ -461,6 +461,21 @@ function padZero(str, len = 2) {
     var zeros = new Array(len).join('0');
     return (zeros + str).slice(-len);
 }
+function isOverFlowed(elm) {
+    const parent = elm.parentElement; // Get the parent element
+    const rect = elm.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect(); // Get the parent's bounding rectangle
+
+    // Check if the element is within the parent's bounds
+    const isVisible =
+        rect.bottom > parentRect.top &&
+        rect.top < parentRect.bottom &&
+        rect.right > parentRect.left &&
+        rect.left < parentRect.right;
+
+    return isVisible;
+}
+
 //addEventListener('blur', ()=>checkVisible.blured=true)
 //addEventListener('focus', ()=>checkVisible.blured=false)
 
@@ -533,7 +548,7 @@ class Elem {
         } else if (type.match(Elem.formats.video)) {
             let video = new Elem({tag:'video',preload: 'auto'})
             video.content.onload = () =>{
-                Elem.success(`Recourse loaded: ${src}`)
+                Elem.success(`Resource loaded: ${src}`)
                 callback?.(src)
             }
         }
@@ -543,15 +558,15 @@ class Elem {
         x.src = src
         x.onerror = function (err) {
             console.error('Error: ', err)
-            Elem.error(`Recourse error: ${src}`)
+            Elem.error(`Resource error: ${src}`)
             Elem.failed.add(src)
         }
         x.onload = () => {
             callback?.(src)
-            Elem.success(`Recourse Pre-loaded: ${src}`)
+            Elem.success(`Resource Pre-loaded: ${src}`)
             Elem.loaded.add(src)
         }
-        Elem.info(`Preloading Recourse: ${src}`)
+        Elem.info(`Preloading Resource: ${src}`)
         return src
 
     }
@@ -1058,6 +1073,9 @@ class SceneryElem extends Elem {
         this.position.set(+opts.x || 0, +opts.y || 0)
         this.#update()
     }
+   get isOverFlowed(){
+        return isOverFlowed(this.content)
+    }
     rotate(rot = 0) {
         this.rotation += rot
     }
@@ -1070,7 +1088,7 @@ class SceneryElem extends Elem {
     #update() {
         this.#lifetime++
         if (this.#lifetime > 1) {
-            if (!checkVisible(this.content)) {
+            if (!this.isOverFlowed) {
                 if (this.#hasBeenSeen) this.outofbounds?.()
             } else this.#hasBeenSeen = true
             this.update?.()
