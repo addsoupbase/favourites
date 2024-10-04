@@ -37,36 +37,39 @@ new あ({
                 })
                 div.fadeIn()
                 div.velocity.set(0, -1)
-                for (let i of ['wings', 'wings2']) {
-                    let x = i !== 'wings' ? '180deg' : '0deg'
-                    let f = new Elem({
-                        draggable: false,
-                        tag: 'img',
-                        src: Elem.img('./media/wings.webp'),
-                        parent: div, styles: {
-                            width: '50%', height: '50%',
-                            transform: `rotateY(${x})`
-                        }
-                    })
-                    i === 'wings' && new Elem({
-                        tag: 'img', parent: div,
-                        src: Elem.img(`./media/art.webp`),
-                        draggable: false,
-
-                        styles: {
-                            'box-shadow': '0 0 30px yellow',
-                            width: '100px',
-                            'border-radius': '100%',
-                            height: '100px',
-                            'min-width': '100px',
-                            'min-height': '100px',
-                            'max-width': '100px',
-                            'max-height': '100px',
-                            'margin-top': '40px'
-                        }
-                    })
-                }
-
+                Elem.bulk((first,second)=>{
+                    for (let i of ['wings', 'wings2']) {
+                        let x = i !== 'wings' ? '180deg' : '0deg'
+                        let f = new Elem({
+                            draggable: false,
+                            tag: 'img',
+                            src: first,
+                            parent: div, styles: {
+                                width: '50%', height: '50%',
+                                transform: `rotateY(${x})`
+                            }
+                        })
+                        i === 'wings' && new Elem({
+                            tag: 'img', parent: div,
+                            src: second,
+                            draggable: false,
+    
+                            styles: {
+                                'box-shadow': '0 0 30px yellow',
+                                width: '100px',
+                                'border-radius': '100%',
+                                height: '100px',
+                                'min-width': '100px',
+                                'min-height': '100px',
+                                'max-width': '100px',
+                                'max-height': '100px',
+                                'margin-top': '40px'
+                            }
+                        })
+                    }
+    
+                },'./media/wings.webp','./media/art.webp')
+              
                 for (let i = 10; i--;) {
                     let _c = color.choose()
                     let em = new SceneryElem({

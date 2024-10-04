@@ -501,6 +501,19 @@ class Elem {
     //   static history = {}
     static loaded = new Set;
     static failed = new Set;
+    static bulk(callback, ...src) {
+        let parse = [callback]
+        for (let li of src) {
+            parse.unshift(li)
+            Elem.img(li,
+                (s)=>{
+                    parse.deleteWithin(s);
+                    if (parse.length===1) {
+                        parse[0](...src)
+                    }
+                })
+        }
+    }
     static img(src, callback) {
         if (Elem.loaded.has(src)) {
             return src
