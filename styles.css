@@ -189,7 +189,7 @@ iframe {
 }
 
 audio {
-    max-width: 250px;
+    max-width: 100%;
 }
 
 #bg {

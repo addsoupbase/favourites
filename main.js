@@ -13,7 +13,7 @@ new あ({
  this.anim({ class: 'bounce-in-top' },
             () => {
                 new あ({
-                    tag: 'img', src: Elem.img('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
+                    tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
                         this.fadeIn(() => this.addevent({
                             click() {
                                 this.noevent('click')
@@ -260,7 +260,7 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
                         new あ({
-                            tag: 'img', class: ['preview', 'clickable'], title: 'Gravity Falls (2012)', src: Elem.img('./media/gravityfalls.webp'), events: {
+                            tag: 'img', class: ['preview', 'clickable'], title: 'Gravity Falls (2012)', src: Elem.preload('./media/gravityfalls.webp'), events: {
                                 click() {
                                     open('https://www.youtube.com/watch?v=o2E2wLm_LlY&list=PLg6R6yXKSLYBomPPcqXGzaQI0pCZc8uZA')
                                 }
@@ -312,7 +312,7 @@ new あ({
                     tag: 'div', children: [
                         new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
                         new あ({
-                            tag: 'img', class: ['preview', 'clickable'], src:Elem.img( './media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
+                            tag: 'img', class: ['preview', 'clickable'], src:Elem.preload( './media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                 click() {
                                     this.anim({ class: 'wobble-hor-bottom' },1,true)
                                 }
@@ -333,7 +333,7 @@ new あ({
                             tag: 'div', children: [
 
                                 new あ({
-                                    tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: Elem.img('./media/towa.webp'), events: {
+                                    tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: Elem.preload('./media/towa.webp'), events: {
                                         click() {
                                             cycleAvatar()
                                         }
@@ -436,7 +436,7 @@ function thanks() {
     let n = new あ({
         tag: 'div', start() { this.hide }, children: [
             new あ({ tag: 'p', text: 'THANK YOU FOR VIEWING THIS IT MEANS A LOT TO ME HONESTLY!!<br>I MADE IT MYSELF' }),
-            new あ({ tag: 'img', src: Elem.img('./media/grouphug.webp') }),
+            new あ({ tag: 'img', src: Elem.preload('./media/grouphug.webp') }),
             new あ({ tag: 'p', text: 'Message me a screenshot if you see this' }),
 
         ], id: 'main2'
@@ -447,19 +447,19 @@ function thanks() {
 
 
 let examples = [{
-    src: Elem.img('./media/fig1.webp'),
+    src: Elem.preload('./media/fig1.webp'),
     description: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!',
     title: 'Mila being hyper'
 }, {
-    src: Elem.img('./media/cicada.webp'),
+    src: Elem.preload('./media/cicada.webp'),
     description: 'When you say stupid stuff that makes me laugh for no reason',
     title: 'CICADA'
 }, {
-    src: Elem.img('./media/copy.webp'),
+    src: Elem.preload('./media/copy.webp'),
     description: 'When you copy me',
     title: 'STARRRRRRRRRR'
 }, {
-    src: Elem.img('./media/bear.webp'),
+    src: Elem.preload('./media/bear.webp'),
     description: 'When you show me stuff you made!! Even if you think its bad! (i dont have an example for this one, so just take the hearts <3)',
     title: '<3'
 },]
@@ -467,16 +467,16 @@ const letters = 'abcdefghijklmnopqrstuvwxyz'
 let current = 0,
     current2 = 0;
 let avatars = [
-    Elem.img('./media/towa.webp'), Elem.img('./media/marnie.webp'), Elem.img('./media/kiss.webp'),
-    Elem.img('./media/mismagius.webp'),
-    Elem.img('./media/poke.webp'),
-    Elem.img('./media/coffee.webp'),
-    Elem.img('./media/rorochan.webp'),
-    Elem.img('./media/magolor.webp'),
-    Elem.img('./media/mawile.webp'),
-    Elem.img('./media/swords.webp'),
-    Elem.img('./media/cute.webp'),
-    Elem.img('./media/thing.webp'),
+    Elem.preload('./media/towa.webp'), Elem.preload('./media/marnie.webp'), Elem.preload('./media/kiss.webp'),
+    Elem.preload('./media/mismagius.webp'),
+    Elem.preload('./media/poke.webp'),
+    Elem.preload('./media/coffee.webp'),
+    Elem.preload('./media/rorochan.webp'),
+    Elem.preload('./media/magolor.webp'),
+    Elem.preload('./media/mawile.webp'),
+    Elem.preload('./media/swords.webp'),
+    Elem.preload('./media/cute.webp'),
+    Elem.preload('./media/thing.webp'),
 
 ]
 function cycleAvatar() {

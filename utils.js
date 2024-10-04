@@ -467,6 +467,11 @@ function padZero(str, len = 2) {
 /* CLASSES */
 class Elem {
     age = Date.now()
+    static formats = {
+        image: /webp|png|jpeg|jpg|gif/,
+        video: /mp4|mpeg|webm|avi|mov/,
+        audio: /mp3|ogg|wav|aiff|aac|flac/
+    }
     static textStyle(message, options) {
         //  this.history[message] ??= 0
         // this.history[message]++
@@ -505,7 +510,7 @@ class Elem {
         let parse = [callback]
         for (let li of src) {
             parse.unshift(li)
-            Elem.img(li,
+            Elem.preload(li,
                 (s)=>{
                     parse.deleteWithin(s);
                     if (parse.length===1) {
@@ -514,26 +519,39 @@ class Elem {
                 })
         }
     }
-    static img(src, callback) {
+    static preload(src, callback) {
         if (Elem.loaded.has(src)) {
             return src
         }
-        if (!src) {
+        if (!src || !src.replaceAll(' ','')) {
             throw TypeError('No source for image provided.')
         }
-        let x = new Image()
+        let type = src.split('.').pop()
+        let x;
+        if (type.match(Elem.formats.image)) {
+          x=   new Image()
+        } else if (type.match(Elem.formats.video)) {
+            let video = new Elem({tag:'video',preload: 'auto'})
+            video.content.onload = () =>{
+                Elem.success(`Recourse loaded: ${src}`)
+                callback?.(src)
+            }
+        }
+        else if (type.match(Elem.formats.audio)) {
+        x = new Audio()
+        }
         x.src = src
         x.onerror = function (err) {
             console.error('Error: ', err)
-            Elem.error(`Image error: ${src}`)
+            Elem.error(`Recourse error: ${src}`)
             Elem.failed.add(src)
         }
         x.onload = () => {
             callback?.(src)
-            Elem.success(`Image Pre-loaded: ${src}`)
+            Elem.success(`Recourse Pre-loaded: ${src}`)
             Elem.loaded.add(src)
         }
-        Elem.info(`Preloading Image: ${src}`)
+        Elem.info(`Preloading Recourse: ${src}`)
         return src
 
     }
@@ -623,7 +641,7 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for','preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
