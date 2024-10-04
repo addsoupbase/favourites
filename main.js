@@ -241,7 +241,12 @@ new あ({
                                 new あ({
                                     tag: 'fig', children: [
 
-                                        new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: { click() { cycleImage() } } }),
+                                        new あ({ tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: { click() { 
+                                this.anim({class:'fade-in-tr'},true,true)
+                                            cycleImage()
+                                            
+                                        
+                                         } } }),
                                         new あ({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
                                     ]
                                 }),
@@ -496,8 +501,6 @@ function cycleImage() {
     if (!examples[current]) {
         current = 0
     }
-    あ['#msgImg'].noevent('click')
-    あ['#msgImg'].anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleImage }) })
 
 
     あ['#msgImg'].src = examples[current].src
