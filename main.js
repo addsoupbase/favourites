@@ -26,18 +26,20 @@ new あ({
 
                     }
                 }, true)
-                let div = new SceneryElem({
+         
 
-                    parent: 'box', styles: {
-                        'z-index': 3, width: '200px', height: '200px',
-                        position: 'absolute', top: '100%', display: 'flex',
-                        'align-items': 'center'
-
-                    }, x: 300, y: -200
-                })
-                div.fadeIn()
-                div.velocity.set(0, -1)
                 Elem.bulk((first,second)=>{
+                    let div = new SceneryElem({
+
+                        parent: 'box', styles: {
+                            'z-index': 3, width: '200px', height: '200px',
+                            position: 'absolute', top: '100%', display: 'flex',
+                            'align-items': 'center'
+    
+                        }, x: 300, y: -200
+                    })  
+                    div.fadeIn()
+                    div.velocity.set(0, -1)
                     for (let i of ['wings', 'wings2']) {
                         let x = i !== 'wings' ? '180deg' : '0deg'
                         let f = new Elem({
