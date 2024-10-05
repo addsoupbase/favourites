@@ -136,7 +136,7 @@ new あ({
                         new あ({
                             tag: 'img', class: ['clickable', 'preview'], src: Elem.preload('./media/js.webp'), events: {
                                 click() {
-                                    this.anim({ 'keep class': true,class: 'rotate-center', }, () => {
+                                    this.anim({ class: 'rotate-center', }, () => {
 
                                     },)
                                 }
@@ -244,7 +244,7 @@ new あ({
                                         new あ({
                                             tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: {
                                                 click() {
-                                                    this.anim({'keep class': true, class: 'fade-in-tr' })
+                                                    this.anim({class: 'fade-in-tr' })
                                                     cycleImage()
 
 
@@ -288,7 +288,7 @@ new あ({
                         new あ({
                             tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
                                 ['click', function () {
-                                    this.anim({ 'keep class': true,class: 'jello-horizontal' })
+                                    this.anim({ class: 'jello-horizontal' })
 
 
                                 }]
@@ -323,7 +323,7 @@ new あ({
                         new あ({
                             tag: 'img', class: ['preview', 'clickable'], src: Elem.preload('./media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                 click() {
-                                    this.anim({'keep class': true, class: 'wobble-hor-bottom' })
+                                    this.anim({ class: 'wobble-hor-bottom' })
                                 }
                             }
                         }),
@@ -381,7 +381,7 @@ new あ({
                         click() {
                             if (!あ['#formMessage'].value) {
                                 あ['#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                あ['#formMessage'].anim({'keep class': true, class: 'shake-horizontal' })
+                                あ['#formMessage'].anim({class: 'shake-horizontal' })
                                 return
                             }
                             あ['#submitBtn'].noevent('click')
@@ -496,7 +496,7 @@ function cycleAvatar() {
     let m = あ['#avatars']
     m.noevent('click')
 
-    m.anim({ 'keep class': true,class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) })
+    m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) })
     m.src = avatars[current2]
 }
 function cycleImage() {
