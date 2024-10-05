@@ -960,7 +960,7 @@ class Elem {
         }
         return this
     }
-    anim(target, callback, removeClass) {
+    anim(target, callback) {
         let keep = false
         if ('keep class' in target) {
             delete target['keep class']
@@ -968,7 +968,7 @@ class Elem {
         }
         this.add(target)
         this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); 
-            (removeClass || !keep) && this.removeClass(target.class)
+            (!keep) && this.removeClass(target.class)
          }])
         return this
     }
@@ -1050,10 +1050,10 @@ class Elem {
         this.content.classList.toggle($,force)
     }
     fadeOut(callback) {
-        this.anim({ class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
+        this.anim({'keep class': true, class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
     }
     fadeIn(callback) {
-        this.anim({ class: 'fadeIn' }, () => { this.toggle('fadeIn',false);this.content.style.opacity = 1; callback?.call?.(this) })
+        this.anim({'keep class': true, class: 'fadeIn' }, () => { this.toggle('fadeIn',false);this.content.style.opacity = 1; callback?.call?.(this) })
     }
    
 }
