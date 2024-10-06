@@ -356,7 +356,7 @@ new あ({
 
             ]
         }),
-        new あ({
+       /* new あ({
             tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
                 new あ({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
                 new あ({
@@ -430,14 +430,9 @@ new あ({
                 }),
 
                 new あ({ tag: 'img', class: ['emoji2', 'hidden'], id: 'loading', src: './media/heartmessage.webp' }),
-                /*     new あ({tag:'div',class:['hidden'],id:'loading',children:[
-                         new あ({tag:'img', class:['emoji'],src:'./media/yb.webp'}),
-                         new あ({tag:'img', class:['emoji'],src:'./media/tb.webp'})
-     
-     
-                     ]})*/
+          
             ]
-        }),
+        }),*/
     ]
 })
 
