@@ -278,6 +278,18 @@ class Vector2 {
         return this.z
     }
 }*/
+class Cycle {
+    constructor(...items) {
+        return function* (t) {
+            let x = 0
+            for (; ;) {
+                if (x === t.length) x = 0;
+                yield t[x++]
+            }
+        }(items)
+    }
+}
+
 Number.prototype.comma = function () {
     return `${this}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -483,7 +495,7 @@ function isOverFlowed(elm) {
 class Elem {
     age = Date.now()
     static log() {
-        Object.keys(this.logLevels).forEach(o=>{
+        Object.keys(this.logLevels).forEach(o => {
             this.logLevels[o] = !this.logLevels[o]
         })
     }
@@ -531,9 +543,9 @@ class Elem {
         for (let li of src) {
             parse.unshift(li)
             Elem.preload(li,
-                (s)=>{
+                (s) => {
                     parse.deleteWithin(s);
-                    if (parse.length===1) {
+                    if (parse.length === 1) {
                         parse[0](...src)
                     }
                 })
@@ -543,22 +555,22 @@ class Elem {
         if (Elem.loaded.has(src)) {
             return src
         }
-        if (!src || !src?.replaceAll?.(' ','')) {
+        if (!src || !src?.replaceAll?.(' ', '')) {
             throw TypeError('No source for Media provided.')
         }
         let type = src.split('.').pop()
         let x;
         if (type.match(Elem.formats.image)) {
-          x=   new Image()
+            x = new Image()
         } else if (type.match(Elem.formats.video)) {
-            let video = new Elem({tag:'video',preload: 'auto'})
-            video.content.onload = () =>{
+            let video = new Elem({ tag: 'video', preload: 'auto' })
+            video.content.onload = () => {
                 Elem.success(`Resource loaded: ${src}`)
                 callback?.(src)
             }
         }
         else if (type.match(Elem.formats.audio)) {
-        x = new Audio()
+            x = new Audio()
         }
         x.src = src
         x.onerror = function (err) {
@@ -661,7 +673,7 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','target','rel','preload', 'multiple', 'disabled', 'href', 'draggable', 'label','cx','cy','r','stroke','stroke-width','fill', 'innerText','textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'cx', 'cy', 'r', 'stroke', 'stroke-width', 'fill', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
@@ -915,8 +927,8 @@ class Elem {
     replaceWith(p) {
         this.content.replaceWith(p.content)
     }
-    becomeChild(p){
-        this.content.append(p.content   )
+    becomeChild(p) {
+        this.content.append(p.content)
     }
     prepend(p) {
         p.content.prepend(this.content)
@@ -958,16 +970,16 @@ class Elem {
             }
 
             for (let $class of props.class) {
-             /*   if (!Elem.findClass($class)) {
-                    Elem.messages.noclass($class)
-                } else if ([...this.content.classList].includes($class)) {
-                    Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
-                }
-                else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
-                if ($class === 'fadeIn') this.toggle('fadeOut',false)
-                    if ($class === 'fadeOut') this.toggle('fadeIn',false)
+                /*   if (!Elem.findClass($class)) {
+                       Elem.messages.noclass($class)
+                   } else if ([...this.content.classList].includes($class)) {
+                       Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
+                   }
+                   else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
+                if ($class === 'fadeIn') this.toggle('fadeOut', false)
+                if ($class === 'fadeOut') this.toggle('fadeIn', false)
 
-                this.toggle($class,true)
+                this.toggle($class, true)
             }
         }
         return this
@@ -979,9 +991,10 @@ class Elem {
             keep = true
         }
         this.add(target)
-        this.addevent(['animationend', () => { this.noevent('animationend'); callback?.call?.(this); 
+        this.addevent(['animationend', () => {
+            this.noevent('animationend'); callback?.call?.(this);
             (!keep) && this.removeClass(target.class)
-         }])
+        }])
         return this
     }
     removeClass(...className) {
@@ -989,7 +1002,7 @@ class Elem {
             if (!this.content.classList.contains(name)) {
                 Elem.warn(`Class is not present: ${name}`)
             }
-            this.toggle(name,false)
+            this.toggle(name, false)
         }
         return this
     }
@@ -1051,23 +1064,23 @@ class Elem {
         return this
     }
     hide() {
-        this.toggle('hidden',true)
+        this.toggle('hidden', true)
         return this
     }
     show() {
-        this.toggle('hidden',false)
+        this.toggle('hidden', false)
         return this
     }
-    toggle($,force) {
-        this.content.classList.toggle($,force)
+    toggle($, force) {
+        this.content.classList.toggle($, force)
     }
     fadeOut(callback) {
-        this.anim({'keep class': true, class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
+        this.anim({ 'keep class': true, class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
     }
     fadeIn(callback) {
-        this.anim({'keep class': true, class: 'fadeIn' }, () => { this.toggle('fadeIn',false);this.content.style.opacity = 1; callback?.call?.(this) })
+        this.anim({ 'keep class': true, class: 'fadeIn' }, () => { this.toggle('fadeIn', false); this.content.style.opacity = 1; callback?.call?.(this) })
     }
-   
+
 }
 
 
@@ -1097,7 +1110,7 @@ class SceneryElem extends Elem {
         this.position.set(+opts.x || 0, +opts.y || 0)
         this.#update()
     }
-   get isOverFlowed(){
+    get isOverFlowed() {
         return isOverFlowed(this.content)
     }
     rotate(rot = 0) {
