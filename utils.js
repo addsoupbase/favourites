@@ -581,7 +581,7 @@ class Elem {
             super(opts)
             this.loading = 'lazy'
             this.frameborder = 0
-            this.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+            this.allow = 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
             this.referrerpolicy = 'strict-origin-when-cross-origin'
             this.allowfullscreen = true
         }
@@ -907,6 +907,13 @@ class Elem {
     }
     append(p) {
         p.content.append(this.content)
+    }
+    adopt(child) {
+        //Lets get this right once and for all
+        this.content.append(child.content)
+    }
+    replaceWith(p) {
+        this.content.replaceWith(p.content)
     }
     becomeChild(p){
         this.content.append(p.content   )
