@@ -273,20 +273,24 @@ class Vector2 {
             ({z}=x)
         }
         this.set(x, y, z)
-    }
+    }   
     get '2'() {
         return this.z
     }
 }*/
 class Cycle {
     constructor(...items) {
-        return function* (t) {
+         let f = function* (t) {
             let x = 0
             for (; ;) {
                 if (x === t.length) x = 0;
                 yield t[x++]
             }
-        }(items)
+        }(items);
+        Object.defineProperty(f,'val',{
+            get(){return this.next().value}
+        })
+        return f
     }
 }
 
