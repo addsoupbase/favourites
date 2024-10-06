@@ -464,14 +464,14 @@ function padZero(str, len = 2) {
 function isOverFlowed(elm) {
     const parent = elm.parentElement; // Get the parent element
     const rect = elm.getBoundingClientRect();
-    const parentRect = parent.getBoundingClientRect(); // Get the parent's bounding rectangle
+    const parentRect = parent?.getBoundingClientRect?.(); // Get the parent's bounding rectangle
 
     // Check if the element is within the parent's bounds
     const isVisible =
-        rect.bottom > parentRect.top &&
-        rect.top < parentRect.bottom &&
-        rect.right > parentRect.left &&
-        rect.left < parentRect.right;
+        rect.bottom > parentRect?.top &&
+        rect.top < parentRect?.bottom &&
+        rect.right > parentRect?.left &&
+        rect.left < parentRect?.right;
 
     return isVisible;
 }
@@ -482,6 +482,11 @@ function isOverFlowed(elm) {
 /* CLASSES */
 class Elem {
     age = Date.now()
+    static log() {
+        Object.keys(this.logLevels).forEach(o=>{
+            this.logLevels[o] = !this.logLevels[o]
+        })
+    }
     static formats = {
         image: /webp|png|jpeg|jpg|gif/,
         video: /mp4|mpeg|webm|avi|mov/,
@@ -538,8 +543,8 @@ class Elem {
         if (Elem.loaded.has(src)) {
             return src
         }
-        if (!src || !src.replaceAll(' ','')) {
-            throw TypeError('No source for image provided.')
+        if (!src || !src?.replaceAll?.(' ','')) {
+            throw TypeError('No source for Media provided.')
         }
         let type = src.split('.').pop()
         let x;
@@ -656,7 +661,7 @@ class Elem {
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
-    static attributes = ['for','preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'innerText','textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for','target','rel','preload', 'multiple', 'disabled', 'href', 'draggable', 'label','cx','cy','r','stroke','stroke-width','fill', 'innerText','textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
@@ -1061,7 +1066,9 @@ class Elem {
 
 class SceneryElem extends Elem {
     static all = new Set
+    static frame = 0
     static update() {
+        this.frame++
         this.all.forEach(o => {
             if (Elem.elements.has(o)) o.#update();
             else return this.all.delete(o)
