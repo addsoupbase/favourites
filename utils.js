@@ -29,18 +29,12 @@ const sane = {
     sanitize: num => (num == num) && num !== null && isFinite(num),
     equality: (...target) => target.every(o => Object.is(o, target[0])),
     arreq(...targets) {
-        if (targets.length < 2) {
-            throw RangeError('At least 2 arguments required.')
-        }
+        if (targets.length < 2) throw RangeError('At least 2 arguments required.')
         for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; i++) {
-            if (!Array.isArray(targets[i])) {
-                throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
-            }
-            for (let comparisons of targets) {
-                if (!sane.equality(targets[0][i], comparisons[i])) {
-                    return false
-                }
-            }
+            if (!Array.isArray(targets[i])) throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
+            for (let comparisons of targets) if (!sane.equality(targets[0][i], comparisons[i])) return false
+
+
         }
         return true
     }
@@ -51,25 +45,20 @@ class Vector2 {
     x
     y
     constructor(x = 0, y = 0) {
-        if (arguments.length === 1 && x instanceof new.target) {
-            ({ x, y } = x)
-        }
+        if (arguments.length === 1 && x instanceof new.target) ({ x, y } = x)
         Object.seal(this)
         this.set(x, y)
     }
-    static distance(vector, vector2) {
-        return Math.hypot(Vector2.x(vector) - Vector2.x(vector2), Vector2.y(vector) - Vector2.y(vector2))
-    }
-    static x(vectorLike) {
-        return vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
-    }
-    static y(vectorLike) {
-        return vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
-    }
-    static angle(first, second) {
-        let firstAngle = Math.atan2(Vector2.y(first), Vector2.x(first))
-        let secondAngle = Math.atan2(Vector2.y(second), Vector2.x(second))
-        let angle = secondAngle - firstAngle
+    static distance = (vector, vector2) => Math.hypot(Vector2.x(vector) - Vector2.x(vector2), Vector2.y(vector) - Vector2.y(vector2))
+
+    static x = (vectorLike) => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
+
+    static y = (vectorLike) => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
+
+    static angle(first, second, firstAngle, secondAngle, angle) {
+        firstAngle = Math.atan2(Vector2.y(first), Vector2.x(first))
+        secondAngle = Math.atan2(Vector2.y(second), Vector2.x(second))
+        angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
     static average(...vectors) {
@@ -77,32 +66,23 @@ class Vector2 {
         let y = vectors.map(o => Vector2.y(o))
         return new Vector2(x.average(), y.average())
     }
-    static difference(vector, vector2) {
-        if (!Array.isArray(vector)) {
-            vector = [...vector]
-        }
-        if (!Array.isArray(vector2)) {
-            vector2 = [...vector2]
-        }
-        let out = [...vector]
-        let length = out.length
-        for (let i = 0; i < length; i++) {
-            out[i] = Math.abs(vector2[i] - vector[i])
-        }
+    static difference(vector, vector2, out, length) {
+        if (!Array.isArray(vector)) vector = [...vector]
+        if (!Array.isArray(vector2)) vector2 = [...vector2]
+
+        out = [...vector]
+        length = out.length
+        for (let i = 0; i < length; i++) out[i] = Math.abs(vector2[i] - vector[i])
+
         return new Vector2(...out)
     }
-    static combine(vector, vector2) {
-        if (!Array.isArray(vector)) {
-            vector = [...vector]
-        }
-        if (!Array.isArray(vector2)) {
-            vector2 = [...vector2]
-        }
-        let out = [...vector]
-        let length = out.length
-        for (let i = 0; i < length; i++) {
-            out[i] = Math.abs(vector2[i] + vector[i])
-        }
+    static combine(vector, vector2, out, length) {
+        if (!Array.isArray(vector)) vector = [...vector]
+        if (!Array.isArray(vector2)) vector2 = [...vector2]
+        out = [...vector]
+        length = out.length
+        for (let i = 0; i < length; i++) out[i] = Math.abs(vector2[i] + vector[i])
+
         return new Vector2(...out)
     }
     static get up() {
@@ -117,12 +97,10 @@ class Vector2 {
     static get right() {
         return new Vector2(1, 0)
     }
-    static max(vector, vector2) {
-        return new Vector2(Math.max(Vector2.x(vector2), Vector2.x(vector)), Math.max(Vector2.y(vector2), Vector2.y(vector)))
-    }
-    static min(vector, vector2) {
-        return new Vector2(Math.min(Vector2.x(vector2), Vector2.x(vector)), Math.min(Vector2.y(vector2), Vector2.y(vector)))
-    }
+    static max = (vector, vector2) => new Vector2(Math.max(Vector2.x(vector2), Vector2.x(vector)), Math.max(Vector2.y(vector2), Vector2.y(vector)))
+
+    static min = (vector, vector2) => new Vector2(Math.min(Vector2.x(vector2), Vector2.x(vector)), Math.min(Vector2.y(vector2), Vector2.y(vector)))
+
     static equals(...vectors) {
         let n = vectors.map(o => [Vector2.x(o), Vector2.y(o)])
         return sane.arreq(...n)
@@ -138,75 +116,54 @@ class Vector2 {
             if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER;
             else if (n < Number.MIN_SAFE_INTEGER) n = Number.MIN_SAFE_INTEGER;
             else n = +n
-            if (Object.keys(this)[i] in this) {
-                this[Object.keys(this)[i]] = n
-            }
+            if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
+
         }
     }
-    pow(vector) {
-        if (!Array.isArray(vector)) {
-            vector = [...vector]
-        }
-        let length = this.value.length
-        for (let i = 0; i < length; i++) {
-            vector[i] = this[i] ** vector[i]
-        }
+    pow(vector, length) {
+        if (!Array.isArray(vector)) vector = [...vector]
+        length = this.value.length
+        for (let i = 0; i < length; i++) vector[i] = this[i] ** vector[i]
         this.set(...vector)
         return this
     }
-    add(vector) {
+    add(vector, length) {
         if (!Array.isArray(vector)) {
-            if (1 in arguments) {
-                vector = [vector, arguments[1]]
-            }
+            if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; i++) {
-            vector[i] = this[i] + vector[i]
-        }
+        length = this.value.length
+        for (let i = 0; i < length; i++) vector[i] = this[i] + vector[i]
         this.set(...vector)
         return this
     }
-    subtract(vector) {
+    subtract(vector, length) {
         if (!Array.isArray(vector)) {
-            if (1 in arguments) {
-                vector = [vector, arguments[1]]
-            }
+            if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; i++) {
-            vector[i] = this[i] - vector[i]
-        }
+        length = this.value.length
+        for (let i = 0; i < length; i++) vector[i] = this[i] - vector[i]
         this.set(...vector)
         return this
     }
-    multiply(vector) {
+    multiply(vector, length) {
         if (!Array.isArray(vector)) {
-            if (1 in arguments) {
-                vector = [vector, arguments[1]]
-            }
+            if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; i++) {
-            vector[i] = this[i] * vector[i]
-        }
+        length = this.value.length
+        for (let i = 0; i < length; i++) vector[i] = this[i] * vector[i]
         this.set(...vector)
         return this
     }
-    divide(vector) {
+    divide(vector, length) {
         if (!Array.isArray(vector)) {
-            if (1 in arguments) {
-                vector = [vector, arguments[1]]
-            }
+            if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; i++) {
-            vector[i] = this[i] / vector[i]
-        }
+        length = this.value.length
+        for (let i = 0; i < length; i++) vector[i] = this[i] / vector[i]
         this.set(...vector)
         return this
     }
@@ -222,8 +179,8 @@ class Vector2 {
     invert() {
         this.set(...this.inverse)
     }
-    lerp({ to, time = 0.1 }) {
-        let sum = (this.minus(to)).multiply(time, time)
+    lerp({ to, time = 0.1 }, sum) {
+        sum = (this.minus(to)).multiply(time, time)
         this.subtract(sum)
     }
     minus(other) {
@@ -280,17 +237,15 @@ class Vector2 {
 }*/
 class Cycle {
     constructor(...items) {
-         let f = function* (t) {
-            let x = 0
+        return Object.defineProperty(function* (t, x) {
+            x = 0
             for (; ;) {
                 if (x === t.length) x = 0;
                 yield t[x++]
             }
-        }(items);
-        Object.defineProperty(f,'val',{
-            get(){return this.next().value}
+        }(items), 'val', {
+            get() { return this.next().value }
         })
-        return f
     }
 }
 
@@ -302,8 +257,8 @@ Number.prototype.comma = function () {
 String.prototype.last = Array.prototype.last = function () {
     return this[this.length - 1]
 }
-String.prototype.shorten = function (len = 32) {
-    let newstr = this
+String.prototype.shorten = function (len = 32, newstr) {
+    newstr = this
     if (newstr.length > len) {
         newstr = newstr.slice(0, len)
     }
@@ -345,22 +300,25 @@ Array.prototype.order = function (type) {
 Array.prototype.center = function () {
     return this[Math.floor(this.length / 2)]
 }
-Array.prototype.average = function (type) {
+
+Array.prototype.average = function (type, median, q1, q3, IQR, upperFence, lowerFence, filtered, sorted) {
+    //Q: why is the code the way it is?
+    //A: idk lol i just felt like having fun literally no reason
     if (!this.length) return NaN; // Handle empty array case
-    let sorted = this.slice().sort((a, b) => a - b); // Sort the array
+    sorted = this.slice().sort((a, b) => a - b); // Sort the array
     if (type) {
         // Calculate the median
-        const median = sorted[Math.floor(sorted.length / 2)];
+        median = sorted[Math.floor(sorted.length / 2)];
         // Calculate the first quartile (Q1) and third quartile (Q3)
-        const q1 = sorted[Math.floor(sorted.length / 4)];
-        const q3 = sorted[Math.floor(3 * sorted.length / 4)];
+        q1 = sorted[Math.floor(sorted.length / 4)];
+        q3 = sorted[Math.floor(3 * sorted.length / 4)];
         // Calculate the IQR
-        const IQR = q3 - q1;
+        IQR = q3 - q1;
         // Calculate the fences
-        const upperFence = q3 + 1.5 * IQR;
-        const lowerFence = q1 - 1.5 * IQR;
+        upperFence = q3 + 1.5 * IQR;
+        lowerFence = q1 - 1.5 * IQR;
         // Filter outliers
-        const filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
+        filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
         // Recalculate the average on the filtered array
         return filtered.reduce((a, b) => a + b, 0) / filtered.length;
     } else {
@@ -372,32 +330,32 @@ Array.prototype.swap = function (a, b) {
     [this[a], this[b]] = [this[b], this[a]]
     return this
 }
-Array.prototype.swapWithin = function (a, b) {
-    let slot = this.indexOf(a),
-        slot2 = this.indexOf(b);
+Array.prototype.swapWithin = function (a, b, slot, slot2) {
+    slot = this.indexOf(a);
+    slot2 = this.indexOf(b);
     if (slot !== -1 && slot2 !== -1) {
         this.swap(slot, slot2)
     }
     return this
 }
 Array.prototype.delete = function (index) {
-    this.splice(index, 1)
-    return this
+    return this.splice(index, 1)
+
 }
-Array.prototype.deleteWithin = function (index) {
-    let slot = this.indexOf(index)
+Array.prototype.deleteWithin = function (index, slot) {
+    slot = this.indexOf(index)
     if (slot !== -1) {
         this.delete(slot)
     }
     return this
 }
-Array.prototype.shuffle = function () {
-    let n = this.length;
-    let ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
-    let out = [];
+Array.prototype.shuffle = function (n, ammo, out, randIndex, chosenIndex) {
+    n = this.length;
+    ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
+    out = [];
     while (ammo.length) {
-        let randIndex = Math.floor(Math.random() * ammo.length);
-        let chosenIndex = ammo[randIndex];
+        randIndex = Math.floor(Math.random() * ammo.length);
+        chosenIndex = ammo[randIndex];
         out.push(this[chosenIndex]);
         ammo.splice(randIndex, 1); // Remove the used index from the ammo array
     }
@@ -407,18 +365,8 @@ Array.prototype.pick = function () {
     return ran.choose(...this)
 }
 
-
-
-
-
-
-
-
-
-
 /* MISC FUNCTIONS */
-function gen(len = 6) {
-    let str;
+function gen(len = 6, str) {
     do {
         str = ''
         for (let i = len; i--;) str += ran.choose(..._alphabet, ..._numbers, ..._ALPHABET);
@@ -427,18 +375,36 @@ function gen(len = 6) {
     return str
 }
 gen.previouslyGenerated = new Set
+
+class Randomizer {
+    constructor(out) {
+        out = new Proxy({}, {
+            get(target, prop) {
+                if (prop in target) {
+                    return target[prop]
+                }
+                else {
+                    target[prop] = gen()
+                    return target[prop]
+                }
+            }
+        })
+        return out
+    }
+}
+
 let _alphabet = 'qwertyuiopasdfghjklzxcvbnm', _numbers = '0123456789',
     _ALPHABET = _alphabet.toUpperCase();
-function getNodeSize(node) {
-    let t = node.getBoundingClientRect()
+function getNodeSize(node, t) {
+    t = node.getBoundingClientRect()
     t.center = {
         x: t.left + t.width / 2,
         y: t.top + t.height / 2
     }
     return t
 }
-async function getDataUrl(url) {
-    let response;
+async function getDataUrl(url, response, data) {
+    response;
     try {
         response = await fetch(url, {
             method: 'GET',
@@ -452,38 +418,37 @@ async function getDataUrl(url) {
         Elem.error(`Image Error: ${url} - ${e.message}`);
         throw '';
     }
-    let data;
     try {
         data = await response.blob();
     } catch (e) {
         Elem.error(`Failed to convert response to blob: ${e.message}`);
         return '';
     }
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+    return new Promise((resolve, reject, reader) => {
+        reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
         reader.onerror = reject;
         reader.readAsDataURL(data); // Convert blob to data URL
     });
 }
-function checkVisible(elm) {
-    var rect = elm.getBoundingClientRect();
-    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
+function checkVisible(elm, rect, viewHeight, viewWidth) {
+    rect = elm.getBoundingClientRect();
+    viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
     return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0);
 }
 checkVisible.blured = false;
-function padZero(str, len = 2) {
-    var zeros = new Array(len).join('0');
+function padZero(str, len = 2, zeros) {
+    zeros = new Array(len).join('0');
     return (zeros + str).slice(-len);
 }
-function isOverFlowed(elm) {
-    const parent = elm.parentElement; // Get the parent element
-    const rect = elm.getBoundingClientRect();
-    const parentRect = parent?.getBoundingClientRect?.(); // Get the parent's bounding rectangle
+function isOverFlowed(elm, parent, rect, parentRect, isVisible) {
+    parent = elm.parentElement; // Get the parent element
+    rect = elm.getBoundingClientRect();
+    parentRect = parent?.getBoundingClientRect?.(); // Get the parent's bounding rectangle
 
     // Check if the element is within the parent's bounds
-    const isVisible =
+    isVisible =
         rect.bottom > parentRect?.top &&
         rect.top < parentRect?.bottom &&
         rect.right > parentRect?.left &&
@@ -521,10 +486,9 @@ class Elem {
             this.content.style.setProperty(propName, propValue)
         }
     }
-    static noConsole() {
+    static noConsole(__value__) {
         console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
         addEventListener('keydown', function () {
-            let __value__
             if (arguments[0]?.key?.toLowerCase?.() === 'backspace') {
                 try {
                     prompt('Return Value:', eval?.('"use strict";' + (__value__ = prompt('Input eval code...'))))
@@ -555,19 +519,18 @@ class Elem {
                 })
         }
     }
-    static preload(src, callback) {
+    static preload(src, callback, type, x,video) {
         if (Elem.loaded.has(src)) {
             return src
         }
         if (!src || !src?.replaceAll?.(' ', '')) {
             throw TypeError('No source for Media provided.')
         }
-        let type = src.split('.').pop()
-        let x;
+        type = src.split('.').pop()
         if (type.match(Elem.formats.image)) {
             x = new Image()
         } else if (type.match(Elem.formats.video)) {
-            let video = new Elem({ tag: 'video', preload: 'auto' })
+             video = new Elem({ tag: 'video', preload: 'auto' })
             video.content.onload = () => {
                 Elem.success(`Resource loaded: ${src}`)
                 callback?.(src)
@@ -602,78 +565,6 @@ class Elem {
             this.allowfullscreen = true
         }
     }
-    /*static canvas = class extends this {
-        fill(col) {
-            let old = this.ctx.fillStyle
-            this.ctx.fillStyle = col ?? old
-            this.ctx.fill()
-            this.ctx.fillStyle = old
-
-        }
-        stroke(col) {
-            let old = this.ctx.strokeStyle
-            this.ctx.strokeStyle = col ?? old
-            this.ctx.stroke()
-            this.ctx.strokeStyle = old
-
-        }
-        o = class {
-            velocity = {
-                x: 0,
-                y: 0,
-                a: 0
-            }
-            constructor(opts) {
-                this.context = opts.context
-                if (!this.context) {
-                    throw TypeError('No context provided.')
-                }
-                this.context.region.all.push(this)
-                this.x = opts.x ?? 0
-                this.y = opts.y ?? 0
-                this.angle = 0
-            }
-            draw() {
-                let { ctx } = this.context
-                ctx.save()
-                ctx.translate(this.x, this.y)
-                ctx.rotate(this.angle)
-                ctx.beginPath()
-                ctx.arc(0, 0, 30, 0, Math.PI * 2)
-                ctx.fill()
-                this.illustrate?.()
-                ctx.restore()
-            }
-        }
-        constructor(opts) {
-            throw TypeError('This feature is currently not yet supported.')
-            opts.tag = 'canvas'
-            super(opts)
-            Elem.contexts ??= []
-            Elem.contexts.push(this)
-            this.ctx = this.content.getContext('2d')
-            this.frame = 0
-            this.ctx.textAlign = 'center'
-            this.ctx.textBaseline = 'middle'
-            this.resize = opts.resize ?? false
-            this.update = () => {
-                this.frame++
-                if (this.resize) {
-                    this.width = window.innerWidth
-                    this.height = window.innerHeight
-                }
-                this.ctx.clearRect(0, 0, this.width, this.height)
-                this.region.toKill.forEach(o => this.region.all.deleteWithin(o))
-                this.region.toKill = []
-                this.region.all.forEach(o => o.draw())
-            }
-            this.region = {
-                all: [],
-                toKill: []
-            }
-        }
-
-    }*/
     static clear() {
         while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
     }
@@ -699,12 +590,12 @@ class Elem {
         }
 
     }
-    static $(query) {
+    static $(query,arr) {
         if (query.includes('#')) {
             Elem.warn(`Use あ['${query}'] instead of あ.$`)
             return document.getElementById(query.replace('#', ''))?.content
         } else {
-            let arr = []
+             arr = []
             for (let element of document.querySelectorAll(query)) {
                 arr.push(element.content)
             }
@@ -769,8 +660,8 @@ class Elem {
         info: false,
         success: false,
     }
-    static select(element) {
-        let out = new Elem({ self: element })
+    static select(element, out, f) {
+        out = new Elem({ self: element })
         if (out.content.children) {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT/)) continue
@@ -779,7 +670,7 @@ class Elem {
                     // node.content.parent = out
                 }
                 else {
-                    let f = Elem.select(node)
+                    f = Elem.select(node)
                     //    f.parent = out
                 }
             }
@@ -847,9 +738,8 @@ class Elem {
             this.content = opts.self
             opts.self.getAttribute('id') && (opts.id = opts.self.getAttribute('id'))
         }
-        else {
-            this.content = document.createElement(opts.tag)
-        }
+        else this.content = document.createElement(opts.tag)
+
         Elem.elements.add(this)
         this.content.content = this
         for (let attr of Elem.attributes) {
@@ -988,8 +878,8 @@ class Elem {
         }
         return this
     }
-    anim(target, callback) {
-        let keep = false
+    anim(target, callback, keep) {
+        keep = false
         if ('keep class' in target) {
             delete target['keep class']
             keep = true
@@ -1053,14 +943,12 @@ class Elem {
         this?.parent?.children?.deleteWithin?.(this)
         Elem.elements.delete(this)
         if (body !== this) {
-
             this.content.remove?.()
         }
         return
     }
-    killChildren() {
-        let c = this.children
-
+    killChildren(c) {
+        c = this.children
         c.forEach(o => {
             while (this.content.contains(o?.content)) o.kill()
         })
