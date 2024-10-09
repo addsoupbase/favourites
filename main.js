@@ -1,7 +1,7 @@
 'use strict';
-Elem['#progress'].kill()
+Elem.elements.get('progress').kill()
 let あ = Elem, r = color
-あ.logLevels.error = true
+あ.logLevels.error = Elem.logLevels.warn=true
 
 
 const { sin, cos } = Math;
@@ -10,7 +10,7 @@ const { sin, cos } = Math;
 new あ({
     parent: body,
     start() {
-        this.anim({ class: 'bounce-in-top' },
+        this.anim({ class: 'bounce-in-top', 'keep class':true },
             () => {
                 new あ({
                     tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
@@ -19,12 +19,10 @@ new あ({
                                 this.noevent('click')
                                 this.removeClass('clickable')
                                 this.fadeOut(this.kill)
-                                あ['#main'].fadeOut(() => thanks())
+                                Elem.elements.get('main').fadeOut(thanks)
                             }
                         }))
-                    }, id: 'foot', events: {
-
-                    }
+                    }, id: 'foot', 
                 }, true)
 
 
@@ -75,7 +73,7 @@ new あ({
                 for (let i = 10; i--;) {
                     let _c = color.choose()
                     let em = new SceneryElem({
-                        parent: あ['#box'],
+                        parent: あ.elements.get('box'),
                         x: innerWidth * Math.random(), y: innerHeight + 150,
                         styles: {
                             'max-width': '100%',
@@ -379,17 +377,17 @@ new あ({
                 new あ({
                     tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
                         click() {
-                            if (!あ['#formMessage'].value) {
-                                あ['#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                あ['#formMessage'].anim({class: 'shake-horizontal' })
+                            if (!Elem.elements.get('#formMessage'].value) {
+                                Elem.elements.get('#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
+                                Elem.elements.get('#formMessage'].anim({class: 'shake-horizontal' })
                                 return
                             }
-                            あ['#submitBtn'].noevent('click')
-                            あ['#submitBtn'].kill()
-                            あ['#loading'].show()
-                            あ['#formMessage'].disabled = あ['#formName'].disabled = true
-                            let NAME = あ['#formName'].value
-                            let MESSAGE = あ['#formMessage'].value
+                            Elem.elements.get('#submitBtn'].noevent('click')
+                            Elem.elements.get('#submitBtn'].kill()
+                            Elem.elements.get('#loading'].show()
+                            Elem.elements.get('#formMessage'].disabled = Elem.elements.get('#formName'].disabled = true
+                            let NAME = Elem.elements.get('#formName'].value
+                            let MESSAGE = Elem.elements.get('#formMessage'].value
                                 ; (async () => {
                                     try {
                                         let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
@@ -401,7 +399,7 @@ new あ({
                                             }
                                         })
                                         if (x.ok) {
-                                            あ['#formtab'].anim({ class: 'slide-out-right' }, function () {
+                                            Elem.elements.get('#formtab'].anim({ class: 'slide-out-right' }, function () {
                                                 this.kill()
                                             })
                                         }
@@ -411,14 +409,14 @@ new あ({
                                     } catch (e) {
                                         //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
 
-                                        あ['#mainform'].kill()
-                                        あ['#loading'].kill()
-                                        あ['#jeff'].innerHTML = 'Your message could not be sent because: '
+                                        Elem.elements.get('#mainform'].kill()
+                                        Elem.elements.get('#loading'].kill()
+                                        Elem.elements.get('#jeff'].innerHTML = 'Your message could not be sent because: '
                                         new Elem({
                                             tag: 'p',
                                             class: ['shake-horizontal'],
                                             styles: { 'font-size': '25px', color: 'black' },
-                                            text: e.message, parent: あ['#formtab']
+                                            text: e.message, parent: Elem.elements.get('#formtab']
                                         })
                                         throw e
                                     }
@@ -445,7 +443,7 @@ function thanks() {
 
         ], id: 'main2'
     }, true)
-    n.anim({ class: 'roll-in-left' }, () => あ['#main'].kill())
+    n.anim({ class: 'roll-in-left' }, () => あ.elements.get('main').kill())
 
 }
 
@@ -484,28 +482,28 @@ let avatars = [
 
 ]
 function cycleAvatar() {
-    あ['#help2']?.kill()
+    Elem.elements.get('help2')?.kill()
 
     current2++
     if (!(avatars[current2])) current2 = 0;
-    let m = あ['#avatars']
+    let m = Elem.elements.get('avatars')
     m.noevent('click')
 
     m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) })
     m.src = avatars[current2]
 }
 function cycleImage() {
-    あ['#help1']?.kill()
+    Elem.elements.get('help1')?.kill()
     current++
     if (!examples[current]) {
         current = 0
     }
 
 
-    あ['#msgImg'].src = examples[current].src
-    あ['#msgImg'].title = examples[current].title ?? ''
-    あ['#desc'].innerHTML = examples[current].description
-    あ['#caption'].innerHTML = `Exhibit ${letters[current].toUpperCase()}`
+    Elem.elements.get('msgImg').src = examples[current].src
+    Elem.elements.get('msgImg').title = examples[current].title ?? ''
+    Elem.elements.get('desc').innerHTML = examples[current].description
+    Elem.elements.get('caption').innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
 
 let bo = new あ({ tag: 'div', id: 'box' }, true)
@@ -518,10 +516,10 @@ const loop = function () {
     if (!(frame % 20)) {
         let u = function () {
             if (this.rand > 0) {
-                this.velocity.add(Math.cos(frame / 100) / 100, 0)
+                this.velocity.add(Math.cos((frame-this.offset) / 100) / 100, 0)
             }
             else {
-                this.velocity.add(Math.sin(frame / 100) / 100, 0)
+                this.velocity.add(Math.sin((frame-this.offset) / 100) / 100, 0)
 
             }
         }
@@ -540,6 +538,7 @@ const loop = function () {
                 })
             ], parent: snow,
         })
+        f.offset = ran.range(0,4000)
         for (let i = 2; i--;) {
             let k = new SceneryElem({
                 x: ran.range(0, 300),
@@ -556,8 +555,8 @@ const loop = function () {
             k.velocity.set(0, 1)
             k.rand = ran.choose(-1, 1)
             k.update = u
+            k.offset = ran.range(0,4000)
         }
-
         f.update = u
         f.rand = ran.choose(-1, 1)
         f.velocity.set(0, 1)
@@ -566,4 +565,4 @@ const loop = function () {
     }
 }
 loop()
-let snow = あ['#snowfall']
+let snow = あ.elements.get('snowfall')

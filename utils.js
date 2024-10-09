@@ -2,29 +2,24 @@
 // "var" indicates the code is not mine.
 
 /* Gif to webp: 
-
+ 
 gif2webp file.gif -o file.webp
-
+ 
 */
 /* Png to webp
-
+ 
 cwebp file.png -o file.webp
-
+ 
 */
-
-/* NUMBER STUFF */
-Math.toRad = deg => deg * Math.PI / 180;
-Math.toDeg = rad => rad * 180 / Math.PI;
-Math.diff = (a, b) => Math.abs(a - b);
-Math.clamp = (val, min, max) => { if (val > max) return max; if (val < min) return min; return val }
 
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
     frange: (min, max) => Math.floor(ran.range(min, max))
 }
-
-const sane = {
+const sortaRandom = _ => `${Date.now()}`.at(-1) / 10
+const trueRandom = _ => crypto.getRandomValues(new Uint32Array(1))[0] / 4_294_967_295;
+const sn = {
     isInt: n => Math.trunc(n) === n,
     sanitize: num => (num == num) && num !== null && isFinite(num),
     equality: (...target) => target.every(o => Object.is(o, target[0])),
@@ -33,15 +28,153 @@ const sane = {
         for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; i++) {
             if (!Array.isArray(targets[i])) throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
             for (let comparisons of targets) if (!sane.equality(targets[0][i], comparisons[i])) return false
-
-
         }
         return true
+    },
+    toRad: deg => deg * Math.PI / 180,
+    toDeg: rad => rad * 180 / Math.PI,
+    diff: (a, b) => Math.abs(a - b),
+    clamp: (val, min, max) => { if (val > max) return max; if (val < min) return min; return val }
+
+}
+const addCommas = num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+const shorten = (string, len = 32) => `${string}`.slice(0, len)
+const toOrdinal = o => {
+    switch (o.at(-1)) {
+        case '1':
+            return o + 'st'
+        case '2':
+            return o + 'nd'
+        case '3':
+            return o + 'rd'
+        default:
+            return o + 'th'
     }
 }
+const center = o => o[Math.floor(o.length / 2)];
+const avg = (array, type) => {
+    if (!array.length) return NaN; // Handle empty array case
+    let sorted = array.slice().sort((a, b) => a - b); // Sort the array
+    if (type) {
+        // Calculate the median
+        let median = sorted[Math.floor(sorted.length / 2)];
+        // Calculate the first quartile (Q1) and third quartile (Q3)
+        let q1 = sorted[Math.floor(sorted.length / 4)];
+        let q3 = sorted[Math.floor(3 * sorted.length / 4)];
+        // Calculate the IQR
+        let IQR = q3 - q1;
+        // Calculate the fences
+        let upperFence = q3 + 1.5 * IQR;
+        let lowerFence = q1 - 1.5 * IQR;
+        // Filter outliers
+        let filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
+        // Recalculate the average on the filtered array
+        return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+    } else {
+        // Calculate average on the original array
+        return sorted.reduce((a, b) => a + b, 0) / sorted.length;
+    }
+}
+const reverse = string => [...string].reverse().join('')
+const upper = string => string[0].toUpperCase() + string.slice(1)
+const insert = (array, item, index) => array.splice(index, 0, item);
+const loopBackwards = (array, func) => {
+    for (let i = array.length; i--;)if (i in array) func(array[i], i, array)
+}
+const sane = sn
+const swap = (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item)
+const swapInside = (item, a, b) => {
+    let slot = item.indexOf(a);
+    let slot2 = item.indexOf(b);
+    if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
+}
+const remove = (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1)
+const shuffle = (...item) => {
+    let n = item.length;
+    let ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
+    let out = [];
+    while (ammo.length) {
+        let randIndex = Math.floor(Math.random() * ammo.length);
+        let chosenIndex = ammo[randIndex];
+        out.push(item[chosenIndex]);
+        ammo.splice(randIndex, 1); // Remove the used index from the ammo array
+    }
+    return out;
+}
+const gen = (len = 6, str) => {
+    do {
+        str = ''
+        for (let i = len; i--;) str += ran.choose(..._alphabet + _numbers + _ALPHABET);
+    } while (gen.previouslyGenerated.has(str))
+    gen.previouslyGenerated.add(str)
+    return str
+}
+gen.previouslyGenerated = new Set
+const _alphabet = 'qwertyuiopasdfghjklzxcvbnm',
+    _numbers = '0123456789',
+    _ALPHABET = _alphabet.toUpperCase();
 
+function getNodeSize(node, t) {
+    t = node.getBoundingClientRect()
+    t.center = {
+        x: t.left + t.width / 2,
+        y: t.top + t.height / 2
+    }
+    return t
+}
+async function getDataUrl(url, response, data) {
+    try {
+        response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors'
+        })
+        if (!response.ok) {
+            Elem.error(`Failed to fetch image. Status: ${response.status}`);
+            throw ':(';
+        }
+    } catch (e) {
+        Elem.error(`Image Error: ${url} - ${e.message}`);
+        throw ':(';
+    }
+    try {
+        data = await response.blob();
+    } catch (e) {
+        Elem.error(`Failed to convert response to blob: ${e.message}`);
+        return '';
+    }
+    return new Promise((resolve, reject, reader) => {
+        reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(data); // Convert blob to data URL
+    });
+}
+function padZero(str, len = 2, zeros) {
+    zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+function checkVisible(elm) {
+    let rect = elm.getBoundingClientRect();
+    let viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+    let viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
+    return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0);
+}
+function isOverFlowed(elm) {
+    let parent = elm.parentElement; // Get the parent element
+    let rect = elm.getBoundingClientRect();
+    let parentRect = parent?.getBoundingClientRect?.(); // Get the parent's bounding rectangle
 
-class Vector2 {
+    // Check if the element is within the parent's bounds
+    let isVisible =
+        rect.bottom > parentRect?.top &&
+        rect.top < parentRect?.bottom &&
+        rect.right > parentRect?.left &&
+        rect.left < parentRect?.right;
+
+    return isVisible;
+}
+
+const Vector2 = class Vector2 {
     x
     y
     constructor(x = 0, y = 0) {
@@ -50,11 +183,8 @@ class Vector2 {
         this.set(x, y)
     }
     static distance = (vector, vector2) => Math.hypot(Vector2.x(vector) - Vector2.x(vector2), Vector2.y(vector) - Vector2.y(vector2))
-
-    static x = (vectorLike) => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
-
-    static y = (vectorLike) => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
-
+    static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
+    static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     static angle(first, second, firstAngle, secondAngle, angle) {
         firstAngle = Math.atan2(Vector2.y(first), Vector2.x(first))
         secondAngle = Math.atan2(Vector2.y(second), Vector2.x(second))
@@ -69,11 +199,9 @@ class Vector2 {
     static difference(vector, vector2, out, length) {
         if (!Array.isArray(vector)) vector = [...vector]
         if (!Array.isArray(vector2)) vector2 = [...vector2]
-
         out = [...vector]
         length = out.length
         for (let i = 0; i < length; i++) out[i] = Math.abs(vector2[i] - vector[i])
-
         return new Vector2(...out)
     }
     static combine(vector, vector2, out, length) {
@@ -235,7 +363,7 @@ class Vector2 {
         return this.z
     }
 }*/
-class Cycle {
+const Cycle = class Cycle {
     constructor(...items) {
         return Object.defineProperty(function* (t, x) {
             x = 0
@@ -248,219 +376,19 @@ class Cycle {
         })
     }
 }
-
-Number.prototype.comma = function () {
-    return `${this}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-/* STRING STUFF */
-String.prototype.last = Array.prototype.last = function () {
-    return this[this.length - 1]
-}
-String.prototype.shorten = function (len = 32, newstr) {
-    newstr = this
-    if (newstr.length > len) {
-        newstr = newstr.slice(0, len)
-    }
-    return newstr
-}
-String.prototype.toOrdinal = function () {
-    switch (this.last()) {
-        case '1':
-            return this + 'st'
-        case '2':
-            return this + 'nd'
-        case '3':
-            return this + 'rd'
-        default:
-            return this + 'th'
-    }
-}
-String.prototype.reverse = function () {
-    return [...this].reverse().join("")
-}
-String.prototype.upper = function () {
-    return this[0].toUpperCase() + this.slice(1)
-}
-/* ARRAY STUFF */
-Array.prototype.insertAt = function (item, index) {
-    return this.splice(index, 0, item), this
-};
-Array.prototype.backwards = function (func) {
-    for (let i = this.length; i--;) {
-        if (i in this) {
-            func(this[i], i, this)
-        }
-    }
-}
-Array.prototype.order = function (type) {
-    if (type == 'lth') return this.toSorted((a, b) => a - b);
-    return this.toSorted((a, b) => b - a)
-}
-Array.prototype.center = function () {
-    return this[Math.floor(this.length / 2)]
-}
-
-Array.prototype.average = function (type, median, q1, q3, IQR, upperFence, lowerFence, filtered, sorted) {
-    //Q: why is the code the way it is?
-    //A: idk lol i just felt like having fun literally no reason
-    if (!this.length) return NaN; // Handle empty array case
-    sorted = this.slice().sort((a, b) => a - b); // Sort the array
-    if (type) {
-        // Calculate the median
-        median = sorted[Math.floor(sorted.length / 2)];
-        // Calculate the first quartile (Q1) and third quartile (Q3)
-        q1 = sorted[Math.floor(sorted.length / 4)];
-        q3 = sorted[Math.floor(3 * sorted.length / 4)];
-        // Calculate the IQR
-        IQR = q3 - q1;
-        // Calculate the fences
-        upperFence = q3 + 1.5 * IQR;
-        lowerFence = q1 - 1.5 * IQR;
-        // Filter outliers
-        filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
-        // Recalculate the average on the filtered array
-        return filtered.reduce((a, b) => a + b, 0) / filtered.length;
-    } else {
-        // Calculate average on the original array
-        return sorted.reduce((a, b) => a + b, 0) / sorted.length;
-    }
-};
-Array.prototype.swap = function (a, b) {
-    [this[a], this[b]] = [this[b], this[a]]
-    return this
-}
-Array.prototype.swapWithin = function (a, b, slot, slot2) {
-    slot = this.indexOf(a);
-    slot2 = this.indexOf(b);
-    if (slot !== -1 && slot2 !== -1) {
-        this.swap(slot, slot2)
-    }
-    return this
-}
-Array.prototype.delete = function (index) {
-    return this.splice(index, 1)
-
-}
-Array.prototype.deleteWithin = function (index, slot) {
-    slot = this.indexOf(index)
-    if (slot !== -1) {
-        this.delete(slot)
-    }
-    return this
-}
-Array.prototype.shuffle = function (n, ammo, out, randIndex, chosenIndex) {
-    n = this.length;
-    ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
-    out = [];
-    while (ammo.length) {
-        randIndex = Math.floor(Math.random() * ammo.length);
-        chosenIndex = ammo[randIndex];
-        out.push(this[chosenIndex]);
-        ammo.splice(randIndex, 1); // Remove the used index from the ammo array
-    }
-    return out;
-};
-Array.prototype.pick = function () {
-    return ran.choose(...this)
-}
-
-/* MISC FUNCTIONS */
-function gen(len = 6, str) {
-    do {
-        str = ''
-        for (let i = len; i--;) str += ran.choose(..._alphabet, ..._numbers, ..._ALPHABET);
-    } while (gen.previouslyGenerated.has(str))
-    gen.previouslyGenerated.add(str)
-    return str
-}
-gen.previouslyGenerated = new Set
-
-class Randomizer {
-    constructor(out) {
-        out = new Proxy({}, {
+const Randomizer = class Randomizer {
+    constructor(num = 6) {
+        return new Proxy({}, {
             get(target, prop) {
-                if (prop in target) {
-                    return target[prop]
-                }
+                if (prop in target) return target[prop]
                 else {
-                    target[prop] = gen()
+                    target[prop] = gen(num)
                     return target[prop]
                 }
             }
         })
-        return out
     }
 }
-
-let _alphabet = 'qwertyuiopasdfghjklzxcvbnm', _numbers = '0123456789',
-    _ALPHABET = _alphabet.toUpperCase();
-function getNodeSize(node, t) {
-    t = node.getBoundingClientRect()
-    t.center = {
-        x: t.left + t.width / 2,
-        y: t.top + t.height / 2
-    }
-    return t
-}
-async function getDataUrl(url, response, data) {
-    response;
-    try {
-        response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors'
-        })
-        if (!response.ok) {
-            Elem.error(`Failed to fetch image. Status: ${response.status}`);
-            throw '';
-        }
-    } catch (e) {
-        Elem.error(`Image Error: ${url} - ${e.message}`);
-        throw '';
-    }
-    try {
-        data = await response.blob();
-    } catch (e) {
-        Elem.error(`Failed to convert response to blob: ${e.message}`);
-        return '';
-    }
-    return new Promise((resolve, reject, reader) => {
-        reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(data); // Convert blob to data URL
-    });
-}
-function checkVisible(elm, rect, viewHeight, viewWidth) {
-    rect = elm.getBoundingClientRect();
-    viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-    viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
-    return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0);
-}
-checkVisible.blured = false;
-function padZero(str, len = 2, zeros) {
-    zeros = new Array(len).join('0');
-    return (zeros + str).slice(-len);
-}
-function isOverFlowed(elm, parent, rect, parentRect, isVisible) {
-    parent = elm.parentElement; // Get the parent element
-    rect = elm.getBoundingClientRect();
-    parentRect = parent?.getBoundingClientRect?.(); // Get the parent's bounding rectangle
-
-    // Check if the element is within the parent's bounds
-    isVisible =
-        rect.bottom > parentRect?.top &&
-        rect.top < parentRect?.bottom &&
-        rect.right > parentRect?.left &&
-        rect.left < parentRect?.right;
-
-    return isVisible;
-}
-
-//addEventListener('blur', ()=>checkVisible.blured=true)
-//addEventListener('focus', ()=>checkVisible.blured=false)
-
-/* CLASSES */
 class Elem {
     age = Date.now()
     static log() {
@@ -468,16 +396,33 @@ class Elem {
             this.logLevels[o] = !this.logLevels[o]
         })
     }
+    observer = {
+        observe(child) {
+            delete child.content.parent.observer
+            child.content.parent.observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        entry.target.content.detectVisibility?.(false)
+                    } else {
+                        entry.target.content.detectVisibility?.(true);
+                    }
+                })
+            }, {
+                root: child.content.parent.content,
+                threshold: 0,
+            })
+            child.content.parent.observer.observe(child)
+        }
+    }
+    static $(id) {
+        return this.elements.get(id.replace('#', ''))
+    }
     static formats = {
         image: /webp|png|jpeg|jpg|gif/,
         video: /mp4|mpeg|webm|avi|mov/,
         audio: /mp3|ogg|wav|aiff|aac|flac/
     }
-    static textStyle(message, options) {
-        //  this.history[message] ??= 0
-        // this.history[message]++
-        console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
-    }
+    static textStyle = (message, options) => console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     styleMe(...prop) {
         if (!Array.isArray(prop[0]) && typeof prop[0] == 'object' && arguments.length === 1) {
             prop = Object.entries(prop[0])
@@ -507,30 +452,26 @@ class Elem {
     static loaded = new Set;
     static failed = new Set;
     static bulk(callback, ...src) {
-        let parse = [callback]
+        let count = 0
         for (let li of src) {
-            parse.unshift(li)
+            count++
             Elem.preload(li,
-                (s) => {
-                    parse.deleteWithin(s);
-                    if (parse.length === 1) {
-                        parse[0](...src)
+                s => {
+                    if (!--count) {
+                        callback(...src)
                     }
                 })
         }
     }
-    static preload(src, callback, type, x,video) {
-        if (Elem.loaded.has(src)) {
-            return src
-        }
-        if (!src || !src?.replaceAll?.(' ', '')) {
-            throw TypeError('No source for Media provided.')
-        }
+    static preload(src, callback, type, x, video) {
+        if (Elem.loaded.has(src)) return src
+
+        if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
+
         type = src.split('.').pop()
-        if (type.match(Elem.formats.image)) {
-            x = new Image()
-        } else if (type.match(Elem.formats.video)) {
-             video = new Elem({ tag: 'video', preload: 'auto' })
+        if (type.match(Elem.formats.image)) x = new Image()
+        else if (type.match(Elem.formats.video)) {
+            video = new Elem({ tag: 'video', preload: 'auto' })
             video.content.onload = () => {
                 Elem.success(`Resource loaded: ${src}`)
                 callback?.(src)
@@ -562,97 +503,42 @@ class Elem {
             this.frameborder = 0
             this.allow = 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
             this.referrerpolicy = 'strict-origin-when-cross-origin'
-            this.allowfullscreen = true
         }
     }
-    static clear() {
-        while (Elem.elements.size) Elem.elements.forEach(o => o.kill())
-    }
-    static attributes = ['for', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'cx', 'cy', 'r', 'stroke', 'stroke-width', 'fill', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen']
+    static attributes = ['for', 'parent', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'cx', 'cy', 'r', 'stroke', 'stroke-width', 'fill', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
                 get() {
+                    if (attribute === 'parent') return this.content.parentElement?.content ?? null
                     return this.content[`${attribute}`]
                 },
                 set(val) {
-                    // Elem.info(`${attribute}=${val}${this.id ? '\non ' + this.id : ''}`)
                     if (attribute === 'id') {
-                        if (Elem[`#${val}`]) Elem.warn(`Duplicate ID name: ${val}`);
-                        Elem[`#${val}`] = this
+                        if (Elem.elements.has(this.id)) throw TypeError("Not allowed re-assign element id")
+                        else { this.content[`${attribute}`] = val; Elem.elements.set(this.id, this) }
                     }
                     else if (attribute === 'style') {
                         Elem.warn(`Use "styles" instead of "style"`)
+                        this.content[`${attribute}`] = val
                     }
-                    this.content[`${attribute}`] = val
+                    else if (attribute === 'parent') {
+                        val?.adopt?.(this)
+                    }
+                    else {
+                        this.content[`${attribute}`] = val
+                    }
                 }
             });
         }
-
     }
-    static $(query,arr) {
-        if (query.includes('#')) {
-            Elem.warn(`Use あ['${query}'] instead of あ.$`)
-            return document.getElementById(query.replace('#', ''))?.content
-        } else {
-             arr = []
-            for (let element of document.querySelectorAll(query)) {
-                arr.push(element.content)
-            }
-            return arr
-        }
-    }
-    static listeners = 0;
-    static warn(message) {
-        if (!Elem.logLevels.warn) {
-            return
-        }
-        Elem.textStyle(`[WARN] ${message}`, { textColor: color.yellow, size: 15 })
-    }
-    static error(message) {
-        if (!Elem.logLevels.error) {
-            return
-        }
-        Elem.textStyle(`[ERROR] ${message}`, { textColor: color.red, size: 15 })
-    }
-    static findClass(className) {
-        return true
-        const styleSheets = document.styleSheets;
-        // Loop through each stylesheet
-        for (let i = 0; i < styleSheets.length; i++) {
-            const rules = styleSheets[i].cssRules || styleSheets[i].rules;
-            for (let j = 0; j < rules.length; j++) {
-                if (rules[j].selectorText === `.${className}`) {
-                    return true;
-                }
-            }
-        }
-        return false
-    }
-    static info(message) {
-        if (!Elem.logLevels.info) {
-            return
-        }
-        Elem.textStyle(`[INFO] ${message}`, { textColor: '#FFFFFF', size: 10 })
-    }
-    static success(message) {
-        if (!Elem.logLevels.success) {
-            return
-        }
-        Elem.textStyle(`[SUCCESS] ${message}`, { textColor: color.lightgreen, size: 15 })
-    }
-    static debug(message) {
-        if (!Elem.logLevels.debug) {
-            return
-        }
-        Elem.textStyle(`[DEBUG] ${message}`, { textColor: color.orange, size: 10 })
-    }
-    static messages = {
-        noclass(msg) {
-            Elem.warn(`"${msg}" currently does not exist withinto the documents Style Sheets`)
-        }
-    }
-    static elements = new Set
+    static listeners = new Map;
+    static warn = message => Elem.logLevels.warn && Elem.textStyle(`[WARN] ${message}`, { textColor: color.yellow, size: 15 })
+    static error = message => Elem.logLevels.error && Elem.textStyle(`[ERROR] ${message}`, { textColor: color.red, size: 15 })
+    static info = message => Elem.logLevels.info && Elem.textStyle(`[INFO] ${message}`, { textColor: '#FFFFFF', size: 10 })
+    static success = message => Elem.logLevels.success && Elem.textStyle(`[SUCCESS] ${message}`, { textColor: color.lightgreen, size: 15 })
+    static debug = message => Elem.logLevels.debug && Elem.textStyle(`[DEBUG] ${message}`, { textColor: color.orange, size: 10 })
+    static elements = new Map
     static logLevels = {
         debug: false,
         warn: false,
@@ -678,13 +564,14 @@ class Elem {
         return out
     }
     static {
-        let body = window.body = this.select(document.body);
+        let body = window.body = this.select(document.body)
+        body.content.setAttribute('id', 'body')
         let head = [...document.head.children]
         let charSet = false, name = false, ogDesc = false, ogImage = false, ogUrl = false, viewport = false, ogTitle
         head.forEach(o => {
             let butes = o.attributes
             if (butes.charset) charSet = true
-            if (butes.name) name = true;
+            if (butes.name) name = true
             if (butes[0]?.textContent === 'og:description') ogDesc ||= true
             if (butes[0]?.textContent === 'og:image') ogImage ||= true
             if (butes[0]?.textContent === 'og:url') ogUrl ||= true
@@ -697,10 +584,11 @@ class Elem {
         if (!ogImage) console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         if (!ogTitle) console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
     }
-    clone({ deep = true, parent }) {
+    clone({ deep = true, parent } = {}) {
         return new this.constructor({ parent, self: this.content.cloneNode(deep) })
+
     }
-    constructor(opts, immediate) {
+    constructor(opts = {}) {
         if (!opts?.tag && !opts.self) {
             Elem.error('No tag was provided so i cannot make the new node.')
             return
@@ -722,13 +610,13 @@ class Elem {
         }
         this.eventNames = {}
         Object.defineProperty(this.eventNames, 'trigger', {
-            enumerable: false, value: (search) => {
+            enumerable: false, value: search => {
                 if (search) {
                     if (search in this.eventNames) this.eventNames[search]();
                     else Elem.warn(`Non-existent event: ${search}`);
                 }
                 else {
-                    let t = 0;
+                    let t = 0
                     Object.values(this.eventNames).forEach(o => { t++; o.call(this) });
                     return t
                 }
@@ -736,11 +624,13 @@ class Elem {
         })
         if (opts.self) {
             this.content = opts.self
-            opts.self.getAttribute('id') && (opts.id = opts.self.getAttribute('id'))
+            opts.id = (opts.id ?? opts.self.getAttribute('id')) || gen()
         }
-        else this.content = document.createElement(opts.tag)
+        else {
+            this.content = document.createElement(opts.tag)
+            opts.id ??= gen(7)
+        }
 
-        Elem.elements.add(this)
         this.content.content = this
         for (let attr of Elem.attributes) {
             if (attr in opts) this[attr] = opts[attr]
@@ -751,32 +641,8 @@ class Elem {
         if (opts.message) {
             this.innerText = opts.message
         }
-        //this.parent = null
-        //this.children = []
-        Object.defineProperties(this.children, {
-            switch: {
-                enumerable: false,
-                value(first, second) {
-                    if (first.index > second.index) first.putBefore(second)
-                    else second.putBefore(first)
-                }
-            },
-            replace: {
-                value(OUT, IN) {
-                    let outdex = typeof OUT === 'number' ? OUT : this.indexOf(OUT)
-                    if (outdex > -1) {
-                        IN.parent = this
-                        OUT.parent = null
-                        this[outdex] = IN
-                    }
-                },
-                enumerable: false
-            }
-        })
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
-        if (opts.id) {
-            Elem[`#${opts.id}`] = this
-        }
+        Elem.elements.set(opts.id, this)
         if (opts.class) {
             for (let $class of opts.class) {
                 this.content.classList.add($class)
@@ -795,18 +661,18 @@ class Elem {
             this.styleMe(...opts.styles)
         }
         if (opts.parent) {
-            if (typeof opts.parent == 'string') opts.parent = Elem[`#${opts.parent}`]
-            this.append(opts.parent)
+            if (typeof opts.parent == 'string') opts.parent = Elem.elements.get(opts.parent)
+            // this.append(opts.parent)
         }
         this.current = this.content
-        if (immediate) {
-            this.append(body)
+        if (arguments[1]) {
+            Elem.warn(`Migrate to parent instead of using arguments[1]`)
+            opts.parent = body
         }
+        this.parent = opts.parent
         if (opts.children) {
             for (let kid of opts.children) {
                 kid.append(this)
-                //this.children.push(kid)
-                // kid.parent = this
             }
         }
         opts.start?.call?.(this)
@@ -828,18 +694,18 @@ class Elem {
         p.content.prepend(this.content)
     }
 
-    get parent() {
-        return this.content.parentElement?.content ?? null
-    }
+    /* get parent() {
+         return this.content.parentElement?.content ?? null
+     }*/
     get childCount() {
         return this.children.length
     }
     get children() {
-        return [...this.content.children].filter(o => !(o.tagName.match(/SCRIPT|NOSCRIPT/))).map(o => o.content)
+        return Object.freeze([...this.content.children].filter(o => !(o.tagName.match(/SCRIPT|NOSCRIPT/))).map(o => o.content))
     }
-    get parent() {
+    /*get parent() {
         return this.content.parentNode?.content ?? null
-    }
+    }*/
     get previous() {
         return this.content.previousElementSibling?.content ?? null
     }
@@ -849,13 +715,11 @@ class Elem {
     get firstChild() {
         return this.content.firstElementChild?.content ?? null
     }
-
     get index() {
         return this.parent?.children?.indexOf?.(this) ?? null
     }
     addClass(...className) {
-        this.add({ class: className })
-        return this
+        return this.add({ class: className })
     }
     add(props) {
         if (props.class) {
@@ -905,9 +769,9 @@ class Elem {
             events = Object.entries(events[0])
         }
         for (let [eventName, event] of events) {
-            Elem.listeners++
+            Elem.listeners.set(`${this.id}:${eventName}`, event)
             if (!(eventName in this.eventNames)) {
-                let f = (e) => {
+                let f = e => {
                     event.call(this, e)
                 }
                 this.content.addEventListener(eventName, f)
@@ -915,7 +779,7 @@ class Elem {
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event.toString().replaceAll(`\n`, '').replaceAll(' ', '')}`)
             }
             else {
-                Elem.warn(`Duplicate event listener: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
+                Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
             }
         }
     }
@@ -924,10 +788,9 @@ class Elem {
             this.content.removeEventListener(event, this.eventNames[event])
             if (!this.eventNames[event]) {
                 Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
-            } else {
-                Elem.listeners--
-                Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames[event].toString()}`)
-            }
+            } else Elem.listeners.delete(`${this.id}:${event}`)
+            Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames[event].toString()}`)
+
             delete this.eventNames[event]
         }
     }
@@ -937,11 +800,11 @@ class Elem {
             Elem.info(`Element ${this.id} was removed from body`)
         }
         Elem.debug(`Element removed`)
+        this.parent?.observer?.unobserve?.(this.content)
+        this.observer?.disconnect?.()
         this.ondeath?.()
-        delete Elem[`#${this.id}`]
         this.killChildren()
-        this?.parent?.children?.deleteWithin?.(this)
-        Elem.elements.delete(this)
+        Elem.elements.delete(this.id)
         if (body !== this) {
             this.content.remove?.()
         }
@@ -972,18 +835,30 @@ class Elem {
     fadeIn(callback) {
         this.anim({ 'keep class': true, class: 'fadeIn' }, () => { this.toggle('fadeIn', false); this.content.style.opacity = 1; callback?.call?.(this) })
     }
+    /*static findClass(className) {
+      const styleSheets = document.styleSheets;
+      // Loop through each stylesheet
+      for (let i = 0; i < styleSheets.length; i++) {
+          const rules = styleSheets[i].cssRules || styleSheets[i].rules;
+          for (let j = 0; j < rules.length; j++) {
+              if (rules[j].selectorText === `.${className}`) {
+                  return true;
+              }
+          }
+      }
+      return false
+  }*/
 
 }
-
-
 class SceneryElem extends Elem {
     static all = new Set
+
     static frame = 0
     static update() {
         this.frame++
         this.all.forEach(o => {
-            if (Elem.elements.has(o)) o.#update();
-            else return this.all.delete(o)
+            if (Elem.elements.has(o.id)) o.#update();
+            else this.all.delete(o)
         })
     }
     position = new Vector2
@@ -1001,10 +876,9 @@ class SceneryElem extends Elem {
         this.styleMe({ position: 'absolute', margin: 'auto' })
         this.position.set(+opts.x || 0, +opts.y || 0)
         this.#update()
+        this.parent.observer.observe(this.content)
     }
-    get isOverFlowed() {
-        return isOverFlowed(this.content)
-    }
+
     rotate(rot = 0) {
         this.rotation += rot
     }
@@ -1013,6 +887,9 @@ class SceneryElem extends Elem {
     }
     outofbounds() {
         this.kill()
+    }
+    detectVisibility(n) {
+        this.isOverFlowed = n
     }
     #update() {
         this.#lifetime++
@@ -1025,8 +902,8 @@ class SceneryElem extends Elem {
 
         this.styleMe({
             'transform': `
-            rotateY(${this.#mirror}deg) 
-            translate(${(this.position.x)}px, ${(this.position.y)}px)`,
+                rotateY(${this.#mirror}deg) 
+                translate(${(this.position.x)}px, ${(this.position.y)}px)`,
             'transform-origin': 'center',
 
         })
@@ -1038,7 +915,6 @@ class SceneryElem extends Elem {
     }
 
 }
-/* COLOR (goes last because it's so long) */
 const color = Object.defineProperties({
     "aliceblue": "#f0f8ff",
     "antiquewhite": "#faebd7",
