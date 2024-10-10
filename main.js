@@ -242,7 +242,8 @@ new あ({
                                         new あ({
                                             tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: {
                                                 click() {
-                                                    this.anim({class: 'fade-in-tr' })
+                                                    this.disableEvent('click')
+                                                    this.anim({class: 'fade-in-tr' },()=>this.enableEvent('click'))
                                                     cycleImage()
 
 

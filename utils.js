@@ -15,11 +15,45 @@ cwebp file.png -o file.webp
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
-    frange: (min, max) => Math.floor(ran.range(min, max))
+    frange: (min, max) => Math.floor(ran.range(min, max)),
+    pseudo: () => `${Date.now()}`.at(-1) / 10,
+    true: () => crypto.getRandomValues(new Uint32Array(1))[0] / 4_294_967_295,
+    shuffle: (...item) => {
+        let n = item.length;
+        let ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
+        let out = [];
+        while (ammo.length) {
+            let randIndex = Math.floor(Math.random() * ammo.length);
+            let chosenIndex = ammo[randIndex];
+            out.push(item[chosenIndex]);
+            ammo.splice(randIndex, 1); // Remove the used index from the ammo array
+        }
+        return out;
+    },
+    gen(len = 6, str) {
+        do {
+            str = ''
+            for (let i = len; i--;) str += ran.choose(...utilString._alphabet + utilString._numbers + utilString._ALPHABET);
+        } while (ran.gen.previouslygenerated.has(str))
+        ran.gen.previouslygenerated.add(str)
+        return str
+    },
+    Randomizer: class Randomizer {
+        constructor(num = 6) {
+            return new Proxy({}, {
+                get(target, prop) {
+                    if (prop in target) return target[prop]
+                    else {
+                        target[prop] = ran.gen(num)
+                        return target[prop]
+                    }
+                }
+            })
+        }
+    }
 }
-const sortaRandom = _ => `${Date.now()}`.at(-1) / 10
-const trueRandom = _ => crypto.getRandomValues(new Uint32Array(1))[0] / 4_294_967_295;
-const sn = {
+ran.gen.previouslygenerated = new Set
+const utilMath = {
     isInt: n => Math.trunc(n) === n,
     sanitize: num => (num == num) && num !== null && isFinite(num),
     equality: (...target) => target.every(o => Object.is(o, target[0])),
@@ -27,93 +61,90 @@ const sn = {
         if (targets.length < 2) throw RangeError('At least 2 arguments required.')
         for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; i++) {
             if (!Array.isArray(targets[i])) throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
-            for (let comparisons of targets) if (!sane.equality(targets[0][i], comparisons[i])) return false
+            for (let comparisons of targets) if (!utilMath.equality(targets[0][i], comparisons[i])) return false
         }
         return true
     },
     toRad: deg => deg * Math.PI / 180,
     toDeg: rad => rad * 180 / Math.PI,
     diff: (a, b) => Math.abs(a - b),
-    clamp: (val, min, max) => { if (val > max) return max; if (val < min) return min; return val }
+    clamp: (val, min, max) => { if (val > max) return max; if (val < min) return min; return val },
+    Cycle: class Cycle {
+        constructor(...items) {
+            return Object.defineProperty(function* (t, x) {
+                x = 0
+                for (; ;) {
+                    if (x === t.length) x = 0;
+                    yield t[x++]
+                }
+            }(items), 'val', {
+                get() { return this.next().value }
+            })
+        }
+    },
+ 
 
 }
-const addCommas = num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-const shorten = (string, len = 32) => `${string}`.slice(0, len)
-const toOrdinal = o => {
-    switch (o.at(-1)) {
-        case '1':
-            return o + 'st'
-        case '2':
-            return o + 'nd'
-        case '3':
-            return o + 'rd'
-        default:
-            return o + 'th'
+const utilString = {
+    _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
+    _numbers: '0123456789',
+    addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+    shorten: (string, len = 32) => `${string}`.slice(0, len),
+    reverse: string => [...string].reverse().join(''),
+    upper: string => string[0].toUpperCase() + string.slice(1),
+    toOrdinal: o => {
+        switch (o.at(-1)) {
+            case '1':
+                return o + 'st'
+            case '2':
+                return o + 'nd'
+            case '3':
+                return o + 'rd'
+            default:
+                return o + 'th'
+        }
     }
 }
-const center = o => o[Math.floor(o.length / 2)];
-const avg = (array, type) => {
-    if (!array.length) return NaN; // Handle empty array case
-    let sorted = array.slice().sort((a, b) => a - b); // Sort the array
-    if (type) {
-        // Calculate the median
-        let median = sorted[Math.floor(sorted.length / 2)];
-        // Calculate the first quartile (Q1) and third quartile (Q3)
-        let q1 = sorted[Math.floor(sorted.length / 4)];
-        let q3 = sorted[Math.floor(3 * sorted.length / 4)];
-        // Calculate the IQR
-        let IQR = q3 - q1;
-        // Calculate the fences
-        let upperFence = q3 + 1.5 * IQR;
-        let lowerFence = q1 - 1.5 * IQR;
-        // Filter outliers
-        let filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
-        // Recalculate the average on the filtered array
-        return filtered.reduce((a, b) => a + b, 0) / filtered.length;
-    } else {
-        // Calculate average on the original array
-        return sorted.reduce((a, b) => a + b, 0) / sorted.length;
-    }
-}
-const reverse = string => [...string].reverse().join('')
-const upper = string => string[0].toUpperCase() + string.slice(1)
-const insert = (array, item, index) => array.splice(index, 0, item);
-const loopBackwards = (array, func) => {
-    for (let i = array.length; i--;)if (i in array) func(array[i], i, array)
-}
-const sane = sn
-const swap = (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item)
-const swapInside = (item, a, b) => {
-    let slot = item.indexOf(a);
-    let slot2 = item.indexOf(b);
-    if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
-}
-const remove = (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1)
-const shuffle = (...item) => {
-    let n = item.length;
-    let ammo = [...Array(n).keys()]; // Create an array with indices [0, 1, 2, ..., n-1]
-    let out = [];
-    while (ammo.length) {
-        let randIndex = Math.floor(Math.random() * ammo.length);
-        let chosenIndex = ammo[randIndex];
-        out.push(item[chosenIndex]);
-        ammo.splice(randIndex, 1); // Remove the used index from the ammo array
-    }
-    return out;
-}
-const gen = (len = 6, str) => {
-    do {
-        str = ''
-        for (let i = len; i--;) str += ran.choose(..._alphabet + _numbers + _ALPHABET);
-    } while (gen.previouslyGenerated.has(str))
-    gen.previouslyGenerated.add(str)
-    return str
-}
-gen.previouslyGenerated = new Set
-const _alphabet = 'qwertyuiopasdfghjklzxcvbnm',
-    _numbers = '0123456789',
-    _ALPHABET = _alphabet.toUpperCase();
+utilString._ALPHABET = utilString._alphabet.toUpperCase()
 
+const utilArray = {
+    center: o => o[Math.floor(o.length / 2)],
+    insert: (array, item, index) => array.splice(index, 0, item),
+    loopBackwards: (array, func) => {
+        for (let i = array.length; i--;)if (i in array) func(array[i], i, array)
+    },
+ 
+    remove: (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1),
+    swap: (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item),
+    swapInside: (item, a, b) => {
+        let slot = item.indexOf(a);
+        let slot2 = item.indexOf(b);
+        if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
+    },
+    avg: (array, type) => {
+        if (!array.length) return NaN; // Handle empty array case
+        let sorted = array.slice().sort((a, b) => a - b); // Sort the array
+        if (type) {
+            // Calculate the median
+            let median = sorted[Math.floor(sorted.length / 2)];
+            // Calculate the first quartile (Q1) and third quartile (Q3)
+            let q1 = sorted[Math.floor(sorted.length / 4)];
+            let q3 = sorted[Math.floor(3 * sorted.length / 4)];
+            // Calculate the IQR
+            let IQR = q3 - q1;
+            // Calculate the fences
+            let upperFence = q3 + 1.5 * IQR;
+            let lowerFence = q1 - 1.5 * IQR;
+            // Filter outliers
+            let filtered = sorted.filter(x => x >= lowerFence && x <= upperFence);
+            // Recalculate the average on the filtered array
+            return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+        } else {
+            // Calculate average on the original array
+            return sorted.reduce((a, b) => a + b, 0) / sorted.length;
+        }
+    }
+}
 function getNodeSize(node, t) {
     t = node.getBoundingClientRect()
     t.center = {
@@ -231,7 +262,7 @@ const Vector2 = class Vector2 {
 
     static equals(...vectors) {
         let n = vectors.map(o => [Vector2.x(o), Vector2.y(o)])
-        return sane.arreq(...n)
+        return utilMath.arreq(...n)
     }
     set(...numbers) {
         if (numbers.length === 1) {
@@ -363,32 +394,7 @@ const Vector2 = class Vector2 {
         return this.z
     }
 }*/
-const Cycle = class Cycle {
-    constructor(...items) {
-        return Object.defineProperty(function* (t, x) {
-            x = 0
-            for (; ;) {
-                if (x === t.length) x = 0;
-                yield t[x++]
-            }
-        }(items), 'val', {
-            get() { return this.next().value }
-        })
-    }
-}
-const Randomizer = class Randomizer {
-    constructor(num = 6) {
-        return new Proxy({}, {
-            get(target, prop) {
-                if (prop in target) return target[prop]
-                else {
-                    target[prop] = gen(num)
-                    return target[prop]
-                }
-            }
-        })
-    }
-}
+
 class Elem {
     age = Date.now()
     static log() {
@@ -415,14 +421,15 @@ class Elem {
         }
     }
     static $(id) {
-        return this.elements.get(id.replace('#', ''))
+        if (!Elem.elements.has(id.replace('#','')))  Elem.warn(`Element "${id}" might not exist`)
+            return this.elements.get(id.replace('#', ''))
     }
     static formats = {
         image: /webp|png|jpeg|jpg|gif/,
         video: /mp4|mpeg|webm|avi|mov/,
         audio: /mp3|ogg|wav|aiff|aac|flac/
     }
-    static textStyle = (message, options) => console.log(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
+    static textStyle = (message, options) => console.trace(`%c ${message}`, `background: ${options.color};color: ${options.textColor ?? '#000000'};font-style: ${options.font};font-size: ${options.size ?? 15}px;`)
     styleMe(...prop) {
         if (!Array.isArray(prop[0]) && typeof prop[0] == 'object' && arguments.length === 1) {
             prop = Object.entries(prop[0])
@@ -624,11 +631,11 @@ class Elem {
         })
         if (opts.self) {
             this.content = opts.self
-            opts.id = (opts.id ?? opts.self.getAttribute('id')) || gen()
+            opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
         }
         else {
             this.content = document.createElement(opts.tag)
-            opts.id ??= gen(7)
+            opts.id ??= ran.gen(7)
         }
 
         this.content.content = this
@@ -742,6 +749,15 @@ class Elem {
         }
         return this
     }
+    disableEvent(name){
+        this.eventNames[name].disabled = true
+    }
+    enableEvent(name){
+        this.eventNames[name].disabled = false
+    }
+    toggleEvent(name){
+        this.eventNames[name].disabled = !this.eventNames[name].disabled
+    }
     anim(target, callback, keep) {
         keep = false
         if ('keep class' in target) {
@@ -771,11 +787,14 @@ class Elem {
         for (let [eventName, event] of events) {
             Elem.listeners.set(`${this.id}:${eventName}`, event)
             if (!(eventName in this.eventNames)) {
-                let f = e => {
-                    event.call(this, e)
+                let eventfunc = e => {
+                    if (!eventfunc.disabled) {
+                        event.call(this, e)
+                    }
                 }
-                this.content.addEventListener(eventName, f)
-                this.eventNames[eventName] = f
+                eventfunc.disabled=false
+                this.content.addEventListener(eventName, eventfunc)
+                this.eventNames[eventName] = eventfunc
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event.toString().replaceAll(`\n`, '').replaceAll(' ', '')}`)
             }
             else {
@@ -800,15 +819,18 @@ class Elem {
             Elem.info(`Element ${this.id} was removed from body`)
         }
         Elem.debug(`Element removed`)
-        this.parent?.observer?.unobserve?.(this.content)
-        this.observer?.disconnect?.()
+        this.cleanup()
         this.ondeath?.()
-        this.killChildren()
         Elem.elements.delete(this.id)
         if (body !== this) {
             this.content.remove?.()
         }
         return
+    }
+    cleanup() {
+        this.parent?.observer?.unobserve?.(this.content)
+        this.observer?.disconnect?.()
+        this.killChildren()
     }
     killChildren(c) {
         c = this.children
@@ -850,6 +872,7 @@ class Elem {
   }*/
 
 }
+window._=Elem.$.bind(Elem)
 class SceneryElem extends Elem {
     static all = new Set
 
@@ -943,7 +966,7 @@ const color = Object.defineProperties({
     "darkgray": "#a9a9a9",
     "darkgreen": "#006400",
     "darkkhaki": "#bdb76b",
-    "darkmagenta": "#8b008b",
+    "darkmaran.genta": "#8b008b",
     "darkolivegreen": "#556b2f",
     "darkorange": "#ff8c00",
     "darkorchid": "#9932cc",
@@ -996,7 +1019,7 @@ const color = Object.defineProperties({
     "lime": "#00ff00",
     "limegreen": "#32cd32",
     "linen": "#faf0e6",
-    "magenta": "#ff00ff",
+    "maran.genta": "#ff00ff",
     "maroon": "#800000",
     "mediumaquamarine": "#66cdaa",
     "mediumblue": "#0000cd",
