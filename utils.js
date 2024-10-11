@@ -82,14 +82,20 @@ const utilMath = {
             })
         }
     },
- 
+
 
 }
 const utilString = {
     _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
     _numbers: '0123456789',
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
-    shorten: (string, len = 32) => `${string}`.slice(0, len),
+    shorten: (string, len = 32) => {
+        let out = `${string}`.slice(0, len)
+        if (out.length >= len) {
+            out += '…'
+        }
+        return out
+    },
     reverse: string => [...string].reverse().join(''),
     upper: string => string[0].toUpperCase() + string.slice(1),
     toOrdinal: o => {
@@ -113,7 +119,7 @@ const utilArray = {
     loopBackwards: (array, func) => {
         for (let i = array.length; i--;)if (i in array) func(array[i], i, array)
     },
- 
+
     remove: (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1),
     swap: (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item),
     swapInside: (item, a, b) => {
@@ -421,8 +427,8 @@ class Elem {
         }
     }
     static $(id) {
-        if (!Elem.elements.has(id.replace('#','')))  Elem.warn(`Element "${id}" might not exist`)
-            return this.elements.get(id.replace('#', ''))
+        if (!Elem.elements.has(id.replace('#', ''))) Elem.warn(`Element "${id}" might not exist`)
+        return this.elements.get(id.replace('#', ''))
     }
     static formats = {
         image: /webp|png|jpeg|jpg|gif/,
@@ -749,13 +755,13 @@ class Elem {
         }
         return this
     }
-    disableEvent(name){
+    disableEvent(name) {
         this.eventNames[name].disabled = true
     }
-    enableEvent(name){
+    enableEvent(name) {
         this.eventNames[name].disabled = false
     }
-    toggleEvent(name){
+    toggleEvent(name) {
         this.eventNames[name].disabled = !this.eventNames[name].disabled
     }
     anim(target, callback, keep) {
@@ -792,7 +798,7 @@ class Elem {
                         event.call(this, e)
                     }
                 }
-                eventfunc.disabled=false
+                eventfunc.disabled = false
                 this.content.addEventListener(eventName, eventfunc)
                 this.eventNames[eventName] = eventfunc
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event.toString().replaceAll(`\n`, '').replaceAll(' ', '')}`)
@@ -872,7 +878,7 @@ class Elem {
   }*/
 
 }
-window._=Elem.$.bind(Elem)
+window._ = Elem.$.bind(Elem)
 class SceneryElem extends Elem {
     static all = new Set
 
@@ -1093,3 +1099,69 @@ Object.assign(color, {
     //Extra colors go here
 })
 const body = window.body
+delete String.prototype.anchor
+delete String.prototype.big
+delete String.prototype.blink
+delete String.prototype.bold
+delete String.prototype.fixed
+delete String.prototype.fontcolor
+delete String.prototype.fontsize
+delete String.prototype.italics
+delete String.prototype.link
+delete String.prototype.small
+delete String.prototype.strike
+delete String.prototype.substr
+delete String.prototype.sup
+delete String.prototype.trimLeft
+delete String.prototype.trimRight
+/*delete Date.prototype.getYear
+delete Date.prototype.setYear
+delete Object.prototype.__defineGetter__
+delete Object.prototype.__defineSetter__
+delete Object.prototype.__lookupGetter__
+delete Object.prototype.__lookupSetter__
+delete self.escape
+delete self.unescape
+delete self.event
+delete self.external
+delete self.External
+delete self.orientation
+delete self.status
+delete self.back
+delete self.blur
+delete self.captureEvents
+delete self.clientInformation
+delete self.clearImmediate
+delete self.forward
+delete self.releaseEvents
+delete self.requestFileSystem
+delete self.setImmediate
+delete self.setResizable
+delete self.showModalDialog
+delete self.webkitConvertPointFromNodeToPage
+delete self.webkitConvertPointFromPageToNode
+delete self.onorientationchange
+delete self.onunload
+delete self.vrdisplayactivate
+delete self.vrdisplayconnect
+delete self.vrdisplaydeactivate
+delete self.vrdisplaydisconnect
+delete self.vrdisplaypresentchange
+delete Navigator.prototype.javaEnabled
+delete Navigator.prototype.activeVRDisplays
+delete Navigator.prototype.appCodeName
+delete Navigator.prototype.appName
+delete Navigator.prototype.appVersion
+delete Navigator.prototype.doNotTrack
+delete Navigator.prototype.mimeTypes
+delete Navigator.prototype.oscpu
+delete Navigator.prototype.platform
+delete Navigator.prototype.plugins
+delete Navigator.prototype.product
+delete Navigator.prototype.productSub
+delete Navigator.prototype.vendor
+delete Navigator.prototype.vendorSub
+delete Navigator.prototype.getUserMedia
+delete Navigator.prototype.getVRDisplays
+delete Navigator.prototype.taintEnabled
+Elem.noConsole()*/
