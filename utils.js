@@ -464,6 +464,24 @@ class Elem {
     //   static history = {}
     static loaded = new Set;
     static failed = new Set;
+    static RO = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+            const { contentBoxSize, target } = entry;
+
+            // For modern browsers that return an array (contentBoxSize[0])
+            const size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize;
+
+            if (!target.content) {
+                target.content = {};
+            }
+
+            target.content.bounds = {
+                x: size.inlineSize,  // Width
+                y: size.blockSize    // Height
+            };
+        });
+    });
+
     static bulk(callback, ...src) {
         let count = 0
         for (let li of src) {
@@ -518,12 +536,11 @@ class Elem {
             this.referrerpolicy = 'strict-origin-when-cross-origin'
         }
     }
-    static attributes = ['for', 'parent', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'cx', 'cy', 'r', 'stroke', 'stroke-width', 'fill', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow']
+    static attributes = ['for', 'max', 'min', 'low', 'high', 'optimum', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'cx', 'cy', 'r', 'stroke', 'stroke-width', 'fill', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow']
     static {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, `${attribute}`, {
                 get() {
-                    if (attribute === 'parent') return this.content.parentElement?.content ?? null
                     return this.content[`${attribute}`]
                 },
                 set(val) {
@@ -535,9 +552,7 @@ class Elem {
                         Elem.warn(`Use "styles" instead of "style"`)
                         this.content[`${attribute}`] = val
                     }
-                    else if (attribute === 'parent') {
-                        val?.adopt?.(this)
-                    }
+
                     else {
                         this.content[`${attribute}`] = val
                     }
@@ -643,6 +658,7 @@ class Elem {
             this.content = document.createElement(opts.tag)
             opts.id ??= ran.gen(7)
         }
+        Elem.RO.observe(this.content)
 
         this.content.content = this
         for (let attr of Elem.attributes) {
@@ -654,6 +670,10 @@ class Elem {
         if (opts.message) {
             this.innerText = opts.message
         }
+        this.timeouts = new Map
+        this.intervals = new Map
+        let f = this.content.getBoundingClientRect()
+        this.bounds = { x: parseFloat(f.width), y: parseFloat(f.height) }
         opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         Elem.elements.set(opts.id, this)
         if (opts.class) {
@@ -684,9 +704,7 @@ class Elem {
         }
         this.parent = opts.parent
         if (opts.children) {
-            for (let kid of opts.children) {
-                kid.append(this)
-            }
+            this.children = opts.children
         }
         opts.start?.call?.(this)
     }
@@ -706,7 +724,14 @@ class Elem {
     prepend(p) {
         p.content.prepend(this.content)
     }
+    get parent() {
+        return this.content.parentElement?.content ?? null
 
+    }
+    set parent(val) {
+        val?.adopt?.(this)
+
+    }
     /* get parent() {
          return this.content.parentElement?.content ?? null
      }*/
@@ -716,9 +741,13 @@ class Elem {
     get children() {
         return Object.freeze([...this.content.children].filter(o => !(o.tagName.match(/SCRIPT|NOSCRIPT/))).map(o => o.content))
     }
-    /*get parent() {
-        return this.content.parentNode?.content ?? null
-    }*/
+    set children(children) {
+        this.killChildren()
+        children.forEach(o => this.adopt(o))
+        // let frag = document.createDocumentFragment() // or new DocumentFragment
+        // frag.append(...children.map(o => o.content))
+        // this.content.append(frag)
+    }
     get previous() {
         return this.content.previousElementSibling?.content ?? null
     }
@@ -747,8 +776,6 @@ class Elem {
                        Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
                    }
                    else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
-                if ($class === 'fadeIn') this.toggle('fadeOut', false)
-                if ($class === 'fadeOut') this.toggle('fadeIn', false)
 
                 this.toggle($class, true)
             }
@@ -764,16 +791,69 @@ class Elem {
     toggleEvent(name) {
         this.eventNames[name].disabled = !this.eventNames[name].disabled
     }
-    anim(target, callback, keep) {
-        keep = false
-        if ('keep class' in target) {
-            delete target['keep class']
-            keep = true
+    async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease' }, frames }, callback) {
+        /*    if (options.time) {
+                time = options.time;
+                delete options.time;
+            }
+            if (options.callback) {
+                callback = options.callback;
+                delete options.callback;
+            }*/
+        timing.duration??=1000
+        timing.iterations??= 1
+        timing.easing??= 'ease'
+        try {
+            // Create KeyframeEffect with the provided options
+            const keyframeEffect = new KeyframeEffect(
+                this.content, // Element to animate
+                frames,      // Keyframes
+                timing // Animation options
+            );
+
+            // Create an Animation instance
+            const animation = new Animation(keyframeEffect);
+
+            // Play the animation and wait for it to finish
+            animation.play();
+            await animation.finished;
+
+            // Ensure the final styles are applied
+            for (let n of Object.keys(frames)) {
+                if (Array.isArray(frames[n])) frames[n] = frames[n].at(-1);
+            }
+            this.styleMe(frames);
+
+            // Call the callback if provided
+            callback?.call?.(this);
         }
-        this.add(target)
+        catch (e) {
+            Elem.error(`Something went wrong when applying a transition to element ${this.id}. The ${e.constructor.name} is shown below:`);
+            throw e;
+        }
+    }
+
+    anim(target, callback) {
+        let keep = false
+        if ('keep class' in target) keep = delete target['keep class']
+        switch (target.class) {
+            default: this.add(target); break;
+            /*    case 'fade out': this.content.animate([
+                    {opacity: 1, easing: 'ease-in'},
+                    {opacity:0, easing: 'ease-in'},
+                    
+                ],500); break;
+                case 'fade in': this.content.animate([
+                    {opacity: 0, easing: 'ease-in'},
+                    {opacity: 1, easing: 'ease-in'},
+                ],500); break;*/
+        }
         this.addevent(['animationend', () => {
             this.noevent('animationend'); callback?.call?.(this);
-            (!keep) && this.removeClass(target.class)
+            switch (target.class) {
+                default: (!keep) && this.removeClass(target.class); break;
+                //    case 'fade out': alert(134);
+            }
         }])
         return this
     }
@@ -815,7 +895,6 @@ class Elem {
                 Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
             } else Elem.listeners.delete(`${this.id}:${event}`)
             Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames[event].toString()}`)
-
             delete this.eventNames[event]
         }
     }
@@ -834,6 +913,8 @@ class Elem {
         return
     }
     cleanup() {
+        this.removeIntervals()
+        this.removeTimeouts()
         this.parent?.observer?.unobserve?.(this.content)
         this.observer?.disconnect?.()
         this.killChildren()
@@ -858,10 +939,67 @@ class Elem {
         this.content.classList.toggle($, force)
     }
     fadeOut(callback) {
-        this.anim({ 'keep class': true, class: 'fadeOut' }, () => { this.content.style.opacity = 0; callback?.call?.(this) })
+        this.transition({
+            frames: { opacity: 0 }, timing: { duration: 300 }, 
+        },callback)        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     }
     fadeIn(callback) {
-        this.anim({ 'keep class': true, class: 'fadeIn' }, () => { this.toggle('fadeIn', false); this.content.style.opacity = 1; callback?.call?.(this) })
+        this.transition({
+            frames: { opacity: 1 }, timing: { duration: 300 }, 
+        },callback)
+        //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
+    }
+    blink(callback) {
+        this.fadeOut(() => this.fadeIn(callback))
+    }
+    addTimeout(callback, interval) {
+        callback.paused = false
+        let mult;
+        if (typeof interval == 'object') {
+            if ('seconds' in interval) mult = 1_000 * interval.seconds;
+            else if ('minutes' in interval) mult = 60_000 * interval.minutes;
+            else if ('hours' in interval) mult = 3_600_000 * interval.hours;
+        } else mult = interval
+
+        let id = setInterval(() => {
+            callback.paused || this.timeouts.get(id).call(this)
+            this.timeouts.delete(id)
+        }, mult)
+        this.timeouts.set(id, callback)
+        return id
+    }
+    toggleInterval(id) {
+        let n = this.intervals.get(id)
+        n.paused = !n.paused
+    }
+    addInterval(callback, interval) {
+        callback.paused = false
+        let mult
+        if (typeof interval == 'object') {
+            if ('seconds' in interval) mult = 1_000 * interval.seconds;
+            else if ('minutes' in interval) mult = 60_000 * interval.minutes;
+            else if ('hours' in interval) mult = 3_600_000 * interval.hours;
+        } else mult = interval
+        let id = setInterval(() => {
+            callback.paused || this.intervals.get(id).call(this)
+            //     this.intervals.delete(id)
+        }, mult)
+        this.intervals.set(id, callback)
+        return id
+    }
+    removeInterval(id) {
+        this.intervals.delete(id)
+        clearInterval(id)
+    }
+    removeIntervals() {
+        for (let [id] of this.intervals) this.removeInterval(id)
+    }
+    removeTimeout(id) {
+        this.timeouts.delete(id)
+        clearTimeout(id)
+    }
+    removeTimeouts() {
+        for (let [id] of this.timeouts) this.removeTimeouts(id)
     }
     /*static findClass(className) {
       const styleSheets = document.styleSheets;
@@ -920,11 +1058,17 @@ class SceneryElem extends Elem {
     detectVisibility(n) {
         this.isOverFlowed = n
     }
+
     #update() {
         this.#lifetime++
         if (this.#lifetime > 1) {
+
             if (!this.isOverFlowed) {
-                if (this.#hasBeenSeen) this.outofbounds?.()
+                if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
+                    || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent.bounds.y)
+                    ||
+                    (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
+                        || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent.bounds.x)) this.outofbounds?.()
             } else this.#hasBeenSeen = true
             this.update?.()
         }

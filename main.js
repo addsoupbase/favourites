@@ -1,19 +1,18 @@
-'use strict';
+import ascii from './ascii.js'
 Elem.elements.get('progress').kill()
 let あ = Elem, r = color
-あ.logLevels.error = Elem.logLevels.warn=true
+あ.logLevels.error = Elem.logLevels.warn = true
 
 
 const { sin, cos } = Math;
 
-
 new あ({
     parent: body,
     start() {
-        this.anim({ class: 'bounce-in-top', 'keep class':true },
+        this.anim({ class: 'bounce-in-top', 'keep class': true },
             () => {
                 new あ({
-                    tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], start() {
+                    tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], styles: { opacity: 0 }, start() {
                         this.fadeIn(() => this.addevent({
                             click() {
                                 this.noevent('click')
@@ -22,7 +21,7 @@ new あ({
                                 Elem.elements.get('main').fadeOut(thanks)
                             }
                         }))
-                    }, id: 'foot', 
+                    }, id: 'foot',
                 }, true)
 
 
@@ -31,10 +30,10 @@ new あ({
 
                         parent: 'box', styles: {
                             'z-index': 3, width: '200px', height: '200px',
-                            position: 'absolute', top: '100%', display: 'flex',
+                            position: 'absolute', display: 'flex',
                             'align-items': 'center'
 
-                        }, x: 300, y: -200
+                        }, x: 100, y: innerHeight
                     })
                     div.fadeIn()
                     div.velocity.set(0, -1)
@@ -243,7 +242,7 @@ new あ({
                                             tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: {
                                                 click() {
                                                     this.disableEvent('click')
-                                                    this.anim({class: 'fade-in-tr' },()=>this.enableEvent('click'))
+                                                    this.anim({ class: 'fade-in-tr' }, () => this.enableEvent('click'))
                                                     cycleImage()
 
 
@@ -355,83 +354,83 @@ new あ({
 
             ]
         }),
-       /* new あ({
-            tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
-                new あ({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
-                new あ({
-                    tag: 'div', id: 'mainform', children: [
-                        new あ({
-                            tag: 'label', text: 'Name (optional)<br>', for: 'formName'
-                        }),
-                        new あ({ tag: 'input', class: ['cute-input'], id: 'formName', name: 'name', placeholder: 'namey name', value: 'anonymous' }),
-
-                        new あ({
-                            tag: 'input', class: ['cute-input'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
-                                click() {
-                                    this.placeholder = `Your message here...`
-                                }
-                            }
-                        }),
-
-                    ]
-                }),
-                new あ({
-                    tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
-                        click() {
-                            if (!Elem.elements.get('#formMessage'].value) {
-                                Elem.elements.get('#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                Elem.elements.get('#formMessage'].anim({class: 'shake-horizontal' })
-                                return
-                            }
-                            Elem.elements.get('#submitBtn'].noevent('click')
-                            Elem.elements.get('#submitBtn'].kill()
-                            Elem.elements.get('#loading'].show()
-                            Elem.elements.get('#formMessage'].disabled = Elem.elements.get('#formName'].disabled = true
-                            let NAME = Elem.elements.get('#formName'].value
-                            let MESSAGE = Elem.elements.get('#formMessage'].value
-                                ; (async () => {
-                                    try {
-                                        let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
-                                            method: 'POST',
-                                            body: `name=${encodeURIComponent(NAME) || 'anonymous'}&message=${encodeURIComponent(MESSAGE)}`,
-                                            headers: {
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                                'Accept': 'application/json'
-                                            }
-                                        })
-                                        if (x.ok) {
-                                            Elem.elements.get('#formtab'].anim({ class: 'slide-out-right' }, function () {
-                                                this.kill()
-                                            })
-                                        }
-                                        else {
-                                            confirm(`Something went wrong... reload and try again?`) && location.reload()
-                                        }
-                                    } catch (e) {
-                                        //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
-
-                                        Elem.elements.get('#mainform'].kill()
-                                        Elem.elements.get('#loading'].kill()
-                                        Elem.elements.get('#jeff'].innerHTML = 'Your message could not be sent because: '
-                                        new Elem({
-                                            tag: 'p',
-                                            class: ['shake-horizontal'],
-                                            styles: { 'font-size': '25px', color: 'black' },
-                                            text: e.message, parent: Elem.elements.get('#formtab']
-                                        })
-                                        throw e
-                                    }
-
-                                })()
-                        }
-                    },
-                    text: 'Send'
-                }),
-
-                new あ({ tag: 'img', class: ['emoji2', 'hidden'], id: 'loading', src: './media/heartmessage.webp' }),
-          
-            ]
-        }),*/
+        /* new あ({
+             tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
+                 new あ({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
+                 new あ({
+                     tag: 'div', id: 'mainform', children: [
+                         new あ({
+                             tag: 'label', text: 'Name (optional)<br>', for: 'formName'
+                         }),
+                         new あ({ tag: 'input', class: ['cute-input'], id: 'formName', name: 'name', placeholder: 'namey name', value: 'anonymous' }),
+ 
+                         new あ({
+                             tag: 'input', class: ['cute-input'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
+                                 click() {
+                                     this.placeholder = `Your message here...`
+                                 }
+                             }
+                         }),
+ 
+                     ]
+                 }),
+                 new あ({
+                     tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
+                         click() {
+                             if (!Elem.elements.get('#formMessage'].value) {
+                                 Elem.elements.get('#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
+                                 Elem.elements.get('#formMessage'].anim({class: 'shake-horizontal' })
+                                 return
+                             }
+                             Elem.elements.get('#submitBtn'].noevent('click')
+                             Elem.elements.get('#submitBtn'].kill()
+                             Elem.elements.get('#loading'].show()
+                             Elem.elements.get('#formMessage'].disabled = Elem.elements.get('#formName'].disabled = true
+                             let NAME = Elem.elements.get('#formName'].value
+                             let MESSAGE = Elem.elements.get('#formMessage'].value
+                                 ; (async () => {
+                                     try {
+                                         let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
+                                             method: 'POST',
+                                             body: `name=${encodeURIComponent(NAME) || 'anonymous'}&message=${encodeURIComponent(MESSAGE)}`,
+                                             headers: {
+                                                 'Content-Type': 'application/x-www-form-urlencoded',
+                                                 'Accept': 'application/json'
+                                             }
+                                         })
+                                         if (x.ok) {
+                                             Elem.elements.get('#formtab'].anim({ class: 'slide-out-right' }, function () {
+                                                 this.kill()
+                                             })
+                                         }
+                                         else {
+                                             confirm(`Something went wrong... reload and try again?`) && location.reload()
+                                         }
+                                     } catch (e) {
+                                         //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
+ 
+                                         Elem.elements.get('#mainform'].kill()
+                                         Elem.elements.get('#loading'].kill()
+                                         Elem.elements.get('#jeff'].innerHTML = 'Your message could not be sent because: '
+                                         new Elem({
+                                             tag: 'p',
+                                             class: ['shake-horizontal'],
+                                             styles: { 'font-size': '25px', color: 'black' },
+                                             text: e.message, parent: Elem.elements.get('#formtab']
+                                         })
+                                         throw e
+                                     }
+ 
+                                 })()
+                         }
+                     },
+                     text: 'Send'
+                 }),
+ 
+                 new あ({ tag: 'img', class: ['emoji2', 'hidden'], id: 'loading', src: './media/heartmessage.webp' }),
+           
+             ]
+         }),*/
     ]
 })
 
@@ -508,19 +507,83 @@ function cycleImage() {
 }
 
 let bo = new あ({ tag: 'div', id: 'box' }, true)
-
+Elem.preload('./media/strawberry.gif')
 let frame = 0;
 const loop = function () {
     requestAnimationFrame(loop)
     frame++
     SceneryElem.update()
+    if (!(frame % 400)) {
+        let col = ran.choose(color.red, color.green,color.pink,color.white, color.yellow, color.orange)
+        let te = new SceneryElem({
+            parent: 'box', styles: {
+                'text-align': 'center', /* 'max-width':'80px',*/              opacity: 0,
+            }, children: [
+                new Elem({
+                    tag: 'p', text: ran.choose(...ascii), styles: {
+                        'font-family': 'Choco',
+                        'text-rendering':'optimizespeed',
+                        'font-size': '10px',
+                    /*    'text-shadow': `0 0 4px ${col}, 
+                0 0 20px ${col}, 
+                0 0 30px ${col}, 
+                0 0 40px ${col}, 
+                0 0 50px ${col}`,*/
+                        color: col
+                    }
+                })
+            ]
+        })
+        te.fadeIn()
+        te.children[0].styleMe({transform:`rotate(${ran.range(-10,10)}deg)`})
+        let _ran = ran.choose(1, -1)
+        te.position.set(_ran > 0 ? innerWidth - 100 : 0, Math.random() * innerHeight)
+        te.velocity.set(_ran > 0 ? -1 : 1, 0)
+    }
+    if (!(frame % 600) && frame > 100) {
+        let berry = new SceneryElem({
+            parent: 'box',
+            styles: { opacity: 0, cursor: 'pointer' },
+            position: 'relative',
+            events: {
+                click() {
+                    this.fadeOut(this.kill)
+                }
+            },
+            children: [
+                new Elem({
+                    tag: 'img', src: './media/strawberry.gif',
+                    start() {
+                        this.transition({
+                            timing: {
+                                easing: 'linear',
+                                duration: ran.range(1000, 3000),
+                                iterations: Infinity
+                            },
+                            frames: {
+                                transform: `rotate(${ran.choose(360, 360 * 2, 360 * 3) * ran.choose(1, -1)}deg)`
+                            }
+                        })
+                    },
+                    styles: {
+                        width: '30px',
+                        height: '30px',
+                    }
+                })
+            ]
+        })
+        berry.fadeIn()
+        berry.position.set(Math.random() * innerWidth, -30)
+        berry.velocity.set(ran.range(-2, 2), 1)
+
+    }
     if (!(frame % 20)) {
         let u = function () {
             if (this.rand > 0) {
-                this.velocity.add(Math.cos((frame-this.offset) / 100) / 100, 0)
+                this.velocity.add(Math.cos((frame - this.offset) / 100) / 100, 0)
             }
             else {
-                this.velocity.add(Math.sin((frame-this.offset) / 100) / 100, 0)
+                this.velocity.add(Math.sin((frame - this.offset) / 100) / 100, 0)
 
             }
         }
@@ -539,7 +602,7 @@ const loop = function () {
                 })
             ], parent: snow,
         })
-        f.offset = ran.range(0,4000)
+        f.offset = ran.range(0, 4000)
         for (let i = 2; i--;) {
             let k = new SceneryElem({
                 x: ran.range(0, 300),
@@ -556,7 +619,7 @@ const loop = function () {
             k.velocity.set(0, 1)
             k.rand = ran.choose(-1, 1)
             k.update = u
-            k.offset = ran.range(0,4000)
+            k.offset = ran.range(0, 4000)
         }
         f.update = u
         f.rand = ran.choose(-1, 1)
