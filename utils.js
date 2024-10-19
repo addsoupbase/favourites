@@ -708,6 +708,7 @@ class Elem {
     }
     replaceWith(p) {
         this.content.replaceWith(p.content)
+        return p
     }
     becomeChild(p) {
         this.content.append(p.content)
