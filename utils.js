@@ -480,9 +480,11 @@ class Elem {
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, attribute, {
                 get() {
+                    if (!(this instanceof Elem)) throw TypeError('Illegal invocation')
                     return this.content[attribute]
                 },
                 set(val) {
+                    if (!(this instanceof Elem)) throw TypeError('Illegal invocation')
                     if (attribute === 'id') {
                         if (Elem.elements.has(this.id)) throw TypeError("Not allowed re-assign element id")
                         else {this.content[attribute] = val; Elem.elements.set(this.id, this)}
