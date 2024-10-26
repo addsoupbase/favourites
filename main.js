@@ -1,7 +1,7 @@
 import ascii from './ascii.js'
-Elem.elements.get('progress').kill()
+Elem.$('progress').kill()
 let あ = Elem, r = color
-あ.logLevels.error = Elem.logLevels.warn = true
+あ.log()
 
 
 const { sin, cos } = Math;
@@ -18,7 +18,7 @@ new あ({
                                 this.noevent('click')
                                 this.removeClass('clickable')
                                 this.fadeOut(this.kill)
-                                Elem.elements.get('main').fadeOut(thanks)
+                                Elem.$('main').fadeOut(thanks)
                             }
                         }))
                     }, id: 'foot',
@@ -72,7 +72,7 @@ new あ({
                 for (let i = 10; i--;) {
                     let _c = color.choose()
                     let em = new SceneryElem({
-                        parent: あ.elements.get('box'),
+                        parent: あ.$('box'),
                         x: innerWidth * Math.random(), y: innerHeight + 150,
                         styles: {
                             'max-width': '100%',
@@ -377,17 +377,17 @@ new あ({
                  new あ({
                      tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
                          click() {
-                             if (!Elem.elements.get('#formMessage'].value) {
-                                 Elem.elements.get('#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
-                                 Elem.elements.get('#formMessage'].anim({class: 'shake-horizontal' })
+                             if (!Elem.$('#formMessage'].value) {
+                                 Elem.$('#formMessage'].placeholder = 'PUT A MESSAGE SILLY'
+                                 Elem.$('#formMessage'].anim({class: 'shake-horizontal' })
                                  return
                              }
-                             Elem.elements.get('#submitBtn'].noevent('click')
-                             Elem.elements.get('#submitBtn'].kill()
-                             Elem.elements.get('#loading'].show()
-                             Elem.elements.get('#formMessage'].disabled = Elem.elements.get('#formName'].disabled = true
-                             let NAME = Elem.elements.get('#formName'].value
-                             let MESSAGE = Elem.elements.get('#formMessage'].value
+                             Elem.$('#submitBtn'].noevent('click')
+                             Elem.$('#submitBtn'].kill()
+                             Elem.$('#loading'].show()
+                             Elem.$('#formMessage'].disabled = Elem.$('#formName'].disabled = true
+                             let NAME = Elem.$('#formName'].value
+                             let MESSAGE = Elem.$('#formMessage'].value
                                  ; (async () => {
                                      try {
                                          let x = await fetch(`https://formspree.io/f/mgvwbzvd`, {
@@ -399,7 +399,7 @@ new あ({
                                              }
                                          })
                                          if (x.ok) {
-                                             Elem.elements.get('#formtab'].anim({ class: 'slide-out-right' }, function () {
+                                             Elem.$('#formtab'].anim({ class: 'slide-out-right' }, function () {
                                                  this.kill()
                                              })
                                          }
@@ -409,14 +409,14 @@ new あ({
                                      } catch (e) {
                                          //  confirm(`For whatever reason i couldnt send your message :(! reload and try again`) && location.reload()
  
-                                         Elem.elements.get('#mainform'].kill()
-                                         Elem.elements.get('#loading'].kill()
-                                         Elem.elements.get('#jeff'].innerHTML = 'Your message could not be sent because: '
+                                         Elem.$('#mainform'].kill()
+                                         Elem.$('#loading'].kill()
+                                         Elem.$('#jeff'].innerHTML = 'Your message could not be sent because: '
                                          new Elem({
                                              tag: 'p',
                                              class: ['shake-horizontal'],
                                              styles: { 'font-size': '25px', color: 'black' },
-                                             text: e.message, parent: Elem.elements.get('#formtab']
+                                             text: e.message, parent: Elem.$('#formtab']
                                          })
                                          throw e
                                      }
@@ -443,7 +443,7 @@ function thanks() {
 
         ], id: 'main2'
     }, true)
-    n.anim({ class: 'roll-in-left' }, () => あ.elements.get('main').kill())
+    n.anim({ class: 'roll-in-left' }, () => あ.$('main').kill())
 
 }
 
@@ -482,28 +482,28 @@ let avatars = [
 
 ]
 function cycleAvatar() {
-    Elem.elements.get('help2')?.kill()
+    Elem.$('help2')?.kill()
 
     current2++
     if (!(avatars[current2])) current2 = 0;
-    let m = Elem.elements.get('avatars')
+    let m = Elem.$('avatars')
     m.noevent('click')
 
     m.anim({ class: 'fade-in-tr' }, function () { this.addevent({ click: cycleAvatar }) })
     m.src = avatars[current2]
 }
 function cycleImage() {
-    Elem.elements.get('help1')?.kill()
+    Elem.$('help1')?.kill()
     current++
     if (!examples[current]) {
         current = 0
     }
 
 
-    Elem.elements.get('msgImg').src = examples[current].src
-    Elem.elements.get('msgImg').title = examples[current].title ?? ''
-    Elem.elements.get('desc').innerHTML = examples[current].description
-    Elem.elements.get('caption').innerHTML = `Exhibit ${letters[current].toUpperCase()}`
+    Elem.$('msgImg').src = examples[current].src
+    Elem.$('msgImg').title = examples[current].title ?? ''
+    Elem.$('desc').innerHTML = examples[current].description
+    Elem.$('caption').innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
 
 let bo = new あ({ tag: 'div', id: 'box' }, true)
@@ -629,4 +629,4 @@ const loop = function () {
     }
 }
 loop()
-let snow = あ.elements.get('snowfall')
+let snow = あ.$('snowfall')
