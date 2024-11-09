@@ -18,7 +18,7 @@ const ran = {
     pseudo: _ => `${Date.now()}`.at(-1) / 10,
     true: _ => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff,
     shuffle(...item) {
-        for (let i = item.length - 1; i; --i) {
+        for (let i = 0, { length } = item; i < length; ++i) {
             let j = Math.floor(Math.random() * (i + 1));
             [item[i], item[j]] = [item[j], item[i]]; // Swap elements
         }
@@ -63,6 +63,7 @@ const utilMath = {
 const utilString = {
     _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
     _numbers: '0123456789',
+    contains:(string,...searches)=>searches.every(string.match,string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
         let out = `${string}`.slice(0, len)
@@ -242,7 +243,7 @@ const Vector2 = class Vector2 {
             if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER
             else if (n < Number.MIN_SAFE_INTEGER) n = Number.MIN_SAFE_INTEGER
             else n = +n
-            if (Object.keys(this)[i]in this) this[Object.keys(this)[i]] = n
+            if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
         }
     }
     pow(vector) {
@@ -355,14 +356,88 @@ const Vector2 = class Vector2 {
         return this.z
     }
 }*/
+class Color {
+    r; g; b; a;
+    constructor(r = 0, g = 0, b = 0, a = 1) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+    [Symbol.toPrimitive]() {
+        return +(this.toString('hex').replace('#','')
+    )
+    }
+    static toHex(r, g, b) {
+        return `#${Color.th(r)}${Color.th(g)}${Color.th(b)}`.toUpperCase();
+    }
+    static th =  n => n.toString(16).padStart(2, '0');
+    static toHex2(r, g, b, a) {
+        r = Math.min(255, Math.max(0, r));
+        g = Math.min(255, Math.max(0, g));
+        b = Math.min(255, Math.max(0, b));
+        a = Math.round(Math.min(1, Math.max(0, a)) * 255);
+        return `#${Color.th(r)}${Color.th(g)}${Color.th(b)}${Color.th(a)}`;
+    }
+    static toHSL(r, g, b) {
+        // Normalize RGB values to the range 0-1
+        r /= 255, g /= 255, b /= 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+    
+        const d = max - min;
+        s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min);
+    
+        if (d === 0) {
+            h = 0; // achromatic
+        } else {
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+    
+        // Convert to degrees and percentages
+        h = Math.round(h * 360);
+        s = Math.round(s * 100);
+        l = Math.round(l * 100);
+    
+        return `hsl(${h}, ${s}%, ${l}%)`;
+    }
+    *[Symbol.iterator]() {
+        yield this.r
+        yield this.g
+        yield this.b
+        yield this.a
+    }
+    toString(format) {
+        switch (format?.toLowerCase?.()) {
+            default:
+                return `rgb(${this.r} ${this.g} ${this.b} ${this.a})`
+            case 'hex':
+                return Color.toHex(...this)
+            case 'hex2':
+                return Color.toHex2(...this)
+                case 'hsl':
+                    return Color.toHSL(...this)
+
+        }
+    }
+}
+class hsl extends Color {
+
+}
 class Elem {
-    static get allElements(){
-        let out = [...document.querySelectorAll('*')].map(o=>o.content).filter(o=>o instanceof Elem)
+    static get allElements() {
+        let out = [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
         return out
     }
     age = Date.now()
     static log() {
-        Object.keys(this.logLevels).forEach(o=>this.logLevels[o] = !this.logLevels[o])
+        Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
     }
     static registry = new FinalizationRegistry(heldValue =>
         Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
@@ -500,14 +575,16 @@ class Elem {
     }
     static attributes = new Set([...this.svgattr, 'style', 'xmlns', 'for', 'max', 'min', 'low', 'high', 'optimum', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'stroke-width', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow'])
     static {
-        Object.getOwnPropertyNames(this.prototype).forEach(key => {
+        let k = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key);
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
-                this.prototype[key] = ((侗,俉俊)=>{return function(){if(!(this instanceof 侗))throw 俉俊;return 우정.apply(this,arguments)}
-            })(Elem,TypeError('Illegal invocation'))
+                this.prototype[key] = ((侗, 俉俊) => {
+                    return function () { if (!(this instanceof 侗)) throw 俉俊; return 우정.apply(this, arguments) }
+                })(Elem, TypeError('Illegal invocation'))
+            }
         }
-        });
+        Object.getOwnPropertyNames(this.prototype).forEach(k);
         for (let attribute of this.attributes) {
             Object.defineProperty(this.prototype, attribute, {
                 get() {
@@ -546,7 +623,7 @@ class Elem {
         if (out.content.children) {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
-                if ('content'in node && node instanceof Elem) {
+                if ('content' in node && node instanceof Elem) {
                     //out.children.push(node)
                     // node.content.parent = out
                 }
@@ -561,8 +638,8 @@ class Elem {
         // body.content.setAttribute('id', 'body')
         //body.id = 'body'
         let head = [...document.head.children]
-        let charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle
-        head.forEach(o => {
+        let charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
+        func = o => {
             let butes = o.attributes
             if (butes.charset) charSet = true
             if (butes.name) name = true
@@ -570,11 +647,12 @@ class Elem {
             if (butes[0]?.textContent === 'og:image') ogImage = true
             if (butes[0]?.textContent === 'og:url') ogUrl = true
             if (butes[0]?.textContent === 'og:title') ogTitle = true
-            if (butes[0]?.nodeValue   === 'viewport' && butes[1]?.nodeValue) viewport = true
-        })
+            if (butes[0]?.nodeValue === 'viewport' && butes[1]?.nodeValue) viewport = true
+        }
+        head.forEach(func)
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '')) console.warn('Consider giving this document a title.')
         charSet || console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        viewport|| console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
+        viewport || console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
         ogImage || console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         ogTitle || console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
     }
@@ -593,7 +671,7 @@ class Elem {
     constructor(opts = {}) {
         //Main init
         if (!opts?.tag && !opts.self) throw TypeError('Missing tag name in element creation')//return Elem.error('Cannot create element: missing tag')
-  
+
         if (opts.self) {
             this.content = opts.self
             if (this.content === document.body) opts.id = 'body';
@@ -611,7 +689,7 @@ class Elem {
             let f = this.content.getBoundingClientRect()
             this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
         }
-       // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
+        // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         if (opts.class) for (let $class of opts.class) this.content.classList.add($class)
         if (opts.events) {
             this.addevent(opts.events)
@@ -760,7 +838,7 @@ class Elem {
     }
     anim(target, callback) {
         let keep = false
-        if ('keep class'in target) keep = delete target['keep class']
+        if ('keep class' in target) keep = delete target['keep class']
         switch (target.class) {
             default: this.add(target); break
             /*    case 'fade out': this.content.animate([
@@ -783,15 +861,15 @@ class Elem {
         return this
     }
     removeClass(...className) {
-        for (let name of className) 
+        for (let name of className)
             this.toggle(name, false) || this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
-        
+
     } addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] == 'object' && arguments.length == 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
             if (!event) {
                 event = eventName[1]
-                eventName=eventName[0]
+                eventName = eventName[0]
             }
             Elem.listeners.set(`${this.id}:${eventName}`, event)
             if (!this.eventNames.has(eventName)) {
@@ -844,8 +922,8 @@ class Elem {
         for (let o of c) while (this.content.contains(o?.content)) o.kill()
         return this
     }
-    hide = () =>( this.toggle('hidden', true),this)
-    show = () => (this.toggle('hidden', false),this)
+    hide = () => (this.toggle('hidden', true), this)
+    show = () => (this.toggle('hidden', false), this)
     toggle = ($, force) => this.content.classList.toggle($, force)
     fadeOut = async callback =>
         this.transition({
@@ -862,9 +940,9 @@ class Elem {
         callback.paused = false
         let mult
         if (typeof interval == 'object') {
-            if ('seconds'in interval) mult = 1_000 * interval.seconds
-            else if ('minutes'in interval) mult = 60_000 * interval.minutes
-            else if ('hours'in interval) mult = 3_600_000 * interval.hours
+            if ('seconds' in interval) mult = 1_000 * interval.seconds
+            else if ('minutes' in interval) mult = 60_000 * interval.minutes
+            else if ('hours' in interval) mult = 3_600_000 * interval.hours
         } else mult = interval
         let id = setTimeout(() => {
             callback.paused || this.timeouts.get(id).call(this)
@@ -882,9 +960,9 @@ class Elem {
         callback.count = interval?.count ?? -1
         let mult
         if (typeof interval == 'object') {
-            if ('seconds'in interval) mult = 1_000 * interval.seconds
-            else if ('minutes'in interval) mult = 60_000 * interval.minutes
-            else if ('hours'in interval) mult = 3_600_000 * interval.hours
+            if ('seconds' in interval) mult = 1_000 * interval.seconds
+            else if ('minutes' in interval) mult = 60_000 * interval.minutes
+            else if ('hours' in interval) mult = 3_600_000 * interval.hours
         } else mult = interval
         let id = setInterval(() => {
             callback.paused || (this.intervals.get(id).call(this), --callback.count)
@@ -928,7 +1006,8 @@ class SceneryElem extends Elem {
     static frame = 0
     static update() {
         this.frame++
-        this.all.forEach(o => Elem.elements.has(o) ? o.#update() : this.all.delete(o))
+        let func = o => Elem.elements.has(o) ? o.#update() : this.all.delete(o)
+        this.all.forEach(func)
     }
     position = new Vector2
     rotation = 0
@@ -939,16 +1018,17 @@ class SceneryElem extends Elem {
     flip = () => this.#mirror += 180
     velocity = new Vector2
     static {
-        Object.getOwnPropertyNames(this.prototype).forEach(key => {
+        let func = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
             // Check if it's a function and not a getter/setter
             if (typeof descriptor.value === 'function' && key !== 'constructor') {
                 let 우정 = this.prototype[key]
-                this.prototype[key] = ((乓,份) => {
-                    return function(){if(!(this instanceof 乓))throw 份;return 우정.apply(this,arguments)}
-                })(SceneryElem,TypeError('Illegal invocation'))
+                this.prototype[key] = ((乓, 份) => {
+                    return function () { if (!(this instanceof 乓)) throw 份; return 우정.apply(this, arguments) }
+                })(SceneryElem, TypeError('Illegal invocation'))
             }
-        });
+        }
+        Object.getOwnPropertyNames(this.prototype).forEach(func);
     }
     constructor(opts = {}, i) {
         opts.tag ??= 'div'
@@ -1028,6 +1108,6 @@ Object.assign(color, {
     //Extra colors go here
 })
 const body = window.body
-    ; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
-    ; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
-    ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
+    //; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
+   //; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
+   // ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
