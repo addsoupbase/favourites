@@ -51,8 +51,8 @@ const utilMath = {
     toRad: deg => deg * Math.PI / 180,
     toDeg: rad => rad * 180 / Math.PI,
     diff: (a, b) => Math.abs(a - b),
-    clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
-    Cycle: function (...items) {
+    clamp(val, min, max) {if(val>max)return max;if(val<min)return min;return val},
+    Cycle:function(...items) {
         return Object.defineProperty(function* (x = 0) {
             for (; ;)yield items[x++ % items.length]
         }(), 'val', {
@@ -63,6 +63,8 @@ const utilMath = {
 const utilString = {
     _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
     _numbers: '0123456789',
+    months:'January February March April May June July August September October November December'.split(' '),
+    days:'Sunday Monday Tuesday Wednesday Thursday Friday Saturday Sunday'.split(' '),
     contains:(string,...searches)=>searches.every(string.match,string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
@@ -145,14 +147,14 @@ async function getDataUrl(url, response, data) {
             },
             onerror:reject,
         }).readAsDataURL(data)*/
-        let reader = new FileReader()
+        let reader = new FileReader
         reader.onloadend = () => resolve(reader.result)
         reader.onerror = reject
         reader.readAsDataURL(data) // Convert blob to data URL
     })
 }
 function padZero(str, len = 2) {
-    let zeros = new Array(len).join`0`
+    let zeros = new Array(len).join(0)
     return (zeros + str).slice(-len)
 }
 function checkVisible(elm) {
@@ -173,7 +175,17 @@ function isOverFlowed(elm) {
         rect.left < parentRect?.right
     return isVisible
 }
-const Vector2 = class Vector2 {
+const Vector = class v {
+    x=0
+    constructor(x=0) {
+    Object.seal(this)
+    this.x = x
+    }
+    [Symbol.toPrimitive](type) {
+        return type == 'number' ? this.x : `${this.x}`
+    }
+}
+const Vector2 = class v {
     x
     y
     constructor(x = 0, y = 0) {
@@ -181,64 +193,64 @@ const Vector2 = class Vector2 {
         Object.seal(this)
         this.set(x, y)
     }
-    static distance = (vector, vector2) => Math.hypot(Vector2.x(vector) - Vector2.x(vector2), Vector2.y(vector) - Vector2.y(vector2))
+    static distance = (vector, v) => Math.hypot(v.x(vector) - v.x(v), v.y(vector) - v.y(v))
     static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
     static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     static angle(first, second, firstAngle, secondAngle, angle) {
-        firstAngle = Math.atan2(Vector2.y(first), Vector2.x(first))
-        secondAngle = Math.atan2(Vector2.y(second), Vector2.x(second))
+        firstAngle = Math.atan2(v.y(first), v.x(first))
+        secondAngle = Math.atan2(v.y(second), v.x(second))
         angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
     static average(...vectors) {
-        let x = vectors.map(o => Vector2.x(o))
-        let y = vectors.map(o => Vector2.y(o))
-        return new Vector2(x.average(), y.average())
+        let x = vectors.map(o => v.x(o))
+        let y = vectors.map(o => v.y(o))
+        return new v(x.average(), y.average())
     }
-    static difference(vector, vector2) {
+    static difference(vector, v) {
         if (!Array.isArray(vector)) vector = [...vector]
-        if (!Array.isArray(vector2)) vector2 = [...vector2]
+        if (!Array.isArray(v)) v = [...v]
         let out = [...vector], { length } = out
-        for (let i = 0; i < length; ++i) out[i] = Math.abs(vector2[i] - vector[i])
-        return new Vector2(...out)
+        for (let i = 0; i < length; ++i) out[i] = Math.abs(v[i] - vector[i])
+        return new v(...out)
     }
     static combine(...vectors) {
-        let out = new Vector2
+        let out = new v
         for (let v of vectors) out.add(v)
         return out
     }
     static multiply(...vectors) {
-        let out = new Vector2(1, 1)
+        let out = new v(1, 1)
         for (let v of vectors) out.multiply(v)
         return out
     }
     static get up() {
-        return new Vector2(0, 1)
+        return new v(0, 1)
     }
     static get random() {
-        let out = (new Vector2)
+        let out = (new v)
         out.randomize()
         return out
     }
     static get down() {
-        return new Vector2(0, -1)
+        return new v(0, -1)
     }
     static get left() {
-        return new Vector2(-1, 0)
+        return new v(-1, 0)
     }
     static get right() {
-        return new Vector2(1, 0)
+        return new v(1, 0)
     }
-    static max = (vector, vector2) => new Vector2(Math.max(Vector2.x(vector2), Vector2.x(vector)), Math.max(Vector2.y(vector2), Vector2.y(vector)))
-    static min = (vector, vector2) => new Vector2(Math.min(Vector2.x(vector2), Vector2.x(vector)), Math.min(Vector2.y(vector2), Vector2.y(vector)))
-    static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [Vector2.x(o), Vector2.y(o)]))
+    static max = (vector, v) => new v(Math.max(v.x(v), v.x(vector)), Math.max(v.y(v), v.y(vector)))
+    static min = (vector, v) => new v(Math.min(v.x(v), v.x(vector)), Math.min(v.y(v), v.y(vector)))
+    static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
     set(...numbers) {
         if (numbers.length === 1) {
-            this.x = Vector2.x(numbers[0])
-            this.y = Vector2.y(numbers[0])
+            this.x = v.x(numbers[0])
+            this.y = v.y(numbers[0])
             return
         }
-        for (let i = 0; i < numbers.length; ++i) {
+        for (let i = 0,{length} = numbers; i < length; ++i) {
             let n = numbers[i]
             if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER
             else if (n < Number.MIN_SAFE_INTEGER) n = Number.MIN_SAFE_INTEGER
@@ -248,8 +260,7 @@ const Vector2 = class Vector2 {
     }
     pow(vector) {
         if (!Array.isArray(vector)) vector = [...vector]
-        let length = this.value.length
-        for (let i = 0; i < length; ++i) vector[i] = this[i] ** vector[i]
+        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
         this.set(vector)
         return this
     }
@@ -258,8 +269,7 @@ const Vector2 = class Vector2 {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; ++i) vector[i] = this[i] + vector[i]
+        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
         this.set(vector)
         return this
     }
@@ -268,8 +278,7 @@ const Vector2 = class Vector2 {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; ++i) vector[i] = this[i] - vector[i]
+        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
         this.set(vector)
         return this
     }
@@ -278,8 +287,7 @@ const Vector2 = class Vector2 {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; ++i) vector[i] = this[i] * vector[i]
+        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
         this.set(vector)
         return this
     }
@@ -288,8 +296,7 @@ const Vector2 = class Vector2 {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        let length = this.value.length
-        for (let i = 0; i < length; ++i) vector[i] = this[i] / vector[i]
+        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
         this.set(vector)
         return this
     }
@@ -309,18 +316,18 @@ const Vector2 = class Vector2 {
         sum = (this.minus(to)).multiply(time, time)
         this.subtract(sum)
     }
-    minus = other => new Vector2(this).subtract(other)
+    minus = other => new v(this).subtract(other)
     get average() {
         return utilArray.avg(/*[...this]*/[this.x, this.y])
     }
     get inverse() {
-        return new Vector2(this.x ** -1, this.y ** -1)
+        return new v(this.x ** -1, this.y ** -1)
     }
     get negated() {
-        return new Vector2(-this.x, -this.y)
+        return new v(-this.x, -this.y)
     }
     get normalized() {
-        return new Vector2(...this.value.map(o => o / this.magnitude || 0))
+        return new v(...this.value.map(o => o / this.magnitude || 0))
     }
     get magnitude() {
         return this.value.reduce((a, b) => Math.abs(a + b))
@@ -343,7 +350,7 @@ const Vector2 = class Vector2 {
         yield this.y
     }
 }
-/*class Vector3 extends Vector2 {
+/*class Vector3 extends v {
     z
     constructor(x = 0, y = 0, z = 0) {
         super()
@@ -356,7 +363,7 @@ const Vector2 = class Vector2 {
         return this.z
     }
 }*/
-class Color {
+const Color = class z {
     r; g; b; a;
     constructor(r = 0, g = 0, b = 0, a = 1) {
         this.r = r;
@@ -369,7 +376,7 @@ class Color {
     )
     }
     static toHex(r, g, b) {
-        return `#${Color.th(r)}${Color.th(g)}${Color.th(b)}`.toUpperCase();
+        return `#${z.th(r)}${z.th(g)}${z.th(b)}`.toUpperCase();
     }
     static th =  n => n.toString(16).padStart(2, '0');
     static toHex2(r, g, b, a) {
@@ -377,7 +384,7 @@ class Color {
         g = Math.min(255, Math.max(0, g));
         b = Math.min(255, Math.max(0, b));
         a = Math.round(Math.min(1, Math.max(0, a)) * 255);
-        return `#${Color.th(r)}${Color.th(g)}${Color.th(b)}${Color.th(a)}`;
+        return `#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`;
     }
     static toHSL(r, g, b) {
         // Normalize RGB values to the range 0-1
@@ -418,11 +425,11 @@ class Color {
             default:
                 return `rgb(${this.r} ${this.g} ${this.b} ${this.a})`
             case 'hex':
-                return Color.toHex(...this)
+                return z.toHex(...this)
             case 'hex2':
-                return Color.toHex2(...this)
-                case 'hsl':
-                    return Color.toHSL(...this)
+                return z.toHex2(...this)
+            case 'hsl':
+                return z.toHSL(...this)
 
         }
     }
@@ -431,9 +438,18 @@ class hsl extends Color {
 
 }
 class Elem {
+    static getPageAsHTML=()=>document.documentElement.getHTML()
     static get allElements() {
-        let out = [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
-        return out
+        return [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
+    }
+    raw(){
+        return this.content.getHTML()
+    }
+    set after(e) {
+        this.content.after(e.content)
+    }
+    set before(e) {
+        this.content.before(e.content)
     }
     age = Date.now()
     static log() {
@@ -477,9 +493,10 @@ class Elem {
             if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
             else if (propName == 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
             else
-                this.content.style.setProperty(propName, propValue)
-            //  this.content.attributeStyleMap.set(propName, propValue)
-            //  CSSStyleValue.parse(propName,propValue)
+            // this.content.style[propName] = propValue
+               this.content.style.setProperty(propName, propValue)
+            // this.content.attributeStyleMap.set(propName, propValue)
+        //  CSSStyleValue.parse(propName,propValue)
         }
     }
     static noConsole() {
@@ -525,7 +542,7 @@ class Elem {
         if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
         let x
         let type = src.split('.').at(-1)
-        if (type.match(Elem.formats.image)) x = new Image()
+        if (type.match(Elem.formats.image)) x = new Image
         else if (type.match(Elem.formats.video)) {
             let video = new Elem({ tag: 'video', preload: 'auto' })
             video.content.onload = () => {
@@ -534,7 +551,7 @@ class Elem {
             }
         }
         else if (type.match(Elem.formats.audio)) {
-            x = new Audio()
+            x = new Audio
         }
         x.src = src
         x.onerror = function (err) {
@@ -580,7 +597,7 @@ class Elem {
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
                 this.prototype[key] = ((侗, 俉俊) => {
-                    return function () { if (!(this instanceof 侗)) throw 俉俊; return 우정.apply(this, arguments) }
+                    return function () {if(this instanceof 侗)return 우정.apply(this,arguments);throw 俉俊}
                 })(Elem, TypeError('Illegal invocation'))
             }
         }
@@ -596,9 +613,9 @@ class Elem {
                     if (Elem.#attrMap.has(attribute)) {
                         Elem.#attrMap.get(attribute).call(this, val)
                     }
-                    else {
+                    else 
                         this.content[attribute] = val
-                    }
+                    
 
                 }
             })
@@ -623,7 +640,7 @@ class Elem {
         if (out.content.children) {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
-                if ('content' in node && node instanceof Elem) {
+                if ('content'in node&&node instanceof Elem) {
                     //out.children.push(node)
                     // node.content.parent = out
                 }
@@ -638,39 +655,39 @@ class Elem {
         // body.content.setAttribute('id', 'body')
         //body.id = 'body'
         let head = [...document.head.children]
-        let charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
+        let charSet,name,ogDesc,ogImage,ogUrl,viewport,ogTitle,
         func = o => {
             let butes = o.attributes
             if (butes.charset) charSet = true
             if (butes.name) name = true
-            if (butes[0]?.textContent === 'og:description') ogDesc = true
-            if (butes[0]?.textContent === 'og:image') ogImage = true
-            if (butes[0]?.textContent === 'og:url') ogUrl = true
-            if (butes[0]?.textContent === 'og:title') ogTitle = true
-            if (butes[0]?.nodeValue === 'viewport' && butes[1]?.nodeValue) viewport = true
+            if (butes[0]?.textContent == 'og:description') ogDesc = true
+            if (butes[0]?.textContent == 'og:image') ogImage = true
+            if (butes[0]?.textContent == 'og:url') ogUrl = true
+            if (butes[0]?.textContent == 'og:title') ogTitle = true
+            if (butes[0]?.nodeValue   == 'viewport'&&butes[1]?.nodeValue) viewport = true
         }
         head.forEach(func)
-        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '')) console.warn('Consider giving this document a title.')
+        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ','')) console.warn('Consider giving this document a title.')
         charSet || console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        viewport || console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
+        viewport|| console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
         ogImage || console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         ogTitle || console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
     }
-    clone = ({ deep = true, parent } = {}) => new this.constructor({ parent, self: this.content.cloneNode(deep) })
+    clone({ deep = true, parent } = {}){return new this.constructor({ parent, self: this.content.cloneNode(deep) })}
     timeouts = new Map
     intervals = new Map
     eventNames = Object.defineProperty(new Map, 'trigger', {
         value(search) {
             if (search) {
-                if (this.eventNames.has(search)) this.eventNames.get(search)()
+                if(this.eventNames.has(search))this.eventNames.get(search)()
                 else Elem.warn(`Non-existent event: ${search}`)
             }
-            else for (let [, n] of this.eventNames) n.call(this)
+            else for(let[,n]of this.eventNames)n.call(this)
         }
     })
-    constructor(opts = {}) {
+   constructor(opts = {}) {
         //Main init
-        if (!opts?.tag && !opts.self) throw TypeError('Missing tag name in element creation')//return Elem.error('Cannot create element: missing tag')
+        if (!opts.tag && !opts.self) throw TypeError('Missing tag name in element creation')//return Elem.error('Cannot create element: missing tag')
 
         if (opts.self) {
             this.content = opts.self
@@ -690,7 +707,10 @@ class Elem {
             this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
         }
         // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
-        if (opts.class) for (let $class of opts.class) this.content.classList.add($class)
+        if (opts.class) {
+            if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
+            for (let $class of opts.class) this.content.classList.add($class)
+        }
         if (opts.events) {
             this.addevent(opts.events)
             // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
@@ -699,7 +719,7 @@ class Elem {
             this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
         }
-        if (opts.parent && typeof opts.parent == 'string') opts.parent = Elem.$(opts.parent)
+        if (opts.parent&&typeof opts.parent == 'string') opts.parent = Elem.$(opts.parent)
         // this.append(opts.parent)
         this.current = this.content
         if (arguments[1]) {
@@ -775,7 +795,7 @@ class Elem {
     get index() {
         return this.parent?.children?.indexOf?.(this) ?? null
     }
-    addClass = (...className) => this.add({ class: className })
+    addClass(...className) {return this.add({ class: className })}
     add(props) {
         if (props.class) {
             if (typeof props.class === 'string') props.class = [props.class]
@@ -790,9 +810,9 @@ class Elem {
         }
         return this
     }
-    disableEvent = name => this.eventNames.get(name).disabled = true
-    enableEvent = name => this.eventNames.get(name).disabled = false
-    toggleEvent = name => this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled
+    disableEvent(name) {this.eventNames.get(name).disabled = true}
+    enableEvent(name) {this.eventNames.get(name).disabled = false}
+    toggleEvent(name) {this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled}
     async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
         /*    if (options.time) {
                 time = options.time;
@@ -830,7 +850,7 @@ class Elem {
             callback?.call?.(this)
         }
         catch (e) {
-            if (e.message.includes(`Target element is not rendered.`)) {
+            if (!e.message.includes(`Target element is not rendered.`)) {
                 Elem.error(`Something went wrong when applying a transition to element ${this.id}. The ${e.constructor.name} is shown below:`)
                 throw e
             }
@@ -838,7 +858,7 @@ class Elem {
     }
     anim(target, callback) {
         let keep = false
-        if ('keep class' in target) keep = delete target['keep class']
+        if ('keep class'in target) keep = delete target['keep class']
         switch (target.class) {
             default: this.add(target); break
             /*    case 'fade out': this.content.animate([
@@ -854,7 +874,7 @@ class Elem {
         this.addevent(['animationend', () => {
             this.noevent('animationend'); callback?.call?.(this)
             switch (target.class) {
-                default: keep || this.removeClass(target.class); break
+                default:keep||this.removeClass(target.class);break
                 //    case 'fade out': alert(134);
             }
         }])
@@ -863,8 +883,8 @@ class Elem {
     removeClass(...className) {
         for (let name of className)
             this.toggle(name, false) || this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
-
-    } addevent(...events) {
+    } 
+    addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] == 'object' && arguments.length == 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
             if (!event) {
@@ -873,8 +893,16 @@ class Elem {
             }
             Elem.listeners.set(`${this.id}:${eventName}`, event)
             if (!this.eventNames.has(eventName)) {
-                let eventfunc = e => eventfunc.disabled || event.call(this, e)
-                eventfunc.disabled = false
+                let eventfunc = (...e) => {
+                        eventfunc.disabled || (event.apply(this, e),--eventfunc.count || this.noevent(eventName))
+                    }
+                eventfunc.disabled = !1
+                eventfunc.count = 1/0
+                if (eventName.includes(':')) {
+                        let a = eventName.split(':')
+                        eventName =a[0]
+                        eventfunc.count = parseInt(a[1])
+                    }
                 this.content.addEventListener(eventName, eventfunc)
                 this.eventNames.set(eventName, eventfunc)
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
@@ -882,7 +910,7 @@ class Elem {
             else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
         }
     }
-    hasevent = eventName => this.eventNames.has(eventName)
+    hasevent(eventName){this.eventNames.has(eventName)}
     noevent(...target) {
         for (let event of target) {
             this.content.removeEventListener(event, this.eventNames.get(event))
@@ -898,7 +926,7 @@ class Elem {
         this.cleanup()
         if (body !== this) {
             this.content.remove();
-            Elem.info(`Element ${this.id} was removed from body`)
+            Elem.debug(`Element ${this.id} was removed from body`)
         }
     }
     cleanup() {
@@ -922,20 +950,22 @@ class Elem {
         for (let o of c) while (this.content.contains(o?.content)) o.kill()
         return this
     }
-    hide = () => (this.toggle('hidden', true), this)
-    show = () => (this.toggle('hidden', false), this)
-    toggle = ($, force) => this.content.classList.toggle($, force)
-    fadeOut = async callback =>
-        this.transition({
-            frames: { opacity: 0 }, timing: { duration: 300 },
-        }, callback)        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
-    fadeIn = async callback =>
-        this.styleMe({ opacity: 0 }) ??
-        this.transition({
-            frames: { opacity: 1 }, timing: { duration: 300 },
-        }, callback)
+    hide(){(this.toggle('hidden', true), this)}
+    show(){(this.toggle('hidden', false), this)}
+    toggle($, force){this.content.classList.toggle($, force)}
+    async fadeOut(callback){    this.transition({
+        frames: { opacity: 0 }, timing: { duration: 300 },
+    }, callback)    }
+        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
+   async fadeIn(callback){
+
+    this.styleMe({ opacity: 0 }) ??
+    this.transition({
+        frames: { opacity: 1 }, timing: { duration: 300 },
+    }, callback)
+   }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
-    blink = async callback => this.fadeOut(() => this.fadeIn(callback))
+   async blink(callback){ return this.fadeOut(() => this.fadeIn(callback))}
     addTimeout(callback, interval) {
         callback.paused = false
         let mult
@@ -1001,6 +1031,9 @@ class Elem {
   }*/
 }
 window._ = Elem.$.bind(Elem)
+window.$ = (opts,t=Elem)=>{
+
+}
 class SceneryElem extends Elem {
     static all = new Set
     static frame = 0
