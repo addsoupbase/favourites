@@ -193,7 +193,7 @@ const Vector2 = class v {
         Object.seal(this)
         this.set(x, y)
     }
-    static distance = (vector, v) => Math.hypot(v.x(vector) - v.x(v), v.y(vector) - v.y(v))
+    static distance = (vector, vector2) => Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
     static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
     static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     static angle(first, second, firstAngle, secondAngle, angle) {
@@ -207,11 +207,11 @@ const Vector2 = class v {
         let y = vectors.map(o => v.y(o))
         return new v(x.average(), y.average())
     }
-    static difference(vector, v) {
+    static difference(vector, vector2) {
         if (!Array.isArray(vector)) vector = [...vector]
-        if (!Array.isArray(v)) v = [...v]
+        if (!Array.isArray(vector2)) vector2 = [...vector2]
         let out = [...vector], { length } = out
-        for (let i = 0; i < length; ++i) out[i] = Math.abs(v[i] - vector[i])
+        for (let i = 0; i < length; ++i) out[i] = Math.abs(vector2[i] - vector[i])
         return new v(...out)
     }
     static combine(...vectors) {
@@ -241,8 +241,8 @@ const Vector2 = class v {
     static get right() {
         return new v(1, 0)
     }
-    static max = (vector, v) => new v(Math.max(v.x(v), v.x(vector)), Math.max(v.y(v), v.y(vector)))
-    static min = (vector, v) => new v(Math.min(v.x(v), v.x(vector)), Math.min(v.y(v), v.y(vector)))
+    static max = (vector, vector2) => new v(Math.max(v.x(vector2), v.x(vector)), Math.max(v.y(vector2), v.y(vector)))
+    static min = (vector, vector2) => new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
     static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
     set(...numbers) {
         if (numbers.length === 1) {
