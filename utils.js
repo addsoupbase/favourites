@@ -910,7 +910,7 @@ class Elem {
             else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
         }
     }
-    hasevent(eventName){this.eventNames.has(eventName)}
+    hasevent(eventName){return this.eventNames.has(eventName)}
     noevent(...target) {
         for (let event of target) {
             this.content.removeEventListener(event, this.eventNames.get(event))
