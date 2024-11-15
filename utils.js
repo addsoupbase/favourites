@@ -64,7 +64,7 @@ const utilString = {
     _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
     _numbers: '0123456789',
     months:'January February March April May June July August September October November December'.split(' '),
-    days:'Sunday Monday Tuesday Wednesday Thursday Friday Saturday Sunday'.split(' '),
+    days:'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
     contains:(string,...searches)=>searches.every(string.match,string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
