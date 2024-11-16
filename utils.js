@@ -35,6 +35,7 @@ const ran = {
         return new Proxy({}, { get: (t, p) => t[p] ??= ran.gen(n) });
     }
 }
+const HAS_ATTRIBUTESTYLEMAP = false
 ran.gen.previouslygenerated = new Set
 const utilMath = {
     isInt: n => Math.trunc(n) == n,
@@ -51,8 +52,8 @@ const utilMath = {
     toRad: deg => deg * Math.PI / 180,
     toDeg: rad => rad * 180 / Math.PI,
     diff: (a, b) => Math.abs(a - b),
-    clamp(val, min, max) {if(val>max)return max;if(val<min)return min;return val},
-    Cycle:function(...items) {
+    clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
+    Cycle: function (...items) {
         return Object.defineProperty(function* (x = 0) {
             for (; ;)yield items[x++ % items.length]
         }(), 'val', {
@@ -63,9 +64,9 @@ const utilMath = {
 const utilString = {
     _alphabet: 'qwertyuiopasdfghjklzxcvbnm',
     _numbers: '0123456789',
-    months:'January February March April May June July August September October November December'.split(' '),
-    days:'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
-    contains:(string,...searches)=>searches.every(string.match,string),
+    months: 'January February March April May June July August September October November December'.split(' '),
+    days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
+    contains: (string, ...searches) => searches.every(string.match, string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
         let out = `${string}`.slice(0, len)
@@ -176,18 +177,18 @@ function isOverFlowed(elm) {
     return isVisible
 }
 const Vector = class v {
-    x=0
-    constructor(x=0) {
-    Object.seal(this)
-    this.x = x
+    x = 0
+    constructor(x = 0) {
+        Object.seal(this)
+        this.x = x
     }
     [Symbol.toPrimitive](type) {
         return type == 'number' ? this.x : `${this.x}`
     }
 }
 const Vector2 = class v {
-    x
-    y
+    x=0
+    y=0
     constructor(x = 0, y = 0) {
         if (arguments.length == 1 && x instanceof new.target) ({ x, y } = x)
         Object.seal(this)
@@ -250,17 +251,15 @@ const Vector2 = class v {
             this.y = v.y(numbers[0])
             return
         }
-        for (let i = 0,{length} = numbers; i < length; ++i) {
+        for (let i = 0, { length } = numbers; i < length; ++i) {
             let n = numbers[i]
-            if (n > Number.MAX_SAFE_INTEGER) n = Number.MAX_SAFE_INTEGER
-            else if (n < Number.MIN_SAFE_INTEGER) n = Number.MIN_SAFE_INTEGER
-            else n = +n
+            n = utilMath.clamp(+n,Number.MIN_SAFE_INTEGER,Number.MAX_SAFE_INTEGER)
             if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
         }
     }
     pow(vector) {
         if (!Array.isArray(vector)) vector = [...vector]
-        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
+        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
         this.set(vector)
         return this
     }
@@ -269,7 +268,7 @@ const Vector2 = class v {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
+        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
         this.set(vector)
         return this
     }
@@ -278,7 +277,7 @@ const Vector2 = class v {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
+        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
         this.set(vector)
         return this
     }
@@ -287,7 +286,7 @@ const Vector2 = class v {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
+        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
         this.set(vector)
         return this
     }
@@ -296,7 +295,7 @@ const Vector2 = class v {
             if (1 in arguments) vector = [vector, arguments[1]]
             vector = [...vector]
         }
-        for (let i = 0, {length} = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
+        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
         this.set(vector)
         return this
     }
@@ -312,11 +311,12 @@ const Vector2 = class v {
     invert() {
         this.set(this.inverse)
     }
-    lerp({ to, time = 0.1 }, sum) {
-        sum = (this.minus(to)).multiply(time, time)
-        this.subtract(sum)
+    lerp({ to, time = 0.1 }) {
+        this.subtract((this.minus(to)).multiply(time, time))
     }
-    minus = other => new v(this).subtract(other)
+    minus(...other) {
+        return new v(this).subtract(...other)
+    }
     get average() {
         return utilArray.avg(/*[...this]*/[this.x, this.y])
     }
@@ -338,7 +338,9 @@ const Vector2 = class v {
     get value() {
         return [this.x, this.y]//Object.values(this)
     }
-    toString = _ => `(${this.value.join(', ')})`
+    toString(){
+        return `(${this.value.join(', ')})`
+    }
     get 0() {
         return this.x
     }
@@ -363,6 +365,72 @@ const Vector2 = class v {
         return this.z
     }
 }*/
+class Matrix {
+    elements = []
+    constructor(length,height) {
+        Object.assign(this,{length,height})
+        for (let i = height; i; --i) {
+            this.elements.push(Array.from({length},()=>null))
+        }
+    }
+    get(x,y) {
+        return this.elements.at(y).at(x)
+    }
+    set(x,y,val) {
+        return modifyAt(this.elements.at(y),x,()=>val),val
+    }
+    get rows() {
+        return this.length
+    }
+    get columns() {
+        return this.height
+    }
+    async image() {
+        const cellSize = 2000; // Adjust cell size for visibility
+        let length = this.length * cellSize
+        let height = this.height * cellSize
+        const canvas = new OffscreenCanvas(length, height);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle=color.grey
+        ctx.fillRect(0,0,length,height)
+        Object.assign(ctx, {
+            textAlign: 'center',
+            textBaseline: 'middle',
+            font: `${cellSize/10}px monospace`, // Adjust font size relative to cell size
+        });
+        function matchColor(value) {
+            switch (typeof value) {
+                case'string': return color.red;
+                case'bigint': case'number': return color.darkblue
+                case'symbol': return color.lightgreen
+                case'object': return color.black
+                case'undefined': return color.purple
+            }
+        }
+        for (let y = 0,{height}=this; y < height; ++y) {
+            for (let x = 0,{length}=this; x < length; ++x) {
+                const value = this.get(x, y);
+                ctx.fillStyle=matchColor(value)
+                ctx.fillText(
+                   typeof value == 'string' ? '"'+value+'"':String(value),
+                    (x + 0.5) * cellSize, // Center horizontally
+                    (y + 0.5) * cellSize,cellSize  // Center vertically
+                );
+            }
+        }
+    
+        const blob = await canvas.convertToBlob();
+        return URL.createObjectURL(blob)
+    }
+    
+}
+function modifyAt(array, index, modifier) {
+    const idx = index < 0 ? array.length + index : index; // Handle negative indices
+    if (idx >= 0 && idx < array.length) {
+        array[idx] = modifier(array[idx]);
+    }
+}
+
 const Color = class z {
     r; g; b; a;
     constructor(r = 0, g = 0, b = 0, a = 1) {
@@ -372,13 +440,13 @@ const Color = class z {
         this.a = a;
     }
     [Symbol.toPrimitive]() {
-        return +(this.toString('hex').replace('#','')
-    )
+        return +(this.toString('hex').replace('#', '')
+        )
     }
     static toHex(r, g, b) {
         return `#${z.th(r)}${z.th(g)}${z.th(b)}`.toUpperCase();
     }
-    static th =  n => n.toString(16).padStart(2, '0');
+    static th = n => n.toString(16).padStart(2, '0');
     static toHex2(r, g, b, a) {
         r = Math.min(255, Math.max(0, r));
         g = Math.min(255, Math.max(0, g));
@@ -392,10 +460,10 @@ const Color = class z {
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
         let h, s, l = (max + min) / 2;
-    
+
         const d = max - min;
         s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min);
-    
+
         if (d === 0) {
             h = 0; // achromatic
         } else {
@@ -406,12 +474,12 @@ const Color = class z {
             }
             h /= 6;
         }
-    
+
         // Convert to degrees and percentages
         h = Math.round(h * 360);
         s = Math.round(s * 100);
         l = Math.round(l * 100);
-    
+
         return `hsl(${h}, ${s}%, ${l}%)`;
     }
     *[Symbol.iterator]() {
@@ -438,12 +506,18 @@ class hsl extends Color {
 
 }
 class Elem {
-    static getPageAsHTML=()=>document.documentElement.getHTML()
+    static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
         return [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
     }
-    raw(){
-        return this.content.getHTML()
+    raw() {
+        return this.content.getHTML({serializableShadowRoots:true,shadowRoots:true})
+    }
+    eval(code) {
+        return new Function(code).call(this)
+    }
+    assign(obj) {
+        Object.assign(this,obj)
     }
     set after(e) {
         this.content.after(e.content)
@@ -488,15 +562,23 @@ class Elem {
         console.trace(`%c ${message}`, elf)
     }
     styleMe(...prop) {
-        if (!Array.isArray(prop[0]) && typeof prop[0] == 'object' && arguments.length == 1) prop = Object.entries(prop[0])
+        if (!Array.isArray(prop[0]) && typeof prop[0] == 'object' && arguments.length == 1 && prop[0]) prop = Object.entries(prop[0])
         for (let [propName, propValue] of prop) {
             if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
             else if (propName == 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
-            else
+            else {
+                if (HAS_ATTRIBUTESTYLEMAP) {
+                    //Its slower
+                    let n = propValue
+                    if (typeof n=='string') n = CwSSStyleValue.parse(propName, n)
+                    this.content.attributeStyleMap.set(propName, n)
+                }
+                else this.content.style.setProperty(propName, propValue)
+            }
             // this.content.style[propName] = propValue
-               this.content.style.setProperty(propName, propValue)
-            // this.content.attributeStyleMap.set(propName, propValue)
-        //  CSSStyleValue.parse(propName,propValue)
+            //this.content.style.setProperty(propName, propValue)
+            //  CSSStyleValue.parse(propName,propValue)
+
         }
     }
     static noConsole() {
@@ -597,7 +679,7 @@ class Elem {
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
                 this.prototype[key] = ((侗, 俉俊) => {
-                    return function () {if(this instanceof 侗)return 우정.apply(this,arguments);throw 俉俊}
+                    return function () { if (this instanceof 侗) return 우정.apply(this, arguments); throw 俉俊 }
                 })(Elem, TypeError('Illegal invocation'))
             }
         }
@@ -613,9 +695,9 @@ class Elem {
                     if (Elem.#attrMap.has(attribute)) {
                         Elem.#attrMap.get(attribute).call(this, val)
                     }
-                    else 
+                    else
                         this.content[attribute] = val
-                    
+
 
                 }
             })
@@ -640,7 +722,7 @@ class Elem {
         if (out.content.children) {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
-                if ('content'in node&&node instanceof Elem) {
+                if ('content' in node && node instanceof Elem) {
                     //out.children.push(node)
                     // node.content.parent = out
                 }
@@ -655,37 +737,37 @@ class Elem {
         // body.content.setAttribute('id', 'body')
         //body.id = 'body'
         let head = [...document.head.children]
-        let charSet,name,ogDesc,ogImage,ogUrl,viewport,ogTitle,
-        func = o => {
-            let butes = o.attributes
-            if (butes.charset) charSet = true
-            if (butes.name) name = true
-            if (butes[0]?.textContent == 'og:description') ogDesc = true
-            if (butes[0]?.textContent == 'og:image') ogImage = true
-            if (butes[0]?.textContent == 'og:url') ogUrl = true
-            if (butes[0]?.textContent == 'og:title') ogTitle = true
-            if (butes[0]?.nodeValue   == 'viewport'&&butes[1]?.nodeValue) viewport = true
-        }
+        let charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
+            func = o => {
+                let butes = o.attributes
+                if (butes.charset) charSet = true
+                if (butes.name) name = true
+                if (butes[0]?.textContent == 'og:description') ogDesc = true
+                if (butes[0]?.textContent == 'og:image') ogImage = true
+                if (butes[0]?.textContent == 'og:url') ogUrl = true
+                if (butes[0]?.textContent == 'og:title') ogTitle = true
+                if (butes[0]?.nodeValue == 'viewport' && butes[1]?.nodeValue) viewport = true
+            }
         head.forEach(func)
-        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ','')) console.warn('Consider giving this document a title.')
+        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '')) console.warn('Consider giving this document a title.')
         charSet || console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        viewport|| console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
+        viewport || console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
         ogImage || console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         ogTitle || console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
     }
-    clone({ deep = true, parent } = {}){return new this.constructor({ parent, self: this.content.cloneNode(deep) })}
+    clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
     timeouts = new Map
     intervals = new Map
     eventNames = Object.defineProperty(new Map, 'trigger', {
         value(search) {
             if (search) {
-                if(this.eventNames.has(search))this.eventNames.get(search)()
+                if (this.eventNames.has(search)) this.eventNames.get(search)()
                 else Elem.warn(`Non-existent event: ${search}`)
             }
-            else for(let[,n]of this.eventNames)n.call(this)
+            else for (let [, n] of this.eventNames) n.call(this)
         }
     })
-   constructor(opts = {}) {
+    constructor(opts = {}) {
         //Main init
         if (!opts.tag && !opts.self) throw TypeError('Missing tag name in element creation')//return Elem.error('Cannot create element: missing tag')
 
@@ -719,14 +801,17 @@ class Elem {
             this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
         }
-        if (opts.parent&&typeof opts.parent == 'string') opts.parent = Elem.$(opts.parent)
+        if (opts.parent && typeof opts.parent == 'string') opts.parent = Elem.$(opts.parent)
         // this.append(opts.parent)
         this.current = this.content
         if (arguments[1]) {
             Elem.warn(`Migrate to parent instead of using arguments[1]`)
             opts.parent = body
         }
-        this.parent = opts.parent
+        if (opts.parent) {
+
+            this.parent = opts.parent
+        }
         if (opts.children) this.children = opts.children
         if (Elem.logLevels.debug && !opts.self) {
             /*    let arr = ''
@@ -750,6 +835,14 @@ class Elem {
         //Lets get this right once and for all
         this.content.append(child.content)
     }
+    set(val,type) {
+        switch(type) {
+            default: return this.content.setHTMLUnsafe(val)
+            case 1: return this.textContent=val
+            case 2: return this.innerHTML=val
+            case 3: return this.innerText=val
+        }
+    }
     replaceWith(p) {
         this.content.replaceWith(p.content)
         return p
@@ -765,7 +858,10 @@ class Elem {
     }
     set parent(val) {
         if (!this.content) throw TypeError('Invalid setter to non-instance')
-        val?.adopt?.(this)
+            if (val == null) {
+                this.content.remove()
+            }
+        else val.adopt(this)
     }
     get childCount() {
         return this.children.length
@@ -795,7 +891,7 @@ class Elem {
     get index() {
         return this.parent?.children?.indexOf?.(this) ?? null
     }
-    addClass(...className) {return this.add({ class: className })}
+    addClass(...className) { return this.add({ class: className }) }
     add(props) {
         if (props.class) {
             if (typeof props.class === 'string') props.class = [props.class]
@@ -810,9 +906,9 @@ class Elem {
         }
         return this
     }
-    disableEvent(name) {this.eventNames.get(name).disabled = true}
-    enableEvent(name) {this.eventNames.get(name).disabled = false}
-    toggleEvent(name) {this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled}
+    disableEvent(name) { this.eventNames.get(name).disabled = true }
+    enableEvent(name) { this.eventNames.get(name).disabled = false }
+    toggleEvent(name) { this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled }
     async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
         /*    if (options.time) {
                 time = options.time;
@@ -858,7 +954,7 @@ class Elem {
     }
     anim(target, callback) {
         let keep = false
-        if ('keep class'in target) keep = delete target['keep class']
+        if ('keep class' in target) keep = delete target['keep class']
         switch (target.class) {
             default: this.add(target); break
             /*    case 'fade out': this.content.animate([
@@ -874,7 +970,7 @@ class Elem {
         this.addevent(['animationend', () => {
             this.noevent('animationend'); callback?.call?.(this)
             switch (target.class) {
-                default:keep||this.removeClass(target.class);break
+                default: keep || this.removeClass(target.class); break
                 //    case 'fade out': alert(134);
             }
         }])
@@ -883,7 +979,7 @@ class Elem {
     removeClass(...className) {
         for (let name of className)
             this.toggle(name, false) || this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
-    } 
+    }
     addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] == 'object' && arguments.length == 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
@@ -894,15 +990,15 @@ class Elem {
             Elem.listeners.set(`${this.id}:${eventName}`, event)
             if (!this.eventNames.has(eventName)) {
                 let eventfunc = (...e) => {
-                        eventfunc.disabled || (event.apply(this, e),--eventfunc.count || this.noevent(eventName))
-                    }
+                    eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
+                }
                 eventfunc.disabled = !1
-                eventfunc.count = 1/0
+                eventfunc.count = 1 / 0
                 if (eventName.includes(':')) {
-                        let a = eventName.split(':')
-                        eventName =a[0]
-                        eventfunc.count = parseInt(a[1])
-                    }
+                    let a = eventName.split(':')
+                    eventName = a[0]
+                    eventfunc.count = parseInt(a[1])
+                }
                 this.content.addEventListener(eventName, eventfunc)
                 this.eventNames.set(eventName, eventfunc)
                 Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
@@ -910,7 +1006,7 @@ class Elem {
             else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
         }
     }
-    hasevent(eventName){return this.eventNames.has(eventName)}
+    hasevent(eventName) { return this.eventNames.has(eventName) }
     noevent(...target) {
         for (let event of target) {
             this.content.removeEventListener(event, this.eventNames.get(event))
@@ -950,22 +1046,24 @@ class Elem {
         for (let o of c) while (this.content.contains(o?.content)) o.kill()
         return this
     }
-    hide(){(this.toggle('hidden', true), this)}
-    show(){(this.toggle('hidden', false), this)}
-    toggle($, force){this.content.classList.toggle($, force)}
-    async fadeOut(callback){    this.transition({
-        frames: { opacity: 0 }, timing: { duration: 300 },
-    }, callback)    }
-        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
-   async fadeIn(callback){
+    hide() { (this.toggle('hidden', true), this) }
+    show() { (this.toggle('hidden', false), this) }
+    toggle($, force) { this.content.classList.toggle($, force) }
+    async fadeOut(callback) {
+        this.transition({
+            frames: { opacity: 0 }, timing: { duration: 300 },
+        }, callback)
+    }
+    // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
+    async fadeIn(callback) {
 
-    this.styleMe({ opacity: 0 }) ??
-    this.transition({
-        frames: { opacity: 1 }, timing: { duration: 300 },
-    }, callback)
-   }
+        this.styleMe({ opacity: 0 }) ??
+            this.transition({
+                frames: { opacity: 1 }, timing: { duration: 300 },
+            }, callback)
+    }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
-   async blink(callback){ return this.fadeOut(() => this.fadeIn(callback))}
+    async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
     addTimeout(callback, interval) {
         callback.paused = false
         let mult
@@ -1031,9 +1129,7 @@ class Elem {
   }*/
 }
 window._ = Elem.$.bind(Elem)
-window.$ = (opts,t=Elem)=>{
-
-}
+window.$ = (opts, t = Elem) => new t(opts)
 class SceneryElem extends Elem {
     static all = new Set
     static frame = 0
@@ -1141,6 +1237,6 @@ Object.assign(color, {
     //Extra colors go here
 })
 const body = window.body
-    //; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
-   //; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
-   // ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
+//; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
+//; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
+// ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
