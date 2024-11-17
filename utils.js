@@ -83,7 +83,7 @@ const utilString = {
             case '1': return o + 'st'
             case '2': return o + 'nd'
             case '3': return o + 'rd'
-            default:  return o + 'th'
+            default :  return o + 'th'
         }
     }
     
@@ -108,8 +108,8 @@ const utilArray = {
         let sorted = array.slice().sort((a, b) => a - b),
             { length } = sorted
         if (type) {
-            let median = sorted[Math.floor(length / 2)],
-                q1 = sorted[Math.floor(length / 4)],
+            //let median = sorted[Math.floor(length / 2)],
+             let q1 = sorted[Math.floor(length / 4)],
                 q3 = sorted[Math.floor(3 * length / 4)],
                 IQR = q3 - q1,
                 upperFence = q3 + 1.5 * IQR,
@@ -127,10 +127,29 @@ let getNodeSize = node =>
         y: 偕.top + 偕.height / 2
     }
 })(node.getBoundingClientRect()));
+class StorageManager {
+    constructor(managee) {
+        if (managee instanceof Storage) return new Proxy(managee, {
+            get: (target, prop) => 
+                prop === '__all__' 
+                    ? Object.fromEntries([...Array(target.length)].map((_, i) => [target.key(i), target.getItem(target.key(i))]))
+                    : target.getItem(prop),
+            set: (target, prop, value) => prop !== '__all__' ? !target.setItem(prop, value):false,
+            deleteProperty: (target, prop) => prop ==='__all__' ? !target.clear():!target.removeItem(prop),
+            has: (target, prop) => target.getItem(prop) !== null,
+        })
+        throw TypeError('Expecting Storage, got '+ managee?.constructor?.name)
+      
+    }
+}
+
+const local = new StorageManager(localStorage),
+session = new StorageManager(sessionStorage)
+
 async function getDataUrl(url) {
     let data
     try {
-      let  response = await fetch(url, {
+      let response = await fetch(url, {
             method: 'GET',
             mode: 'cors'
         })
@@ -463,53 +482,48 @@ function modifyAt(array, index, modifier) {
 const Color = class z {
     r; g; b; a;
     constructor(r = 0, g = 0, b = 0, a = 1) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+        Object.assign(this,{r,g,b,a})
     }
     [Symbol.toPrimitive]() {
-        return +(this.toString('hex').replace('#', '')
-        )
+        return +(this.toString('hex').replace('#', ''))
     }
     static toHex(r, g, b) {
-        return `#${z.th(r)}${z.th(g)}${z.th(b)}`.toUpperCase();
+        return `#${z.th(r)}${z.th(g)}${z.th(b)}`.toUpperCase()
     }
-    static th = n => n.toString(16).padStart(2, '0');
+    static th = n => n.toString(16).padStart(2, '0')
     static toHex2(r, g, b, a) {
-        r = Math.min(255, Math.max(0, r));
-        g = Math.min(255, Math.max(0, g));
-        b = Math.min(255, Math.max(0, b));
-        a = Math.round(Math.min(1, Math.max(0, a)) * 255);
-        return `#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`;
+        r = Math.min(255, Math.max(0, r))
+        g = Math.min(255, Math.max(0, g))
+        b = Math.min(255, Math.max(0, b))
+        a = Math.round(Math.min(1, Math.max(0, a)) * 255)
+        return `#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`
     }
     static toHSL(r, g, b) {
         // Normalize RGB values to the range 0-1
         r /= 255, g /= 255, b /= 255;
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        let h, s, l = (max + min) / 2;
+        const max = Math.max(r, g, b)
+        const min = Math.min(r, g, b)
+        let h, s, l = (max + min) / 2
 
         const d = max - min;
-        s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min);
+        s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min)
 
-        if (d === 0) {
-            h = 0; // achromatic
-        } else {
+        if (d === 0) h = 0
+         else {
             switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                case g: h = (b - r) / d + 2; break;
-                case b: h = (r - g) / d + 4; break;
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break
+                case g: h = (b - r) / d + 2; break
+                case b: h = (r - g) / d + 4; break
             }
             h /= 6;
         }
 
         // Convert to degrees and percentages
-        h = Math.round(h * 360);
-        s = Math.round(s * 100);
-        l = Math.round(l * 100);
+        h = Math.round(h * 360)
+        s = Math.round(s * 100)
+        l = Math.round(l * 100)
 
-        return `hsl(${h}, ${s}%, ${l}%)`;
+        return `hsl(${h}, ${s}%, ${l}%)`
     }
     *[Symbol.iterator]() {
         yield this.r
