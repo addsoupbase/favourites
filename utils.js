@@ -38,7 +38,7 @@ const ran = {
 const HAS_ATTRIBUTESTYLEMAP = false
 ran.gen.previouslygenerated = new Set
 const utilMath = {
-    isInt: n => Math.trunc(n) == n,
+    isInt: n => Math.trunc(n) === n,
     sanitize: num => (num == num) && num != null && isFinite(num),
     equality: (...target) => target.every(o => Object.is(o, target[0])),
     arreq(...targets) {
