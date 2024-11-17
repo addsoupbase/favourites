@@ -556,7 +556,7 @@ class Elem {
     }
     age = Date.now()
     static log() {
-        Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
+        //Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
     }
     static registry = new FinalizationRegistry(heldValue =>
         Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
