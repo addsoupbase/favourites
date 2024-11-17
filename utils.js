@@ -15,7 +15,7 @@ const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
     frange: (min, max) => Math.floor(ran.range(min, max)),
-    pseudo: _ => `${Date.now()}`.at(-1) / 10,
+    pseudo: _ =>(''+Date.now()).at(-1) / 10,
     true: _ => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff,
     shuffle(...item) {
         for (let i = 0, { length } = item; i < length; ++i) {
@@ -69,20 +69,25 @@ const utilString = {
     contains: (string, ...searches) => searches.every(string.match, string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
-        let out = `${string}`.slice(0, len)
+        let out = (string+'').slice(0, len)
         if (string.length > len) out += '…'
         return out
     },
+    clip: (string,len)=>string.slice(len,string.length-len),
     reverse: string => [...string].reverse().join(''),
     upper: string => string.at(0).toUpperCase() + string.slice(1),
-    toOrdinal(o) {
-        switch (`${o}`.at(-1)) {
+     toOrdinal(o) {
+        const num = +o, lastTwoDigits = num % 100
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return o + 'th'
+        switch ((o+'').at(-1)) {
             case '1': return o + 'st'
             case '2': return o + 'nd'
             case '3': return o + 'rd'
-            default: return o + 'th'
+            default:  return o + 'th'
         }
     }
+    
+    
 }
 utilString._ALPHABET = utilString._alphabet.toUpperCase()
 const utilArray = {
@@ -114,6 +119,7 @@ const utilArray = {
         } else return sorted.reduce((a, b) => a + b) / length
     }
 }
+utilMath.average = (...nums)=>utilArray.avg(nums)
 let getNodeSize = node =>
 (偕 => Object.assign(偕, {
     center: {
@@ -121,9 +127,10 @@ let getNodeSize = node =>
         y: 偕.top + 偕.height / 2
     }
 })(node.getBoundingClientRect()));
-async function getDataUrl(url, response, data) {
+async function getDataUrl(url) {
+    let data
     try {
-        response = await fetch(url, {
+      let  response = await fetch(url, {
             method: 'GET',
             mode: 'cors'
         })
@@ -187,8 +194,8 @@ const Vector = class v {
     }
 }
 const Vector2 = class v {
-    x=0
-    y=0
+    x = 0
+    y = 0
     constructor(x = 0, y = 0) {
         if (arguments.length == 1 && x instanceof new.target) ({ x, y } = x)
         Object.seal(this)
@@ -197,9 +204,9 @@ const Vector2 = class v {
     static distance = (vector, vector2) => Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
     static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
     static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
-    static angle(first, second, firstAngle, secondAngle, angle) {
-        firstAngle = Math.atan2(v.y(first), v.x(first))
-        secondAngle = Math.atan2(v.y(second), v.x(second))
+    static angle(first, second) {
+       let firstAngle = Math.atan2(v.y(first), v.x(first)),
+        secondAngle = Math.atan2(v.y(second), v.x(second)),
         angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
@@ -253,7 +260,7 @@ const Vector2 = class v {
         }
         for (let i = 0, { length } = numbers; i < length; ++i) {
             let n = numbers[i]
-            n = utilMath.clamp(+n,Number.MIN_SAFE_INTEGER,Number.MAX_SAFE_INTEGER)
+            n = utilMath.clamp(+n, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
             if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
         }
     }
@@ -338,8 +345,8 @@ const Vector2 = class v {
     get value() {
         return [this.x, this.y]//Object.values(this)
     }
-    toString(){
-        return `(${this.value.join(', ')})`
+    toString() {
+        return '('.concat(this.value.join(', '),')')
     }
     get 0() {
         return this.x
@@ -365,19 +372,41 @@ const Vector2 = class v {
         return this.z
     }
 }*/
+class StrictArray {
+    constructor(bouncer, ...elements) {
+        return new Proxy(elements, {
+            set(obj, prop, value) {
+                // Handle only numeric indices
+                const isIndex = !isNaN(prop) && Number.isInteger(+prop) && +prop >= 0;
+                if (isIndex) {
+                    if (bouncer(value)) {
+                        obj[prop] = value;
+                        return true; // Validation passed
+                    } else {
+                            throw TypeError(value+' did not pass the test')
+                    }
+                }
+                // Allow non-numeric properties (e.g., `length`)
+                obj[prop] = value;
+                return true;
+            }
+        });
+    }
+}
+
 class Matrix {
     elements = []
-    constructor(length,height) {
-        Object.assign(this,{length,height})
+    constructor(length, height) {
+        Object.assign(this, { length, height })
         for (let i = height; i; --i) {
-            this.elements.push(Array.from({length},()=>null))
+            this.elements.push(Array.from({ length }, () => null))
         }
     }
-    get(x,y) {
+    get(x, y) {
         return this.elements.at(y).at(x)
     }
-    set(x,y,val) {
-        return modifyAt(this.elements.at(y),x,()=>val),val
+    set(x, y, val) {
+        return modifyAt(this.elements.at(y), x, () => val), val
     }
     get rows() {
         return this.length
@@ -391,38 +420,38 @@ class Matrix {
         let height = this.height * cellSize
         const canvas = new OffscreenCanvas(length, height);
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle=color.grey
-        ctx.fillRect(0,0,length,height)
+        ctx.fillStyle = color.grey
+        ctx.fillRect(0, 0, length, height)
         Object.assign(ctx, {
             textAlign: 'center',
             textBaseline: 'middle',
-            font: `${cellSize/10}px monospace`, // Adjust font size relative to cell size
+            font: `${cellSize / 10}px monospace`, // Adjust font size relative to cell size
         });
         function matchColor(value) {
             switch (typeof value) {
-                case'string': return color.red;
-                case'bigint': case'number': return color.darkblue
-                case'symbol': return color.lightgreen
-                case'object': return color.black
-                case'undefined': return color.purple
+                case 'string': return color.red;
+                case 'bigint': case 'number': return color.darkblue
+                case 'symbol': return color.lightgreen
+                case 'object': return color.black
+                case 'undefined': return color.purple
             }
         }
-        for (let y = 0,{height}=this; y < height; ++y) {
-            for (let x = 0,{length}=this; x < length; ++x) {
+        for (let y = 0, { height } = this; y < height; ++y) {
+            for (let x = 0, { length } = this; x < length; ++x) {
                 const value = this.get(x, y);
-                ctx.fillStyle=matchColor(value)
+                ctx.fillStyle = matchColor(value)
                 ctx.fillText(
-                   typeof value == 'string' ? '"'+value+'"':String(value),
+                    typeof value == 'string' ? '"' + value + '"' : value,
                     (x + 0.5) * cellSize, // Center horizontally
-                    (y + 0.5) * cellSize,cellSize  // Center vertically
+                    (y + 0.5) * cellSize, cellSize  // Center vertically
                 );
             }
         }
-    
+
         const blob = await canvas.convertToBlob();
         return URL.createObjectURL(blob)
     }
-    
+
 }
 function modifyAt(array, index, modifier) {
     const idx = index < 0 ? array.length + index : index; // Handle negative indices
@@ -511,13 +540,13 @@ class Elem {
         return [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
     }
     raw() {
-        return this.content.getHTML({serializableShadowRoots:true,shadowRoots:true})
+        return this.content.getHTML({ serializableShadowRoots: true, shadowRoots: true })
     }
     eval(code) {
         return new Function(code).call(this)
     }
     assign(obj) {
-        Object.assign(this,obj)
+        Object.assign(this, obj)
     }
     set after(e) {
         this.content.after(e.content)
@@ -570,7 +599,7 @@ class Elem {
                 if (HAS_ATTRIBUTESTYLEMAP) {
                     //Its slower
                     let n = propValue
-                    if (typeof n=='string') n = CwSSStyleValue.parse(propName, n)
+                    if (typeof n == 'string') n = CwSSStyleValue.parse(propName, n)
                     this.content.attributeStyleMap.set(propName, n)
                 }
                 else this.content.style.setProperty(propName, propValue)
@@ -835,12 +864,12 @@ class Elem {
         //Lets get this right once and for all
         this.content.append(child.content)
     }
-    set(val,type) {
-        switch(type) {
+    set(val, type) {
+        switch (type) {
             default: return this.content.setHTMLUnsafe(val)
-            case 1: return this.textContent=val
-            case 2: return this.innerHTML=val
-            case 3: return this.innerText=val
+            case 1: return this.textContent = val
+            case 2: return this.innerHTML = val
+            case 3: return this.innerText = val
         }
     }
     replaceWith(p) {
@@ -858,9 +887,9 @@ class Elem {
     }
     set parent(val) {
         if (!this.content) throw TypeError('Invalid setter to non-instance')
-            if (val == null) {
-                this.content.remove()
-            }
+        if (val == null) {
+            this.content.remove()
+        }
         else val.adopt(this)
     }
     get childCount() {
@@ -987,7 +1016,7 @@ class Elem {
                 event = eventName[1]
                 eventName = eventName[0]
             }
-            Elem.listeners.set(`${this.id}:${eventName}`, event)
+            Elem.listeners.set(this.id+':'+eventName, event)
             if (!this.eventNames.has(eventName)) {
                 let eventfunc = (...e) => {
                     eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
@@ -1011,7 +1040,7 @@ class Elem {
         for (let event of target) {
             this.content.removeEventListener(event, this.eventNames.get(event))
             this.eventNames.has(event) ?
-                Elem.listeners.delete(`${this.id}:${event}`)
+                Elem.listeners.delete(this.id+':'+event)
                 : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
             Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
             this.eventNames.delete(event)
