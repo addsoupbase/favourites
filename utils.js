@@ -543,7 +543,7 @@ class Elem {
         return this.content.getHTML({ serializableShadowRoots: true, shadowRoots: true })
     }
     eval(code) {
-        return new Function(code).call(this)
+        return new Function(`with(this){${code}}`).call(this)
     }
     assign(obj) {
         Object.assign(this, obj)
@@ -597,9 +597,9 @@ class Elem {
             else if (propName == 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
             else {
                 if (HAS_ATTRIBUTESTYLEMAP) {
-                    //Its slower
+                    //this one is slower
                     let n = propValue
-                    if (typeof n == 'string') n = CwSSStyleValue.parse(propName, n)
+                    if (typeof n == 'string') n = CSSStyleValue.parse(propName, n)
                     this.content.attributeStyleMap.set(propName, n)
                 }
                 else this.content.style.setProperty(propName, propValue)
@@ -694,14 +694,15 @@ class Elem {
             else { this.content['id'] = val; }
         }]
     ]*/)
-    static svgattr = ['viewBox', 'cx', 'cy', 'stroke', 'fill', 'r', 'stroke-width']
+    static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
     static {
         for (let a of this.svgattr) this.#attrMap.set(a, function (val) {
             this.content.setAttribute(a, val)
             //requestAnimationFrame(()=>this.innerHTML+='')
         })
     }
-    static attributes = new Set([...this.svgattr, 'style', 'xmlns', 'for', 'max', 'min', 'low', 'high', 'optimum', 'target', 'rel', 'preload', 'multiple', 'disabled', 'href', 'draggable', 'label', 'stroke-width', 'innerText', 'textContent', 'innerHTML', 'type', 'action', 'method', 'required', 'download', 'style', 'autobuffer', 'value', 'loading', 'name', 'checked', 'src', 'maxLength', 'accept', 'placeholder', 'title', 'controls', 'id', 'readonly', 'width', 'height', 'frameborder', 'allow'])
+    static attributes = new Set([...this.svgattr, 
+       ...('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')])
     static {
         let k = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key);
@@ -721,9 +722,9 @@ class Elem {
                 },
                 set(val) {
                     if (!this.content) throw TypeError('Illegal invocation')
-                    if (Elem.#attrMap.has(attribute)) {
+                    if (Elem.#attrMap.has(attribute)) 
                         Elem.#attrMap.get(attribute).call(this, val)
-                    }
+                    
                     else
                         this.content[attribute] = val
 
@@ -746,8 +747,8 @@ class Elem {
         info: false,
         success: false,
     }
-    static select(element) {
-        let out = new Elem({ self: element })
+    static select(self) {
+        let out = new Elem({ self })
         if (out.content.children) {
             for (let node of out.content.children) {
                 if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
@@ -833,7 +834,7 @@ class Elem {
         if (opts.parent && typeof opts.parent == 'string') opts.parent = Elem.$(opts.parent)
         // this.append(opts.parent)
         this.current = this.content
-        if (arguments[1]) {
+        if (arguments[1]===true) {
             Elem.warn(`Migrate to parent instead of using arguments[1]`)
             opts.parent = body
         }
@@ -886,11 +887,12 @@ class Elem {
         return this.content.parentElement?.content ?? null
     }
     set parent(val) {
-        if (!this.content) throw TypeError('Invalid setter to non-instance')
-        if (val == null) {
-            this.content.remove()
-        }
-        else val.adopt(this)
+        if (!this.content) throw TypeError('Invalid setter')
+        val == null
+        ?
+        this.content.remove()
+        : 
+        val.adopt(this)
     }
     get childCount() {
         return this.children.length
