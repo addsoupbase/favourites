@@ -1153,7 +1153,10 @@ class Elem {
   }*/
 }
 window._ = Elem.$.bind(Elem)
-window.$ = (opts, t = Elem) => new (t === true ? Elem : t)(opts)
+window.$ = (opts, t = Elem) =>{
+//NOTE: this is not jQuery, nor does it function like it
+return new (t === true ? Elem : t)(opts)
+}
 class SceneryElem extends Elem {
     static all = new Set
     static frame = 0
