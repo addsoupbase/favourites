@@ -2,14 +2,14 @@
 // "var" indicates the code is not mine.
 
 /* Gif to webp: 
- 
+
 gif2webp file.gif -o file.webp
- 
+
 */
 /* Png to webp
- 
+
 cwebp file.png -o file.webp
- 
+
 */
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
@@ -78,27 +78,38 @@ const utilString = {
     clip: (string,len)=>string.slice(len,string.length-len),
     reverse: string => [...string].reverse().join(''),
     upper: string => string.at(0).toUpperCase() + string.slice(1),
-    toOrdinal(o) {
-        const num = +o, lastTwoDigits = num % 100
-        if (lastTwoDigits >= 11 && lastTwoDigits <= 13) 
-        return o + 'th'
-        switch ((o+'').at(-1)) {
-            case '1': return o + 'st'
-            case '2': return o + 'nd'
-            case '3': return o + 'rd'
-            default : return o + 'th'
+}
+{
+    let map = new Map([
+        ["1", "st"],
+        ["2", "nd"],
+        ["3", "rd"],
+    ]);
+    utilString.toOrdinal = o=> {
+        const num = +o,
+            lastTwoDigits = num % 100,
+            me = (o + "").at(-1);
+        if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me))
+            return o + "th";
+        return o + map.get(me);
+    };
+}
+
+async function idb(name) {
+    let request = indexedDB.open(name)
+    return new Promise((resolve,reject)=>{
+        request.onsuccess = function(event) {
+            resolve(event.target.result)
         }
-    }
-    
-    
+        request.onerror = function(event) {
+            reject(event.target.error)
+        }
+    })
 }
 utilString._ALPHABET = utilString._alphabet.toUpperCase()
 const utilArray = {
     center: o => o[Math.floor(o.length / 2)],
     insert: (array, item, index) => array.splice(index, 0, item),
-    loopBackwards(array, func) {
-        for (let i = array.length; --i;)if (i in array) func(array[i], i, array)
-    },
     remove: (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1),
     swap: (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item),
     swapInside(item, a, b) {
@@ -131,7 +142,7 @@ class StorageManager {
                 prop === '__all__' 
                     ? Object.fromEntries([...Array(target.length)].map((_, i) => [target.key(i), target.getItem(target.key(i))]))
                     : target.getItem(prop),
-            set: (target, prop, value) => prop !== '__all__' ? !target.setItem(prop, value):!1,
+            set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value):1),
             deleteProperty: (target, prop) => !(prop ==='__all__' ? target.clear():target.removeItem(prop)),
             has: (target, prop) => target.getItem(prop) !== null,
         })
@@ -395,7 +406,7 @@ class StrictArray {
                         obj[prop] = value
                         return true
                     } else throw TypeError(value+' did not pass the test')
-                
+
                 obj[prop] = value
                 return true
             }
@@ -645,7 +656,7 @@ class Elem {
                     x: size.inlineSize,  // Width
                     y: size.blockSize    // Height
                 }
-            
+
         }
     }
     )
@@ -758,7 +769,7 @@ class Elem {
                 Elem.select(node)
                 //    f.parent = out
             }
-        
+
         return out
     }
     static {
@@ -799,21 +810,24 @@ class Elem {
     })
     constructor(opts = {}) {
         //Main init
-        if (!opts.tag && !opts.self) throw TypeError('Missing tag name in element creation')//return Elem.error('Cannot create element: missing tag')
+        if (!opts.tag && !opts.self && !opts.shadow) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
         if (opts.self) {
             this.content = opts.self
             if (this.content === document.body) opts.id = 'body'
             else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
         }
         else {
-            this.content = document.createElement(opts.tag)
+            if (opts.shadow) {
+                this.content = opts.parent.content.attachShadow({mode:'open',serializable:true})
+            }
+            else this.content = document.createElement(opts.tag)
             opts.id ??= ran.gen(7)
         }
         this.content.content = this
         for (let attr of Elem.attributes) if (attr in opts) this[attr] = opts[attr]
         if (opts.text) this.innerHTML = opts.text
         if (opts.message) this.innerText = opts.message
-        {   let f = this.content.getBoundingClientRect()
+        if (this.content.getBoundingClientRect){   let f = this.content.getBoundingClientRect()
             this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }}
         // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         if (opts.class) {
@@ -823,11 +837,11 @@ class Elem {
         if (opts.events) 
             this.addevent(opts.events)
             // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
-        
+
         if (opts.styles) 
             this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
-        
+
         if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
         // this.append(opts.parent)
         this.current = this.content
@@ -985,7 +999,7 @@ class Elem {
             /*    case 'fade out': this.content.animate([
                     {opacity: 1, easing: 'ease-in'},
                     {opacity:0, easing: 'ease-in'},
-                    
+
                 ],500); break;
                 case 'fade in': this.content.animate([
                     {opacity: 0, easing: 'ease-in'},
@@ -1153,7 +1167,10 @@ class Elem {
   }*/
 }
 window._ = Elem.$.bind(Elem)
-window.$ = (opts, t = Elem) => new (t === true ? Elem : t)(opts)
+window.$ = (opts, t = Elem) =>{
+//NOTE: this is not jQuery, nor does it function like it
+return new (t === true ? Elem : t)(opts)
+}
 class SceneryElem extends Elem {
     static all = new Set
     static frame = 0
@@ -1237,6 +1254,13 @@ class svg extends Elem {
         //Really confusing
     }
 }
+function shadow(parent,...children) {
+    let me =  parent.content.attachShadow({mode:'open',serializable:true})
+    children.map(o=>o.content).forEach(o=>{
+        me.append(o)
+    })
+    return me
+}
 function remix(oldFunc, { before, after } = {}) {
     let remix = function (...a) {
         before?.apply?.(this, a) // Execute pre-construction logic
@@ -1260,7 +1284,7 @@ const color = Object.defineProperties((j =>
 Object.assign(color, {
     //Extra colors go here
 })
-const body = window.body
+const {body} = window
 //; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
 //; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
 // ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
