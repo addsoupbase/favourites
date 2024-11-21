@@ -1093,7 +1093,7 @@ class Elem {
         this.transition({
             frames: { opacity: 0 }, timing: { duration: 300 },
         }, () => {
-            callback?.()
+            callback?.call?.(this)
             this.styleMe({display:'none'})
         })
     }
@@ -1104,7 +1104,7 @@ class Elem {
             this.transition({
                 frames: { opacity: 1 }, timing: { duration: 300 },
             }, () => {
-                callback?.()
+                callback?.call?.(this)
             })
     }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
