@@ -1099,13 +1099,12 @@ class Elem {
     }
     // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     async fadeIn(callback) {
-
+        this.styleMe({display:''})
         this.styleMe({ opacity: 0 }) ??
             this.transition({
                 frames: { opacity: 1 }, timing: { duration: 300 },
             }, () => {
                 callback?.()
-                this.styleMe({display:'none'})
             })
     }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
