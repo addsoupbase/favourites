@@ -15,7 +15,7 @@ const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
     frange: (min, max) => Math.floor(ran.range(min, max)),
-    pseudo: () =>(''+Date.now()).at(-1) / 10,
+    pseudo: () => ('' + Date.now()).at(-1) / 10,
     true: () => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff,
     shuffle(...item) {
         for (let i = 0, { length } = item; i < length; ++i) {
@@ -71,11 +71,11 @@ const utilString = {
     contains: (string, ...searches) => searches.every(string.match, string),
     addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
     shorten(string, len = 32) {
-        let out = (string+'').slice(0, len)
+        let out = (string + '').slice(0, len)
         if (string.length > len) out += '…'
         return out
     },
-    clip: (string,len)=>string.slice(len,string.length-len),
+    clip: (string, len) => string.slice(len, string.length - len),
     reverse: string => [...string].reverse().join(''),
     upper: string => string.at(0).toUpperCase() + string.slice(1),
 }
@@ -85,7 +85,7 @@ const utilString = {
         ["2", "nd"],
         ["3", "rd"],
     ]);
-    utilString.toOrdinal = o=> {
+    utilString.toOrdinal = o => {
         const num = +o,
             lastTwoDigits = num % 100,
             me = (o + "").at(-1);
@@ -97,11 +97,11 @@ const utilString = {
 
 async function idb(name) {
     let request = indexedDB.open(name)
-    return new Promise((resolve,reject)=>{
-        request.onsuccess = function(event) {
+    return new Promise((resolve, reject) => {
+        request.onsuccess = function (event) {
             resolve(event.target.result)
         }
-        request.onerror = function(event) {
+        request.onerror = function (event) {
             reject(event.target.error)
         }
     })
@@ -123,7 +123,7 @@ const utilArray = {
             { length } = sorted
         if (type) {
             //let median = sorted[Math.floor(length / 2)],
-             let q1 = sorted[Math.floor(length / 4)],
+            let q1 = sorted[Math.floor(length / 4)],
                 q3 = sorted[Math.floor(3 * length / 4)],
                 IQR = q3 - q1,
                 upperFence = q3 + 1.5 * IQR,
@@ -133,30 +133,30 @@ const utilArray = {
         } else return sorted.reduce((a, b) => a + b) / length
     }
 }
-utilMath.average = (...nums)=>utilArray.avg(nums)
+utilMath.average = (...nums) => utilArray.avg(nums)
 //let getNodeSize = node=>(偕=>Object.assign(偕,{center:{x:偕.left+偕.width/2,y:偕.top+偕.height/2}})(node.getBoundingClientRect()))
 class StorageManager {
     constructor(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
-            get: (target, prop) => 
-                prop === '__all__' 
+            get: (target, prop) =>
+                prop === '__all__'
                     ? Object.fromEntries([...Array(target.length)].map((_, i) => [target.key(i), target.getItem(target.key(i))]))
                     : target.getItem(prop),
-            set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value):1),
-            deleteProperty: (target, prop) => !(prop ==='__all__' ? target.clear():target.removeItem(prop)),
+            set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value) : 1),
+            deleteProperty: (target, prop) => !(prop === '__all__' ? target.clear() : target.removeItem(prop)),
             has: (target, prop) => target.getItem(prop) !== null,
         })
-        throw TypeError('Expecting Storage, got '+ managee?.constructor?.name)
+        throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
 }
 
 const local = new StorageManager(localStorage),
-session = new StorageManager(sessionStorage)
+    session = new StorageManager(sessionStorage)
 
 async function getDataUrl(url) {
     let data
     try {
-      let response = await fetch(url, {
+        let response = await fetch(url, {
             method: 'GET',
             mode: 'cors'
         })
@@ -193,19 +193,19 @@ function padZero(str, len = 2) {
 }
 function checkVisible(elm) {
     let rect = elm.getBoundingClientRect()
-    , viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
-    , viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth)
+        , viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
+        , viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth)
     return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0)
 }
 function isOverFlowed(elm) {
-    let parent = elm.parentElement 
-    , rect = elm.getBoundingClientRect()
-    , parentRect = parent?.getBoundingClientRect?.()
-    , isVisible =
-        rect.bottom > parentRect?.top &&
-        rect.top < parentRect?.bottom &&
-        rect.right > parentRect?.left &&
-        rect.left < parentRect?.right
+    let parent = elm.parentElement
+        , rect = elm.getBoundingClientRect()
+        , parentRect = parent?.getBoundingClientRect?.()
+        , isVisible =
+            rect.bottom > parentRect?.top &&
+            rect.top < parentRect?.bottom &&
+            rect.right > parentRect?.left &&
+            rect.left < parentRect?.right
     return isVisible
 }
 const Vector = class v {
@@ -230,14 +230,14 @@ const Vector2 = class v {
     static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
     static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     static angle(first, second) {
-       let firstAngle = Math.atan2(v.y(first), v.x(first)),
-        secondAngle = Math.atan2(v.y(second), v.x(second)),
-        angle = secondAngle - firstAngle
+        let firstAngle = Math.atan2(v.y(first), v.x(first)),
+            secondAngle = Math.atan2(v.y(second), v.x(second)),
+            angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
     static average(...vectors) {
         let x = vectors.map(o => v.x(o))
-        , y = vectors.map(o => v.y(o))
+            , y = vectors.map(o => v.y(o))
         return new v(x.average(), y.average())
     }
     static difference(vector, vector2) {
@@ -286,7 +286,7 @@ const Vector2 = class v {
         for (let i = 0, { length } = numbers; i < length; ++i) {
             let n = numbers[i]
             n = utilMath.clamp(+n, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-            if (Object.keys(this)[i]in this) this[Object.keys(this)[i]] = n
+            if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
         }
     }
     pow(vector) {
@@ -371,7 +371,7 @@ const Vector2 = class v {
         return [this.x, this.y]//Object.values(this)
     }
     toString() {
-        return '('.concat(this.value.join(', '),')')
+        return '('.concat(this.value.join(', '), ')')
     }
     get 0() {
         return this.x
@@ -403,9 +403,9 @@ class StrictArray {
             set(obj, prop, value) {
                 const isIndex = !isNaN(prop) && Number.isInteger(+prop) && +prop >= 0
                 if (isIndex) if (bouncer(value)) {
-                        obj[prop] = value
-                        return true
-                    } else throw TypeError(value+' did not pass the test')
+                    obj[prop] = value
+                    return true
+                } else throw TypeError(value + ' did not pass the test')
 
                 obj[prop] = value
                 return true
@@ -418,7 +418,7 @@ class Matrix {
     elements = []
     constructor(length, height) {
         Object.assign(this, { length, height })
-        for (let i = height+1; --i;) {
+        for (let i = height + 1; --i;) {
             this.elements.push(Array.from({ length }, () => null))
         }
     }
@@ -437,9 +437,9 @@ class Matrix {
     async image() {
         const cellSize = 2000
         let length = this.length * cellSize
-        , height = this.height * cellSize
+            , height = this.height * cellSize
         const canvas = new OffscreenCanvas(length, height)
-        , ctx = canvas.getContext('2d')
+            , ctx = canvas.getContext('2d')
         ctx.fillStyle = color.grey
         ctx.fillRect(0, 0, length, height)
         Object.assign(ctx, {
@@ -479,12 +479,12 @@ function modifyAt(array, index, modifier) {
 }
 
 const Color = class z {
-    r=0
-    g=0
-    b=0
-    a=1
+    r = 0
+    g = 0
+    b = 0
+    a = 1
     constructor(r = 0, g = 0, b = 0, a = 1) {
-        Object.assign(this,{r,g,b,a})
+        Object.assign(this, { r, g, b, a })
     }
     [Symbol.toPrimitive]() {
         return +(this.toString('hex').replace('#', ''))
@@ -504,14 +504,14 @@ const Color = class z {
         // Normalize RGB values to the range 0-1
         r /= 255, g /= 255, b /= 255
         const max = Math.max(r, g, b)
-        , min = Math.min(r, g, b)
+            , min = Math.min(r, g, b)
         let h, s, l = (max + min) / 2
 
         const d = max - min
         s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min)
 
         if (d === 0) h = 0
-         else {
+        else {
             switch (max) {
                 case r: h = (g - b) / d + (g < b ? 6 : 0); break
                 case g: h = (b - r) / d + 2; break
@@ -651,7 +651,7 @@ class Elem {
             // For modern browsers that return an array (contentBoxSize[0])
             let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
             // target.content ??= {}
-            if (target.content) 
+            if (target.content)
                 target.content.bounds = {
                     x: size.inlineSize,  // Width
                     y: size.blockSize    // Height
@@ -668,7 +668,7 @@ class Elem {
         if (Elem.loaded.has(src)) return src
         if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
         let x
-        , type = src.split('.').at(-1)
+            , type = src.split('.').at(-1)
         if (type.match(Elem.formats.image)) x = new Image
         else if (type.match(Elem.formats.video)) {
             let video = new Elem({ tag: 'video', preload: 'auto' })
@@ -715,8 +715,8 @@ class Elem {
             //requestAnimationFrame(()=>this.innerHTML+='')
         })
     }
-    static attributes = new Set([...this.svgattr, 
-       ...('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')])
+    static attributes = new Set([...this.svgattr,
+    ...('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')])
     static {
         let k = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
@@ -736,8 +736,8 @@ class Elem {
                 },
                 set(val) {
                     if (!this.content) throw TypeError('Illegal invocation')
-                    if (Elem.#attrMap.has(attribute)) 
-                    Elem.#attrMap.get(attribute).call(this, val)
+                    if (Elem.#attrMap.has(attribute))
+                        Elem.#attrMap.get(attribute).call(this, val)
                     else this.content[attribute] = val
                 }
             })
@@ -760,24 +760,24 @@ class Elem {
     static select(self) {
         let out = new Elem({ self })
         if (out.content.children) for (let node of out.content.children) {
-                if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
-               // if ('content'in node && node instanceof Elem) {
-                    //out.children.push(node)
-                    // node.content.parent = out
-             //   }
-              //  else 
-                Elem.select(node)
-                //    f.parent = out
-            }
+            if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
+            // if ('content'in node && node instanceof Elem) {
+            //out.children.push(node)
+            // node.content.parent = out
+            //   }
+            //  else 
+            Elem.select(node)
+            //    f.parent = out
+        }
 
         return out
     }
     static {
         let body = window.body = this.select(document.body)
-        // body.content.setAttribute('id', 'body')
-        //body.id = 'body'
-        , head = [...document.head.children]
-        , charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
+            // body.content.setAttribute('id', 'body')
+            //body.id = 'body'
+            , head = [...document.head.children]
+            , charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
             func = o => {
                 let butes = o.attributes
                 if (butes.charset) charSet = true
@@ -786,13 +786,13 @@ class Elem {
                 if (butes[0]?.textContent == 'og:image') ogImage = true
                 if (butes[0]?.textContent == 'og:url') ogUrl = true
                 if (butes[0]?.textContent == 'og:title') ogTitle = true
-                if (butes[0]?.nodeValue   == 'viewport' && butes[1]?.nodeValue) viewport = true
+                if (butes[0]?.nodeValue == 'viewport' && butes[1]?.nodeValue) viewport = true
             }
         head.forEach(func)
-        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '')) 
-                   console.warn('🔎 Consider giving this document a title.')
+        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
+            console.warn('🔎 Consider giving this document a title.')
         charSet || console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        viewport|| console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
+        viewport || console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
         ogImage || console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
         ogTitle || console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
     }
@@ -818,7 +818,7 @@ class Elem {
         }
         else {
             if (opts.shadow) {
-                this.content = opts.parent.content.attachShadow({mode:'open',serializable:true})
+                this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
             }
             else this.content = document.createElement(opts.tag)
             opts.id ??= ran.gen(7)
@@ -827,43 +827,45 @@ class Elem {
         for (let attr of Elem.attributes) if (attr in opts) this[attr] = opts[attr]
         if (opts.text) this.innerHTML = opts.text
         if (opts.message) this.innerText = opts.message
-        if (this.content.getBoundingClientRect){   let f = this.content.getBoundingClientRect()
-            this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }}
+        if (this.content.getBoundingClientRect) {
+            let f = this.content.getBoundingClientRect()
+            this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
+        }
         // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         if (opts.class) {
             if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
             for (let $class of opts.class) this.content.classList.add($class)
         }
-        if (opts.events) 
+        if (opts.events)
             this.addevent(opts.events)
-            // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
+        // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
 
-        if (opts.styles) 
+        if (opts.styles)
             this.styleMe(opts.styles)
-            //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
+        //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
 
         if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
         // this.append(opts.parent)
         this.current = this.content
-        if (arguments[1]===true) {
+        if (arguments[1] === true) {
             Elem.warn(`Migrate to parent instead of using arguments[1]`)
             opts.parent = body
         }
         if (opts.parent) this.parent = opts.parent
         if (opts.children) this.children = opts.children
-       // if (Elem.logLevels.debug && !opts.self) {
-            /*    let arr = ''
-                for (let [key, value] of Object.entries(opts)) {
-                    if (typeof value == 'object') {
-                        value = Object.entries(value)
-                        let str = ''
-                        for (let [_key, _value] of value) str += `${_key}: ${_value}\n`
-                        value = str
-                    }
-                    arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
-                }*/
-     //       Elem.debug(`New <${opts.tag}> element: ${this.id}`)//`:\n ${arr}`)
-     //   }
+        // if (Elem.logLevels.debug && !opts.self) {
+        /*    let arr = ''
+            for (let [key, value] of Object.entries(opts)) {
+                if (typeof value == 'object') {
+                    value = Object.entries(value)
+                    let str = ''
+                    for (let [_key, _value] of value) str += `${_key}: ${_value}\n`
+                    value = str
+                }
+                arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
+            }*/
+        //       Elem.debug(`New <${opts.tag}> element: ${this.id}`)//`:\n ${arr}`)
+        //   }
         this.begin(opts)
     }
     append(p) {
@@ -875,7 +877,7 @@ class Elem {
     }
     set(val, type) {
         switch (type) {
-         default  : return this.content.setHTMLUnsafe(val)
+            default: return this.content.setHTMLUnsafe(val)
             case 1: return this.textContent = val
             case 2: return this.innerHTML = val
             case 3: return this.innerText = val
@@ -897,10 +899,10 @@ class Elem {
     set parent(val) {
         if (!this.content) throw TypeError('Invalid setter')
         val == null
-        ?
-        this.content.remove()
-        : 
-        val.adopt(this)
+            ?
+            this.content.remove()
+            :
+            val.adopt(this)
     }
     get childCount() {
         return this.children.length
@@ -1026,7 +1028,7 @@ class Elem {
                 event = eventName[1]
                 eventName = eventName[0]
             }
-            Elem.listeners.set(this.id+':'+eventName, event)
+            Elem.listeners.set(this.id + ':' + eventName, event)
             if (!this.eventNames.has(eventName)) {
                 let eventfunc = (...e) => {
                     eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
@@ -1050,7 +1052,7 @@ class Elem {
         for (let event of target) {
             this.content.removeEventListener(event, this.eventNames.get(event))
             this.eventNames.has(event) ?
-                Elem.listeners.delete(this.id+':'+event)
+                Elem.listeners.delete(this.id + ':' + event)
                 : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
             Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
             this.eventNames.delete(event)
@@ -1090,7 +1092,10 @@ class Elem {
     async fadeOut(callback) {
         this.transition({
             frames: { opacity: 0 }, timing: { duration: 300 },
-        }, callback)
+        }, () => {
+            callback?.()
+            this.styleMe({display:'none'})
+        })
     }
     // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     async fadeIn(callback) {
@@ -1098,7 +1103,10 @@ class Elem {
         this.styleMe({ opacity: 0 }) ??
             this.transition({
                 frames: { opacity: 1 }, timing: { duration: 300 },
-            }, callback)
+            }, () => {
+                callback?.()
+                this.styleMe({display:'none'})
+            })
     }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
     async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
@@ -1119,7 +1127,7 @@ class Elem {
     }
     toggleInterval(id) {
         let n = this.intervals.get(id)
-       return n.paused = !n.paused
+        return n.paused = !n.paused
     }
     addInterval(callback, interval) {
         callback.paused = false
@@ -1167,9 +1175,9 @@ class Elem {
   }*/
 }
 window._ = Elem.$.bind(Elem)
-window.$ = (opts, t = Elem) =>{
-//NOTE: this is not jQuery, nor does it function like it
-return new (t === true ? Elem : t)(opts)
+window.$ = (opts, t = Elem) => {
+    //NOTE: this is not jQuery, nor does it function like it
+    return new (t === true ? Elem : t)(opts)
 }
 class SceneryElem extends Elem {
     static all = new Set
@@ -1254,9 +1262,9 @@ class svg extends Elem {
         //Really confusing
     }
 }
-function shadow(parent,...children) {
-    let me =  parent.content.attachShadow({mode:'open',serializable:true})
-    children.map(o=>o.content).forEach(o=>{
+function shadow(parent, ...children) {
+    let me = parent.content.attachShadow({ mode: 'open', serializable: true })
+    children.map(o => o.content).forEach(o => {
         me.append(o)
     })
     return me
@@ -1284,7 +1292,7 @@ const color = Object.defineProperties((j =>
 Object.assign(color, {
     //Extra colors go here
 })
-const {body} = window
+const { body } = window
 //; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
 //; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
 // ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
