@@ -11,6 +11,44 @@ gif2webp file.gif -o file.webp
 cwebp file.png -o file.webp
 
 */
+const assign = (target, props) => Object.assign(target, props)
+assign(assign, {
+    nullish(target, props) {
+        for (let key of Object.keys(props))
+            if (target[key] != null) delete props[key]
+        return assign(target, props)
+    },
+    not(target, props) {
+        for (let key of Object.keys(props))
+            if (target[key]) delete props[key]
+        return assign(target, props)
+    },
+    and(target, props) {
+        for (let key of Object.keys(props))
+            if (!target[key]) delete props[key]
+        return assign(target, props)
+    },
+    notin(target, props) {
+        for (let key of Object.keys(props))
+            if (key in target) delete props[key]
+        return assign(target, props)
+    },
+    in(target, props) {
+        for (let key of Object.keys(props))
+            if (!(key in target)) delete props[key]
+        return assign(target, props)
+    },
+    invoke(target, methods) {
+        let out = []
+        for (let key of Object.keys(methods)) out.push(target[key].apply(target, methods[key]||[]))
+        return out
+    }
+})
+assign(assign, {
+    '??=': assign.nullish,
+    '&&=': assign.and,
+    '||=': assign.not
+})
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
@@ -36,7 +74,7 @@ const ran = {
     }
 }
 const SUPPORTS = {
-    attributeStyleMap: false // 'StylePropertyMap'in globalThis
+    attributeStyleMap:0 // 'StylePropertyMap'in globalThis
 }
 ran.gen.previouslygenerated = new Set
 const utilMath = {
@@ -88,24 +126,25 @@ const utilString = {
     utilString.toOrdinal = o => {
         const num = +o,
             lastTwoDigits = num % 100,
-            me = (o + "").at(-1);
+            me = (o + "").at(-1)
         if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me))
-            return o + "th";
-        return o + map.get(me);
-    };
+            return o + "th"
+        return o + map.get(me)
+    }
 }
-
-async function idb(name) {
+/*async function idb(name) {
     let request = indexedDB.open(name)
-    return new Promise((resolve, reject) => {
-        request.onsuccess = function (event) {
-            resolve(event.target.result)
-        }
-        request.onerror = function (event) {
-            reject(event.target.error)
-        }
-    })
-}
+    return new Promise((resolve, reject) =>
+        assign(request, {
+            onsuccess(event) {
+                resolve(event.target.result)
+            },
+            onerror(event) {
+                reject(event.target.error)
+            }
+        })
+    )
+}*/
 utilString._ALPHABET = utilString._alphabet.toUpperCase()
 const utilArray = {
     center: o => o[Math.floor(o.length / 2)],
@@ -135,8 +174,7 @@ const utilArray = {
 }
 utilMath.average = (...nums) => utilArray.avg(nums)
 //let getNodeSize = node=>(偕=>Object.assign(偕,{center:{x:偕.left+偕.width/2,y:偕.top+偕.height/2}})(node.getBoundingClientRect()))
-class StorageManager {
-    constructor(managee) {
+function StorageManager(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
             get: (target, prop) =>
                 prop === '__all__'
@@ -148,10 +186,8 @@ class StorageManager {
         })
         throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
-}
-
-const local = new StorageManager(localStorage),
-    session = new StorageManager(sessionStorage)
+const local = StorageManager(localStorage),
+    session = StorageManager(sessionStorage)
 
 async function getDataUrl(url) {
     let data
@@ -181,32 +217,16 @@ async function getDataUrl(url) {
             },
             onerror:reject,
         }).readAsDataURL(data)*/
-        let reader = new FileReader
-        reader.onloadend = () => resolve(reader.result)
-        reader.onerror = reject
-        reader.readAsDataURL(data) // Convert blob to data URL
+        let reader = assign(new FileReader, {
+            onloadend: () => resolve(reader.result),
+            onerror: reject
+        })
+        readAsDataURL(data) // Convert blob to data URL
     })
 }
 function padZero(str, len = 2) {
     let zeros = new Array(len).join(0)
     return (zeros + str).slice(-len)
-}
-function checkVisible(elm) {
-    let rect = elm.getBoundingClientRect()
-        , viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
-        , viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth)
-    return !(rect.bottom < 0 || rect.top - viewHeight >= 0) && !(rect.right < 0 || rect.left - viewWidth >= 0)
-}
-function isOverFlowed(elm) {
-    let parent = elm.parentElement
-        , rect = elm.getBoundingClientRect()
-        , parentRect = parent?.getBoundingClientRect?.()
-        , isVisible =
-            rect.bottom > parentRect?.top &&
-            rect.top < parentRect?.bottom &&
-            rect.right > parentRect?.left &&
-            rect.left < parentRect?.right
-    return isVisible
 }
 const Vector = class v {
     x = 0
@@ -215,14 +235,17 @@ const Vector = class v {
         this.x = x
     }
     [Symbol.toPrimitive](type) {
-        return type == 'number' ? this.x : `${this.x}`
+        return type == 'number' ? this.x : ''+this.x
     }
 }
 const Vector2 = class v {
     x = 0
     y = 0
     constructor(x = 0, y = 0) {
-        if (arguments.length == 1 && x instanceof new.target) ({ x, y } = x)
+        if (arguments.length == 1) {
+            x = v.x(x)
+            y = v.y(y)
+        }
         Object.seal(this)
         this.set(x, y)
     }
@@ -261,7 +284,7 @@ const Vector2 = class v {
         return new v(0, 1)
     }
     static get random() {
-        let out = (new v)
+        let out = new v
         out.randomize()
         return out
     }
@@ -278,15 +301,11 @@ const Vector2 = class v {
     static min = (vector, vector2) => new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
     static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
     set(...numbers) {
-        if (numbers.length === 1) {
-            this.x = v.x(numbers[0])
-            this.y = v.y(numbers[0])
-            return
-        }
+        if (numbers.length === 1) numbers = [...numbers[0]]
         for (let i = 0, { length } = numbers; i < length; ++i) {
-            let n = numbers[i]
-            n = utilMath.clamp(+n, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-            if (Object.keys(this)[i] in this) this[Object.keys(this)[i]] = n
+            let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+            if (Object.keys(this)[i] in this) 
+                this[Object.keys(this)[i]] = n
         }
     }
     pow(vector) {
@@ -371,7 +390,7 @@ const Vector2 = class v {
         return [this.x, this.y]//Object.values(this)
     }
     toString() {
-        return '('.concat(this.value.join(', '), ')')
+        return '('+this.value.join(', ')+')'
     }
     get 0() {
         return this.x
@@ -406,7 +425,6 @@ class StrictArray {
                     obj[prop] = value
                     return true
                 } else throw TypeError(value + ' did not pass the test')
-
                 obj[prop] = value
                 return true
             }
@@ -417,7 +435,7 @@ class StrictArray {
 class Matrix {
     elements = []
     constructor(length, height) {
-        Object.assign(this, { length, height })
+        assign(this, { length, height })
         for (let i = height + 1; --i;) {
             this.elements.push(Array.from({ length }, () => null))
         }
@@ -440,13 +458,13 @@ class Matrix {
             , height = this.height * cellSize
         const canvas = new OffscreenCanvas(length, height)
             , ctx = canvas.getContext('2d')
-        ctx.fillStyle = color.grey
-        ctx.fillRect(0, 0, length, height)
-        Object.assign(ctx, {
-            textAlign: 'center',
-            textBaseline: 'middle',
-            font: `${cellSize / 10}px monospace`,
-        })
+            assign(ctx, {
+                fillStyle: color.grey,
+                textAlign: 'center',
+                textBaseline: 'middle',
+                font: `${cellSize / 10}px monospace`,
+            })
+            ctx.fillRect(0, 0, length, height)
         function matchColor(value) {
             switch (typeof value) {
                 case 'string': return color.red
@@ -484,7 +502,7 @@ const Color = class z {
     b = 0
     a = 1
     constructor(r = 0, g = 0, b = 0, a = 1) {
-        Object.assign(this, { r, g, b, a })
+        assign(this, { r, g, b, a })
     }
     [Symbol.toPrimitive]() {
         return +(this.toString('hex').replace('#', ''))
@@ -561,7 +579,7 @@ class Elem {
         return new Function(`with(this){${code}}`).call(this)
     }
     assign(obj) {
-        Object.assign(this, obj)
+        assign(this, obj)
     }
     set after(e) {
         this.content.after(e.content)
@@ -612,11 +630,13 @@ class Elem {
             if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
             else if (propName == 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
             else {
-                if (SUPPORTS.attributeStyleMap) {
+                if (SUPPORTS.attributeStyleMap) try{
                     //this one is slower
                     let n = propValue
                     if (typeof n == 'string') n = CSSStyleValue.parse(propName, n)
                     this.content.attributeStyleMap.set(propName, n)
+                } catch {
+                    this.content.style.setProperty(propName, propValue)
                 }
                 else this.content.style.setProperty(propName, propValue)
             }
@@ -677,18 +697,19 @@ class Elem {
                 callback?.(src)
             }
         }
-        else if (type.match(Elem.formats.audio)) x = new Audio
-        x.src = src
-        x.onerror = function (err) {
-            console.error('Error: ', err)
-            Elem.error(`Resource error: ${src}`)
-            Elem.failed.add(src)
-        }
-        x.onload = () => {
-            callback?.(src)
-            Elem.success(`Resource Pre-loaded: ${src}`)
-            Elem.loaded.add(src)
-        }
+        else if (type.match(Elem.formats.audio)) x = assign(new Audio, {
+            src,
+            onerror(err) {
+                console.error('Error: ', err)
+                Elem.error(`Resource error: ${src}`)
+                Elem.failed.add(src)
+            },
+            onload() {
+                callback?.(src)
+                Elem.success(`Resource Pre-loaded: ${src}`)
+                Elem.loaded.add(src)
+            }
+        })
         Elem.info(`Preloading Resource: ${src}`)
         return src
     }
@@ -696,10 +717,12 @@ class Elem {
         constructor(opts) {
             opts.tag = 'iframe'
             super(opts)
-            this.loading = 'lazy'
-            this.frameborder = 0
-            this.allow = 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-            this.referrerpolicy = 'strict-origin-when-cross-origin'
+            assign(this, {
+                loading: 'lazy',
+                frameborder: 0,
+                referrerpolicy: 'strict-origin-when-cross-origin',
+                allow: 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+            })
         }
     }
     static #attrMap = new Map(/*[
@@ -959,11 +982,13 @@ class Elem {
                 callback = options.callback;
                 delete options.callback;
             }*/
-        timing.duration ??= 1000
-        timing.iterations ??= 1
-        timing.easing ??= 'ease'
-        timing.direction ??= 'normal'
-        timing.fill ??= 'forwards'
+           assign['??='](timing, {
+            duration: 1000,
+            iterations: 1,
+            easing: 'ease',
+            direction: 'normal',
+            fill: 'forwards'
+           })
         // timing.composition
         try {
             // Create KeyframeEffect with the provided options
@@ -1067,9 +1092,11 @@ class Elem {
         }
     }
     cleanup() {
-        this.noevent(...this.eventNames.keys())
-        this.removeIntervals()
-        this.removeTimeouts()
+        assign.invoke(this, {
+            noevent: [...this.eventNames.keys()],
+            removeIntervals: 0,
+            removeTimeouts: 0,
+        })
         Elem.elements.delete(this)
         Elem.RO.unobserve(this.content)
         this.parent?.observer?.unobserve?.(this.content)
@@ -1094,12 +1121,12 @@ class Elem {
             frames: { opacity: 0 }, timing: { duration: 300 },
         }, () => {
             callback?.call?.(this)
-            this.styleMe({display:'none'})
+            this.styleMe({ display: 'none' })
         })
     }
     // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     async fadeIn(callback) {
-        this.styleMe({display:''})
+        this.styleMe({ display: '' })
         this.styleMe({ opacity: 0 }) ??
             this.transition({
                 frames: { opacity: 1 }, timing: { duration: 300 },
@@ -1253,8 +1280,10 @@ class SceneryElem extends Elem {
 }
 class svg extends Elem {
     constructor(n) {
-        n.tag = 'svg'
-        n.xmlns = 'http://www.w3.org/2000/svg'
+        assign(n, {
+            tag: 'svg',
+            xmlns: 'http://www.w3.org/2000/svg'
+        })
         super(n)
         this.parent.innerHTML += ''
         //this.content.setAttribute('xmlns','xmlns')
@@ -1278,7 +1307,7 @@ function remix(oldFunc, { before, after } = {}) {
         return instance // Return the new instance
     }
     if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
-    return Object.assign(remix, oldFunc)
+    return assign(remix, oldFunc)
 }
 const color = Object.defineProperties((j =>
     "aliceblue&#f0f8ff&antiquewhite&#faebd7&aqua&#00ffff&aquamarine&#7fffd4&azure&#f0ffff&beige&#f5f5dc&bisque&#ffe4c4&black&#000000&blanchedalmond&#ffebcd&blue&#0000ff&blueviolet&#8a2be2&brown&#a52a2a&burlywood&#deb887&cadetblue&#5f9ea0&chartreuse&#7fff00&chocolate&#d2691e&coral&#ff7f50&cornflowerblue&#6495ed&cornsilk&#fff8dc&crimson&#dc143c&cyan&#00ffff&darkblue&#00008b&darkcyan&#008b8b&darkgoldenrod&#b8860b&darkgray&#a9a9a9&darkgreen&#006400&darkkhaki&#bdb76b&darkmaran.genta&#8b008b&darkolivegreen&#556b2f&darkorange&#ff8c00&darkorchid&#9932cc&darkred&#8b0000&darksalmon&#e9967a&darkseagreen&#8fbc8f&darkslateblue&#483d8b&darkslategray&#2f4f4f&darkturquoise&#00ced1&darkviolet&#9400d3&deeppink&#ff1493&deepskyblue&#00bfff&dimgray&#696969&dodgerblue&#1e90ff&firebrick&#b22222&floralwhite&#fffaf0&forestgreen&#228b22&fuchsia&#ff00ff&gainsboro&#dcdcdc&ghostwhite&#f8f8ff&gold&#ffd700&goldenrod&#daa520&gray&#808080&grey&#808080&green&#008000&greenyellow&#adff2f&honeydew&#f0fff0&hotpink&#ff69b4&indianred&#cd5c5c&indigo&#4b0082&ivory&#fffff0&khaki&#f0e68c&lavender&#e6e6fa&lavenderblush&#fff0f5&lawngreen&#7cfc00&lemonchiffon&#fffacd&lightblue&#add8e6&lightcoral&#f08080&lightcyan&#e0ffff&lightgoldenrodyellow&#fafad2&lightgray&#d3d3d3&lightgreen&#90ee90&lightpink&#ffb6c1&lightsalmon&#ffa07a&lightseagreen&#20b2aa&lightskyblue&#87cefa&lightslategray&#778899&lightsteelblue&#b0c4de&lightyellow&#ffffe0&lime&#00ff00&limegreen&#32cd32&linen&#faf0e6&maran.genta&#ff00ff&maroon&#800000&mediumaquamarine&#66cdaa&mediumblue&#0000cd&mediumorchid&#ba55d3&mediumpurple&#9370db&mediumseagreen&#3cb371&mediumslateblue&#7b68ee&mediumspringgreen&#00fa9a&mediumturquoise&#48d1cc&mediumvioletred&#c71585&midnightblue&#191970&mintcream&#f5fffa&mistyrose&#ffe4e1&moccasin&#ffe4b5&navajowhite&#ffdead&navy&#000080&oldlace&#fdf5e6&olive&#808000&olivedrab&#6b8e23&orange&#ffa500&orangered&#ff4500&orchid&#da70d6&palegoldenrod&#eee8aa&palegreen&#98fb98&paleturquoise&#afeeee&palevioletred&#db7093&papayawhip&#ffefd5&peachpuff&#ffdab9&peru&#cd853f&pink&#ffc0cb&plum&#dda0dd&powderblue&#b0e0e6&purple&#800080&rebeccapurple&#663399&red&#ff0000&rosybrown&#bc8f8f&royalblue&#4169e1&saddlebrown&#8b4513&salmon&#fa8072&sandybrown&#f4a460&seagreen&#2e8b57&seashell&#fff5ee&sienna&#a0522d&silver&#c0c0c0&skyblue&#87ceeb&slateblue&#6a5acd&slategray&#708090&snow&#fffafa&springgreen&#00ff7f&steelblue&#4682b4&tan&#d2b48c&teal&#008080&thistle&#d8bfd8&tomato&#ff6347&turquoise&#40e0d0&violet&#ee82ee&wheat&#f5deb3&white&#ffffff&whitesmoke&#f5f5f5&yellow&#ffff00&yellowgreen&#9acd32"
@@ -1288,7 +1317,7 @@ const color = Object.defineProperties((j =>
     log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
     opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + padZero(f) + padZero($) + padZero(a) } }
 })
-Object.assign(color, {
+assign(color, {
     //Extra colors go here
 })
 const { body } = window
