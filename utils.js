@@ -692,7 +692,8 @@ class Elem {
                 callback?.(src)
             }
         }
-        else if (type.match(Elem.formats.audio)) x = assign(new Audio, {
+        else if (type.match(Elem.formats.audio)) x = new Audio;
+        assign(x, {
             src,
             onerror(err) {
                 console.error('Error: ', err)
