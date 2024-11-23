@@ -42,12 +42,10 @@ assign(assign, {
         let out = []
         for (let key of Object.keys(methods)) out.push(target[key].apply(target, methods[key]||[]))
         return out
-    }
-})
-assign(assign, {
-    '??=': assign.nullish,
-    '&&=': assign.and,
-    '||=': assign.not
+    },
+    get'??='(){return assign.nullish},
+    get'&&='(){return assign.and},
+    get'||='(){return assign.not}
 })
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
@@ -89,8 +87,8 @@ const utilMath = {
         }
         return true
     },
-    toRad: deg => deg * Math.PI / 180,
-    toDeg: rad => rad * 180 / Math.PI,
+    toRad:deg=>deg*Math.PI/180,
+    toDeg:rad=>rad*180/Math.PI,
     diff: (a, b) => Math.abs(a - b),
     clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
     Cycle: function (...items) {
@@ -178,7 +176,7 @@ function StorageManager(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
             get: (target, prop) =>
                 prop === '__all__'
-                    ? Object.fromEntries([...Array(target.length)].map((_, i) => [target.key(i), target.getItem(target.key(i))]))
+                    ? Object.fromEntries(Array.from({length:target.length},(_, i) => [target.key(i), target.getItem(target.key(i))]))
                     : target.getItem(prop),
             set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value) : 1),
             deleteProperty: (target, prop) => !(prop === '__all__' ? target.clear() : target.removeItem(prop)),
@@ -225,8 +223,7 @@ async function getDataUrl(url) {
     })
 }
 function padZero(str, len = 2) {
-    let zeros = new Array(len).join(0)
-    return (zeros + str).slice(-len)
+    return('0'.repeat(len)+str).slice(-len)
 }
 const Vector = class v {
     x = 0
@@ -369,7 +366,7 @@ const Vector2 = class v {
         return new v(this).subtract(...other)
     }
     get average() {
-        return utilArray.avg(/*[...this]*/[this.x, this.y])
+        return utilMath.average(/*[...this]*/this.x, this.y)
     }
     get inverse() {
         return new v(this.x ** -1, this.y ** -1)
@@ -436,9 +433,9 @@ class Matrix {
     elements = []
     constructor(length, height) {
         assign(this, { length, height })
-        for (let i = height + 1; --i;) {
+        for (let i = height + 1; --i;) 
             this.elements.push(Array.from({ length }, () => null))
-        }
+        
     }
     get(x, y) {
         return this.elements.at(y).at(x)
@@ -524,10 +521,8 @@ const Color = class z {
         const max = Math.max(r, g, b)
             , min = Math.min(r, g, b)
         let h, s, l = (max + min) / 2
-
         const d = max - min
         s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min)
-
         if (d === 0) h = 0
         else {
             switch (max) {
@@ -537,7 +532,6 @@ const Color = class z {
             }
             h /= 6
         }
-
         // Convert to degrees and percentages
         h = Math.round(h * 360)
         s = Math.round(s * 100)
@@ -560,7 +554,6 @@ const Color = class z {
                 return z.toHex2(...this)
             case 'hsl':
                 return z.toHSL(...this)
-
         }
     }
 }
@@ -568,12 +561,14 @@ class hsl extends Color {
 
 }
 class Elem {
+    static ILLEGAL_TAGNAMES = /SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE/
+    static DEPRECATED_TAGNAMES = /TT|XMP|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP/
     static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
-        return [...document.querySelectorAll('*')].map(o => o.content).filter(o => o instanceof Elem)
+        return [].map.call(document.querySelectorAll('*'),o => o.content).filter(o => o instanceof Elem)
     }
     raw() {
-        return this.content.getHTML({ serializableShadowRoots: true, shadowRoots: true })
+        return this.content.getHTML({ serializableShadowRoots: true })
     }
     eval(code) {
         return new Function(`with(this){${code}}`).call(this)
@@ -738,16 +733,15 @@ class Elem {
             //requestAnimationFrame(()=>this.innerHTML+='')
         })
     }
-    static attributes = new Set([...this.svgattr,
-    ...('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')])
+    static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
     static {
         let k = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
                 this.prototype[key] = ((侗, 俉俊) => {
-                    return function (...l) { if (this instanceof 侗) return 우정.apply(this, l); throw 俉俊 }
-                })(Elem, TypeError('Illegal invocation'))
+                    return function(...अ){if(this instanceof 侗)return 우정.apply(this,अ);throw 俉俊}
+                })(Elem,TypeError('Illegal invocation'))
             }
         }
         Object.getOwnPropertyNames(this.prototype).forEach(k)
@@ -783,7 +777,7 @@ class Elem {
     static select(self) {
         let out = new Elem({ self })
         if (out.content.children) for (let node of out.content.children) {
-            if (node.nodeName.match(/NOSCRIPT|SCRIPT|STYLE/)) continue
+            if (node.nodeName.match(Elem.ILLEGAL_TAGNAMES)) continue
             // if ('content'in node && node instanceof Elem) {
             //out.children.push(node)
             // node.content.parent = out
@@ -834,7 +828,10 @@ class Elem {
     constructor(opts = {}) {
         //Main init
         if (!opts.tag && !opts.self && !opts.shadow) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-        if (opts.self) {
+        if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES))throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
+        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`)
+
+            if (opts.self) {
             this.content = opts.self
             if (this.content === document.body) opts.id = 'body'
             else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
@@ -931,7 +928,7 @@ class Elem {
         return this.children.length
     }
     get children() {
-        return Object.freeze([...this.content.children].filter(o => !(o.tagName.match(/SCRIPT|NOSCRIPT|STYLE/))).map(o => o.content))
+        return Object.freeze([...this.content.children].filter(o => !(o.tagName.match(Elem.ILLEGAL_TAGNAMES))).map(o => o.content))
     }
     set children(children) {
         this.killChildren()
@@ -1021,8 +1018,10 @@ class Elem {
     anim(target, callback) {
         let keep = false
         if ('keep class' in target) keep = delete target['keep class']
-        switch (target.class) {
-            default: this.add(target); break
+       // switch (target.class) {
+       //     default: 
+            this.add(target);
+         //    break
             /*    case 'fade out': this.content.animate([
                     {opacity: 1, easing: 'ease-in'},
                     {opacity:0, easing: 'ease-in'},
@@ -1032,13 +1031,15 @@ class Elem {
                     {opacity: 0, easing: 'ease-in'},
                     {opacity: 1, easing: 'ease-in'},
                 ],500); break;*/
-        }
+      //  }
         this.addevent(['animationend', () => {
             this.noevent('animationend'); callback?.call?.(this)
-            switch (target.class) {
-                default: keep || this.removeClass(target.class); break
+            //switch (target.class) {
+            //    default: 
+                keep || this.removeClass(target.class); 
+                //break
                 //    case 'fade out': alert(134);
-            }
+           // }
         }])
         return this
     }
@@ -1047,12 +1048,9 @@ class Elem {
             this.toggle(name, false) || this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
     }
     addevent(...events) {
-        if (!Array.isArray(events[0]) && typeof events[0] == 'object' && events.length == 1) events = Object.entries(events[0])
+        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
-            if (!event) {
-                event = eventName[1]
-                eventName = eventName[0]
-            }
+            if (!event) [eventName,event] = eventName
             Elem.listeners.set(this.id + ':' + eventName, event)
             if (!this.eventNames.has(eventName)) {
                 let eventfunc = (...e) => {
@@ -1140,9 +1138,9 @@ class Elem {
         callback.paused = false
         let mult
         if (typeof interval == 'object') {
-            if ('seconds' in interval) mult = 1_000 * interval.seconds
-            else if ('minutes' in interval) mult = 60_000 * interval.minutes
-            else if ('hours' in interval) mult = 3_600_000 * interval.hours
+            if ('seconds'in interval) mult = 1_000 * interval.seconds
+            else if ('minutes'in interval) mult = 60_000 * interval.minutes
+            else if ('hours'in interval) mult = 3_600_000 * interval.hours
         } else mult = interval
         let id = setTimeout(() => {
             callback.paused || this.timeouts.get(id).call(this)
@@ -1164,11 +1162,7 @@ class Elem {
             else if ('minutes' in interval) mult = 60_000 * interval.minutes
             else if ('hours' in interval) mult = 3_600_000 * interval.hours
         } else mult = interval
-        let id = setInterval(() => {
-            callback.paused || (this.intervals.get(id).call(this), --callback.count)
-            if (!callback.count) this.removeInterval(id)
-            //     this.intervals.delete(id)
-        }, mult)
+        let id = setInterval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
         this.intervals.set(id, callback)
         return id
     }
@@ -1202,7 +1196,7 @@ class Elem {
 }
 window._ = Elem.$.bind(Elem)
 window.$ = (opts, t = Elem) => {
-    //NOTE: this is not jQuery, nor does it function like it
+    if (typeof opts === 'string') throw TypeError('This is not jQuery')
     return new (t === true ? Elem : t)(opts)
 }
 class SceneryElem extends Elem {
