@@ -773,11 +773,11 @@ class Elem {
     static debug = message => this.logLevels.debug && console.trace('%cDebug %c'+message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;","font-size: 10;font-family: 'Choco cooky',monospace;")
     static elements = new WeakSet
     static logLevels = {
-        debug: false,
-        warn: true,
         error: true,
-        info: false,
+        warn: true,
         success: true,
+        info: false,
+        debug: false,
     }
     static select(self) {
         let out = new Elem({ self })
@@ -1202,6 +1202,28 @@ class Elem {
       }
       return false
   }*/
+}
+{
+let ll=3,
+map = new Map([
+    [0, ()=>Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=false)],
+    [1, (l=map.get(0)())=>
+            Elem.logLevels.error = true],
+    [2, ()=>Elem.logLevels.warn = map.get(1)()],
+    [3, ()=>Elem.logLevels.success = map.get(2)()],
+    [4, ()=>Elem.logLevels.info = map.get(3)()],
+    [5, ()=>Elem.logLevels.debug = map.get(4)()],
+])
+    Object.defineProperty(Elem,'loglevel', {
+        get(){
+            return ll
+        },
+        set(val) {
+            if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
+            ll=val
+            return map.get(+ll)()
+        }
+    })
 }
 window._ = Elem.$.bind(Elem)
 window.$ = (opts, t = Elem) => {
