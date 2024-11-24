@@ -694,7 +694,12 @@ class Elem {
                 return response.blob()
             else
                 return response.text()
-        }))).then(() => callback(...src))
+        }))).then(() => {
+            callback?.(...src)
+            console.groupCollapsed('Bulk load:')
+            for (let sr of src) Elem.success(`${sr} loaded successfully`)
+            console.groupEnd()
+        })
     }
     static preload(src, callback) {
         if (Elem.loaded.has(src)) return src
