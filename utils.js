@@ -51,7 +51,7 @@ const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
     frange: (min, max) => Math.floor(ran.range(min, max)),
-    pseudo: () => ('' + Date.now()).at(-1) / 10,
+    pseudo: () => performance.now() % 1,
     true: () => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff,
     shuffle(...item) {
         for (let i = 0, { length } = item; i < length; ++i) {
@@ -61,7 +61,7 @@ const ran = {
         return item
     },
     gen(length = 6) {
-        let pool = utilString._alphabet + utilString._numbers + utilString._ALPHABET, poolSize = pool.length, str
+        let pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length, str
         do str = Array.from({ length }, () => pool[Math.floor(Math.random() * poolSize)]).join('')
         while (ran.gen.previouslygenerated.has(str))
         ran.gen.previouslygenerated.add(str)
@@ -76,7 +76,7 @@ const SUPPORTS = {
 }
 ran.gen.previouslygenerated = new Set
 const utilMath = {
-    isInt: n => Math.trunc(n) === n,
+    isInt: Number.isInteger,
     sanitize: num => (num == num) && num != null && isFinite(num),
     equality: (...target) => target.every(o => Object.is(o, target[0])),
     arreq(...targets) {
@@ -91,6 +91,7 @@ const utilMath = {
     toDeg:rad=>rad*180/Math.PI,
     diff: (a, b) => Math.abs(a - b),
     clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
+    get cycle(){return utilMath.Cycle},
     Cycle: function (...items) {
         return Object.defineProperty(function* (x = 0) {
             for (; ;)yield items[x++ % items.length]
@@ -100,8 +101,8 @@ const utilMath = {
     }
 }
 const utilString = {
-    _alphabet: 'abcdefghijklmnopqrstuvwxyz',
-    _numbers: '0123456789',
+    alphabet: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
     months: 'January February March April May June July August September October November December'.split(' '),
     days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
     contains: (string, ...searches) => searches.every(string.match, string),
@@ -115,7 +116,9 @@ const utilString = {
     reverse: string => [...string].reverse().join(''),
     upper: string => string.at(0).toUpperCase() + string.slice(1),
 }
+
 {
+  
     let map = new Map([
         ["1", "st"],
         ["2", "nd"],
@@ -143,8 +146,13 @@ const utilString = {
         })
     )
 }*/
-utilString._ALPHABET = utilString._alphabet.toUpperCase()
+utilString.ALPHABET = utilString.alphabet.toUpperCase()
 const utilArray = {
+    assemble(arrayLike,...sequence) {
+        let out = []
+        for (let digit of sequence) out.push(arrayLike.at(digit))
+        return out
+    },
     center: o => o[Math.floor(o.length / 2)],
     insert: (array, item, index) => array.splice(index, 0, item),
     remove: (item, index) => typeof item == 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1),
@@ -171,7 +179,7 @@ const utilArray = {
     }
 }
 utilMath.average = (...nums) => utilArray.avg(nums)
-//let getNodeSize = node=>(偕=>Object.assign(偕,{center:{x:偕.left+偕.width/2,y:偕.top+偕.height/2}})(node.getBoundingClientRect()))
+{let z=(...a)=>utilArray.assemble(utilString.alphabet,...a).join('');utilString.badwords=RegExp([z(13,8,6,6,4,17),z(1,8,19,2,7),z(5,20,2,10),z(18,7,8,19),z(2,14,2,10),z(5,0,6),z(17,4,19,0,17,3),z(3,8,2,10)].join('|'))}
 function StorageManager(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
             get: (target, prop) =>
@@ -222,9 +230,7 @@ async function getDataUrl(url) {
         readAsDataURL(data) // Convert blob to data URL
     })
 }
-function padZero(str, len = 2) {
-    return('0'.repeat(len)+str).slice(-len)
-}
+
 const Vector = class v {
     x = 0
     constructor(x = 0) {
@@ -557,12 +563,10 @@ const Color = class z {
         }
     }
 }
-class hsl extends Color {
-
-}
 class Elem {
-    static ILLEGAL_TAGNAMES = /SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE/
-    static DEPRECATED_TAGNAMES = /TT|XMP|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP/
+    static USE_CUTESY_FONT=true
+    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE)$/
+    static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
     static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
         return [].map.call(document.querySelectorAll('*'),o => o.content).filter(o => o instanceof Elem)
@@ -676,36 +680,35 @@ class Elem {
     }
     )
     static bulk(callback, ...src) {
-        let count = 0
-        for (let li of src) ++count, Elem.preload(li, () => --count || callback(...src))
+        return Promise.all(src.map(o=>fetch(o).then(response => {
+            if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
+            const contentType = response.headers.get('Content-Type');
+            if (contentType && contentType.includes('application/json')) 
+              return response.json()
+             else if (contentType && contentType.includes('text/html')) 
+              return response.text()
+            else if (contentType && contentType.includes('application/xml')) 
+              return response.text()
+             else if (contentType && contentType.includes('application/octet-stream')) 
+              return response.blob()
+            else 
+             return response.text()
+    }))).then(()=>callback(...src))
     }
     static preload(src, callback) {
         if (Elem.loaded.has(src)) return src
         if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
-        let x
-            , type = src.split('.').at(-1)
-        if (type.match(Elem.formats.image)) x = new Image
-        else if (type.match(Elem.formats.video)) {
-            let video = new Elem({ tag: 'video', preload: 'auto' })
-            video.content.onload = () => {
-                Elem.success(`Resource loaded: ${src}`)
-                callback?.(src)
-            }
-        }
-        else if (type.match(Elem.formats.audio)) x = new Audio;
-        assign(x, {
-            src,
-            onerror(err) {
-                console.error('Error: ', err)
-                Elem.error(`Resource error: ${src}`)
+        fetch(src).then((res)=>{
+            if (!res.ok) {
+                Elem.error(`Resource error: ${res.status}`)
                 Elem.failed.add(src)
-            },
-            onload() {
+            }
+            else {
                 callback?.(src)
                 Elem.success(`Resource Pre-loaded: ${src}`)
                 Elem.loaded.add(src)
             }
-        })
+    })
         Elem.info(`Preloading Resource: ${src}`)
         return src
     }
@@ -762,11 +765,11 @@ class Elem {
         }
     }
     static listeners = new Map
-    static warn = message => this.logLevels.warn && this.textStyle(`[WARN] ${message}`, { color: color.yellow, 'font-size': 15 })
-    static error = message => this.logLevels.error && this.textStyle(`[ERROR] ${message}`, { color: color.red, 'font-size': 15 })
-    static info = message => this.logLevels.info && this.textStyle(`[INFO] ${message}`, { color: '#FFFFFF', 'font-size': 10 })
-    static success = message => this.logLevels.success && this.textStyle(`[SUCCESS] ${message}`, { color: color.lightgreen, 'font-size': 15 })
-    static debug = message => this.logLevels.debug && this.textStyle(`[DEBUG] ${message}`, { color: color.orange, 'font-size': 10 })
+    static warn = message => this.logLevels.warn && console.trace('%cWarn %c'+message,"font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;","font-family:'Choco cooky',monospace")
+    static error = message => this.logLevels.error && console.trace('%cError %c'+message,"font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;","font-family:'Choco cooky',monospace")
+    static info = message => this.logLevels.info && console.info('%cInfo %c'+message,"font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;","font-family:'Choco cooky',monospace")
+    static success = message => this.logLevels.success && console.trace('%cSucceed %c '+message,'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;'+"font-family: 'Choco cooky',monospace;","font-family: 'Choco cooky',monospace;")
+    static debug = message => this.logLevels.debug && console.debug('%cDebug %c'+message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;","font-size: 10;font-family: 'Choco cooky',monospace;")
     static elements = new WeakSet
     static logLevels = {
         debug: false,
@@ -828,9 +831,9 @@ class Elem {
     })
     constructor(opts = {}) {
         //Main init
-        if (!opts.tag && !opts.self && !opts.shadow) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
+        if (!('tag'in opts) && !('self'in opts) && !('shadow'in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
         if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES))throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`)
+        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`,"font-family:'Choco cooky',monospace")
 
             if (opts.self) {
             this.content = opts.self
@@ -1046,7 +1049,7 @@ class Elem {
     }
     removeClass(...className) {
         for (let name of className)
-            this.toggle(name, false) || this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
+            this.toggle(name, false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
     }
     addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
@@ -1066,7 +1069,7 @@ class Elem {
                 }
                 this.content.addEventListener(eventName, eventfunc)
                 this.eventNames.set(eventName, eventfunc)
-                Elem.info(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
+                Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
             }
             else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
         }
@@ -1078,7 +1081,7 @@ class Elem {
             this.eventNames.has(event) ?
                 Elem.listeners.delete(this.id + ':' + event)
                 : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
-            Elem.info(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
+            Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
             this.eventNames.delete(event)
         }
     }
@@ -1285,13 +1288,6 @@ class svg extends Elem {
         //Really confusing
     }
 }
-function shadow(parent, ...children) {
-    let me = parent.content.attachShadow({ mode: 'open', serializable: true })
-    children.map(o => o.content).forEach(o => {
-        me.append(o)
-    })
-    return me
-}
 function remix(oldFunc, { before, after } = {}) {
     let remix = function (...a) {
         before?.apply?.(this, a) // Execute pre-construction logic
@@ -1310,12 +1306,21 @@ const color = Object.defineProperties((j =>
     dhk: { value(e, f = 40) { let $ = parseInt((e = e.replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
     choose: { value: () => ran.choose(...Object.values(color)) },
     log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
-    opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + padZero(f) + padZero($) + padZero(a) } }
+    opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + (''+f).padStart(0,2) + (''+$).padStart(0,2) + (''+a).padStart(0,2) } }
 })
 assign(color, {
     //Extra colors go here
 })
 const { body } = window
-//; (n => "escape&unescape&event&external&External&orientation&status&back&blur&captureEvents&clientInformation&clearImmediate&forward&releaseEvents&requestFileSystem&setImmediate&setResizable&showModalDialog&webkitConvertPointFromNodeToPage&webkitConvertPointFromPageToNode&onorientationchange&onunload&vrdisplayactivate&vrdisplayconnect&vrdisplaydeactivate&vrdisplaydisconnect&vrdisplaypresentchange".split('&').forEach(o => delete n[o]))(self)
-//; (n => "javaEnabled&activeVRDisplays&appCodeName&appName&appVersion&doNotTrack&mimeTypes&oscpu&platform&plugins&product&productSub&vendor&vendorSub&getUserMedia&getVRDisplays&taintEnabled".split`&`.map(o => delete n[o]))(Navigator.prototype)
-// ; (n => ['__$Getter__', '__$Setter__'].forEach(o => delete n[o.replace('$', 'define')] & delete n[o.replace('$', 'lookup')]))(Object.prototype)
+window.addEventListener('load',async function x (){
+    window.removeEventListener('load',x)
+    if (!Elem.USE_CUTESY_FONT || typeof FontFace==='undefined')return //How could you :(
+   try {
+     let n = new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
+     document.fonts.add(n)
+     await n.load()
+     console.log('%cCutesy Font Loaded hehe',"font-family: 'Choco cooky';color:magenta;")
+   } catch {
+        console.log('Cutesy font could not be loaded 😞')
+   }})
+   Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
