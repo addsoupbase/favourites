@@ -1186,7 +1186,6 @@ class Elem {
     }
     /*static findClass(className) {
       const styleSheets = document.styleSheets;
-      // Loop through each stylesheet
       for (let i = 0; i < styleSheets.length; ++i) {
           const rules = styleSheets[i].cssRules || styleSheets[i].rules;
           for (let j = 0; j < rules.length; j++) {
@@ -1222,7 +1221,6 @@ class SceneryElem extends Elem {
     static {
         let func = key => {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
-            // Check if it's a function and not a getter/setter
             if (typeof descriptor.value === 'function' && key !== 'constructor') {
                 let 우정 = this.prototype[key]
                 this.prototype[key] = ((乓, 份) => {
@@ -1312,15 +1310,20 @@ assign(color, {
     //Extra colors go here
 })
 const { body } = window
-window.addEventListener('load',async function x (){
-    window.removeEventListener('load',x)
-    if (!Elem.USE_CUTESY_FONT || typeof FontFace==='undefined')return //How could you :(
-   try {
-     let n = new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
-     document.fonts.add(n)
-     await n.load()
-     Elem.success('Cutesy font loaded hehe')
-   } catch {
-     Elem.error('Cutesy font could not be loaded 😞')
-   }})
+{
+    let t = 'I love you so much please don\'t disable me 🥺'
+    document.addEventListener('load',{
+        async[t](){
+            document.removeEventListener('load',this[t])
+            if (!Elem.USE_CUTESY_FONT || typeof FontFace==='undefined') return //How could you :(
+           try {
+            //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
+             let n = new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
+             document.fonts.add(n)
+             await n.load()
+             Elem.success('Cutesy font loaded hehe')
+           } catch {
+             Elem.error('Cutesy font could not be loaded 😞')
+           }}}[t])
+}
    //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
