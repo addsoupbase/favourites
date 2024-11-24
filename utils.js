@@ -827,7 +827,7 @@ class Elem {
         return out
     }
     static {
-        let out = { 'standards mode': 'red', 'document has title': 'lightgreen' };
+        let out = { 'standards mode': 'red', 'document has <title>': 'lightgreen' };
         'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
         let body = window.body = this.select(document.body)
             // body.content.setAttribute('id', 'body')
@@ -835,26 +835,32 @@ class Elem {
             , head = document.head.children
         for (let o of head) {
             let butes = o.attributes
-            if (butes.charset) out.charset = 'lightgreen'
-            if (o.getAttribute('rel') === 'icon') out['favicon'] = 'lightgreen'
-            if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = 'lightgreen'
-            if (o.getAttribute('property') === 'og:description') out['og:description'] = 'lightgreen'
-            if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
-            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
-            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
-            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
-            if (o.getAttribute('property') === 'og:image') out['og:image'] = 'lightgreen'
-            if (o.getAttribute('property') === 'og:url') out['og:url'] = 'lightgreen'
-            if (o.getAttribute('name') === 'og:title') out['og:title'] = 'lightgreen'
-            if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = 'lightgreen'
+            if (butes.charset) out.charset = o
+            if (o.getAttribute('rel') === 'icon') out['favicon'] = o
+            if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
+            if (o.getAttribute('property') === 'og:description') out['og:description'] = o
+            if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+            if (o.getAttribute('property') === 'og:image') out['og:image'] = o
+            if (o.getAttribute('property') === 'og:url') out['og:url'] = o
+            if (o.getAttribute('name') === 'og:title') out['og:title'] = o
+            if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
         }
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
-            out['document has title'] = 'red'
+            out['document has <title>'] = 'red'
         if (document.compatMode === 'CSS1Compat') out['standards mode'] = 'lightgreen'
         
-        console.group('%cQuick SEO Check:', 'font-family:\'Choco cooky\',monospace')
+        console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
         for (let [key, value] of Object.entries(out)) {
-            console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:' + value)
+            if (typeof value !== 'string') {
+                console.debug('%c' +key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen',value)
+            }
+            else {
+                console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
+
+            }
         }
         console.groupEnd()
         /* for (let script of document.scripts) {
