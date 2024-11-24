@@ -5,8 +5,8 @@
 
 gif2webp file.gif -o file.webp
 
-*/
-/* Png to webp
+
+ Png to webp
 
 cwebp file.png -o file.webp
 
@@ -179,8 +179,10 @@ const utilArray = {
     }
 }
 utilMath.average = (...nums) => utilArray.avg(nums)
+
 {let z=(...a)=>utilArray.assemble(utilString.alphabet,...a).join('');utilString.badwords=RegExp([z(13,8,6,6,4,17),z(1,8,19,2,7),z(5,20,2,10),z(18,7,8,19),z(2,14,2,10),z(5,0,6),z(17,4,19,0,17,3),z(3,8,2,10)].join('|'))}
-function StorageManager(managee) {
+const [local,session] = (()=>{
+    let StorageManager=managee=> {
         if (managee instanceof Storage) return new Proxy(managee, {
             get: (target, prop) =>
                 prop === '__all__'
@@ -192,9 +194,8 @@ function StorageManager(managee) {
         })
         throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
-const local = StorageManager(localStorage),
-    session = StorageManager(sessionStorage)
-
+    return[StorageManager(localStorage),StorageManager(sessionStorage)]
+})()
 async function getDataUrl(url) {
     let data
     try {
@@ -794,28 +795,33 @@ class Elem {
         return out
     }
     static {
+        let out = {'standards mode':'red','document has title':'lightgreen'};
+        'application-name og:description color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o=>out[o]='red')
         let body = window.body = this.select(document.body)
             // body.content.setAttribute('id', 'body')
             //body.id = 'body'
             , head = [...document.head.children]
-            , charSet, name, ogDesc, ogImage, ogUrl, viewport, ogTitle,
-            func = o => {
+           for (let o of head) {
                 let butes = o.attributes
-                if (butes.charset) charSet = true
-                if (butes.name) name = true
-                if (butes[0]?.textContent == 'og:description') ogDesc = true
-                if (butes[0]?.textContent == 'og:image') ogImage = true
-                if (butes[0]?.textContent == 'og:url') ogUrl = true
-                if (butes[0]?.textContent == 'og:title') ogTitle = true
-                if (butes[0]?.nodeValue == 'viewport' && butes[1]?.nodeValue) viewport = true
+                if (butes.charset) out.charset = 'lightgreen'
+                if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description']='lightgreen'
+                if (o.getAttribute('property') === 'og:description') out['og:description']='lightgreen'
+                if (o.getAttribute('name') === 'theme-color'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
+                if (o.getAttribute('name') === 'application-name'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
+                if (o.getAttribute('name') === 'googlebot'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
+                if (o.getAttribute('name') === 'color-scheme'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
+                if (o.getAttribute('property') === 'og:image') out['og:image'] = 'lightgreen'
+                if (o.getAttribute('property') === 'og:url') out['og:url'] = 'lightgreen'
+                if (o.getAttribute('name') === 'og:title') out['og:title'] = 'lightgreen'
+                if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = 'lightgreen'
             }
-        head.forEach(func)
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
-            console.warn('🔎 Consider giving this document a title.')
-        charSet || console.warn('🔎 Consider adding <meta charset="UTF-8"> into the head of this document.')
-        viewport || console.warn('🔎 Consider adding <meta name="viewport" content="width=device-width, initial-scale=1"> into the head of this document.')
-        ogImage || console.warn('🔎 Consider adding <meta property="og:image" content="[image url here]"> into the head of this document.')
-        ogTitle || console.warn('🔎 Consider adding <meta property="og:title" content="[title here]"> into the head of this document.')
+           out['document has title'] = 'red'
+        if (document.compatMode === 'CSS1Compat') out['standards mode']='lightgreen'
+   console.log('Seo check:')
+   for (let [key,value] of Object.entries(out)) {
+    console.log('%c'+key,'font-size:10px;color:'+value)
+   }
     }
     clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
     timeouts = new Map
@@ -1299,6 +1305,7 @@ function remix(oldFunc, { before, after } = {}) {
     return assign(remix, oldFunc)
 }
 const color = Object.defineProperties((j =>
+    //Don't ask
     "aliceblue&#f0f8ff&antiquewhite&#faebd7&aqua&#00ffff&aquamarine&#7fffd4&azure&#f0ffff&beige&#f5f5dc&bisque&#ffe4c4&black&#000000&blanchedalmond&#ffebcd&blue&#0000ff&blueviolet&#8a2be2&brown&#a52a2a&burlywood&#deb887&cadetblue&#5f9ea0&chartreuse&#7fff00&chocolate&#d2691e&coral&#ff7f50&cornflowerblue&#6495ed&cornsilk&#fff8dc&crimson&#dc143c&cyan&#00ffff&darkblue&#00008b&darkcyan&#008b8b&darkgoldenrod&#b8860b&darkgray&#a9a9a9&darkgreen&#006400&darkkhaki&#bdb76b&darkmaran.genta&#8b008b&darkolivegreen&#556b2f&darkorange&#ff8c00&darkorchid&#9932cc&darkred&#8b0000&darksalmon&#e9967a&darkseagreen&#8fbc8f&darkslateblue&#483d8b&darkslategray&#2f4f4f&darkturquoise&#00ced1&darkviolet&#9400d3&deeppink&#ff1493&deepskyblue&#00bfff&dimgray&#696969&dodgerblue&#1e90ff&firebrick&#b22222&floralwhite&#fffaf0&forestgreen&#228b22&fuchsia&#ff00ff&gainsboro&#dcdcdc&ghostwhite&#f8f8ff&gold&#ffd700&goldenrod&#daa520&gray&#808080&grey&#808080&green&#008000&greenyellow&#adff2f&honeydew&#f0fff0&hotpink&#ff69b4&indianred&#cd5c5c&indigo&#4b0082&ivory&#fffff0&khaki&#f0e68c&lavender&#e6e6fa&lavenderblush&#fff0f5&lawngreen&#7cfc00&lemonchiffon&#fffacd&lightblue&#add8e6&lightcoral&#f08080&lightcyan&#e0ffff&lightgoldenrodyellow&#fafad2&lightgray&#d3d3d3&lightgreen&#90ee90&lightpink&#ffb6c1&lightsalmon&#ffa07a&lightseagreen&#20b2aa&lightskyblue&#87cefa&lightslategray&#778899&lightsteelblue&#b0c4de&lightyellow&#ffffe0&lime&#00ff00&limegreen&#32cd32&linen&#faf0e6&maran.genta&#ff00ff&maroon&#800000&mediumaquamarine&#66cdaa&mediumblue&#0000cd&mediumorchid&#ba55d3&mediumpurple&#9370db&mediumseagreen&#3cb371&mediumslateblue&#7b68ee&mediumspringgreen&#00fa9a&mediumturquoise&#48d1cc&mediumvioletred&#c71585&midnightblue&#191970&mintcream&#f5fffa&mistyrose&#ffe4e1&moccasin&#ffe4b5&navajowhite&#ffdead&navy&#000080&oldlace&#fdf5e6&olive&#808000&olivedrab&#6b8e23&orange&#ffa500&orangered&#ff4500&orchid&#da70d6&palegoldenrod&#eee8aa&palegreen&#98fb98&paleturquoise&#afeeee&palevioletred&#db7093&papayawhip&#ffefd5&peachpuff&#ffdab9&peru&#cd853f&pink&#ffc0cb&plum&#dda0dd&powderblue&#b0e0e6&purple&#800080&rebeccapurple&#663399&red&#ff0000&rosybrown&#bc8f8f&royalblue&#4169e1&saddlebrown&#8b4513&salmon&#fa8072&sandybrown&#f4a460&seagreen&#2e8b57&seashell&#fff5ee&sienna&#a0522d&silver&#c0c0c0&skyblue&#87ceeb&slateblue&#6a5acd&slategray&#708090&snow&#fffafa&springgreen&#00ff7f&steelblue&#4682b4&tan&#d2b48c&teal&#008080&thistle&#d8bfd8&tomato&#ff6347&turquoise&#40e0d0&violet&#ee82ee&wheat&#f5deb3&white&#ffffff&whitesmoke&#f5f5f5&yellow&#ffff00&yellowgreen&#9acd32"
         .split('&').forEach((a, i) => j += i % 2 ? `"${a}"${i == 283 ? '' : ','}` : `"${a}":`) ?? JSON.parse(`{${j}}`))(''), {
     dhk: { value(e, f = 40) { let $ = parseInt((e = e.replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
@@ -1312,9 +1319,9 @@ assign(color, {
 const { body } = window
 {
     let t = 'I love you so much please don\'t disable me 🥺'
-    document.addEventListener('load',{
+    document.addEventListener('DOMContentLoaded',{
         async[t](){
-            document.removeEventListener('load',this[t])
+            document.removeEventListener('DOMContentLoaded',this[t])
             if (!Elem.USE_CUTESY_FONT || typeof FontFace==='undefined') return //How could you :(
            try {
             //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
