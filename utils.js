@@ -697,7 +697,7 @@ class Elem {
         }))).then(() => {
             callback?.(...src)
             console.groupCollapsed('Bulk load:')
-            for (let sr of src) Elem.success(`${sr} loaded successfully`)
+            for (let sr of src) Elem.success(`${new URL(sr,location)} loaded successfully`)
             console.groupEnd()
         })
     }
@@ -711,11 +711,11 @@ class Elem {
             }
             else {
                 callback?.(src)
-                Elem.success(`Resource Pre-loaded: ${src}`)
+                Elem.success(`Resource Pre-loaded: ${new URL(src,location)}`)
                 Elem.loaded.add(src)
             }
         })
-        Elem.info(`Preloading Resource: ${src}`)
+        Elem.info(`Preloading Resource: ${new URL(src,location)}`)
         return src
     }
     static youtube = class extends this {
