@@ -40,7 +40,7 @@ assign(assign, {
     },
     invoke(target, methods) {
         let out = []
-        for (let key of Object.keys(methods)) out.push(target[key].apply(target, methods[key] || []))
+        for (let key of Object.keys(methods)) out.push(target[key].call(target, ...(methods[key] || [])))
         return out
     },
     get '??='() { return assign.nullish },
@@ -113,7 +113,7 @@ const utilString = {
         return out
     },
     clip: (string, len) => string.slice(len, string.length - len),
-    reverse: string => [...string].reverse().join(''),
+    reverse: string => Array.from(string).reverse().join(''),
     upper: string => string.at(0).toUpperCase() + string.slice(1),
 }
 
@@ -268,10 +268,10 @@ const Vector2 = class v {
         return new v(x.average(), y.average())
     }
     static difference(vector, vector2) {
-        if (!Array.isArray(vector)) vector = [...vector]
-        if (!Array.isArray(vector2)) vector2 = [...vector2]
-        let out = [...vector], { length } = out
-        for (let i = 0; i < length; ++i) out[i] = Math.abs(vector2[i] - vector[i])
+        if (!Array.isArray(vector)) vector = Array.from(vector)
+        if (!Array.isArray(vector2)) vector2 = Array.from(vector2)
+        let out = Array.from(vector), { length } = out
+        for (let i = 0; i < length; ++i) out[i] = utilMath.diff(vector2[i], vector[i])
         return new v(...out)
     }
     static combine(...vectors) {
@@ -305,7 +305,7 @@ const Vector2 = class v {
     static min = (vector, vector2) => new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
     static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
     set(...numbers) {
-        if (numbers.length === 1) numbers = [...numbers[0]]
+        if (numbers.length === 1) numbers = Array.from(numbers[0])
         for (let i = 0, { length } = numbers; i < length; ++i) {
             let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
             if (Object.keys(this)[i] in this)
@@ -313,7 +313,7 @@ const Vector2 = class v {
         }
     }
     pow(vector) {
-        if (!Array.isArray(vector)) vector = [...vector]
+        if (!Array.isArray(vector)) vector = Array.from(vector)
         for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
         this.set(vector)
         return this
@@ -321,7 +321,7 @@ const Vector2 = class v {
     add(vector) {
         if (!Array.isArray(vector)) {
             if (1 in arguments) vector = [vector, arguments[1]]
-            vector = [...vector]
+            vector = Array.from(vector)
         }
         for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
         this.set(vector)
@@ -330,7 +330,7 @@ const Vector2 = class v {
     subtract(vector) {
         if (!Array.isArray(vector)) {
             if (1 in arguments) vector = [vector, arguments[1]]
-            vector = [...vector]
+            vector = Array.from(vector)
         }
         for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
         this.set(vector)
@@ -339,7 +339,7 @@ const Vector2 = class v {
     multiply(vector) {
         if (!Array.isArray(vector)) {
             if (1 in arguments) vector = [vector, arguments[1]]
-            vector = [...vector]
+            vector = Array.from(vector)
         }
         for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
         this.set(vector)
@@ -348,7 +348,7 @@ const Vector2 = class v {
     divide(vector) {
         if (!Array.isArray(vector)) {
             if (1 in arguments) vector = [vector, arguments[1]]
-            vector = [...vector]
+            vector = Array.from(vector)
         }
         for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
         this.set(vector)
@@ -1003,7 +1003,7 @@ class Elem {
         return this.children.length
     }
     get children() {
-        return Object.freeze([...this.content.children].filter(o => !(o.tagName.match(Elem.ILLEGAL_TAGNAMES))).map(o => o.content))
+        return Array.from(this.content.children,o=>o.content).filter(o => o&&!(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
     }
     set children(children) {
         this.killChildren()
@@ -1166,7 +1166,7 @@ class Elem {
     }
     cleanup() {
         assign.invoke(this, {
-            noevent: [...this.eventNames.keys()],
+            noevent: this.eventNames.keys(),
             removeIntervals: 0,
             removeTimeouts: 0,
         })
