@@ -767,9 +767,9 @@ class Elem {
     static listeners = new Map
     static warn = message => this.logLevels.warn && console.trace('%cWarn %c'+message,"font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;","font-family:'Choco cooky',monospace")
     static error = message => this.logLevels.error && console.trace('%cError %c'+message,"font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;","font-family:'Choco cooky',monospace")
-    static info = message => this.logLevels.info && console.info('%cInfo %c'+message,"font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;","font-family:'Choco cooky',monospace")
+    static info = message => this.logLevels.info && console.trace('%cInfo %c'+message,"font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;","font-family:'Choco cooky',monospace")
     static success = message => this.logLevels.success && console.trace('%cSucceed %c '+message,'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;'+"font-family: 'Choco cooky',monospace;","font-family: 'Choco cooky',monospace;")
-    static debug = message => this.logLevels.debug && console.debug('%cDebug %c'+message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;","font-size: 10;font-family: 'Choco cooky',monospace;")
+    static debug = message => this.logLevels.debug && console.trace('%cDebug %c'+message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;","font-size: 10;font-family: 'Choco cooky',monospace;")
     static elements = new WeakSet
     static logLevels = {
         debug: false,
