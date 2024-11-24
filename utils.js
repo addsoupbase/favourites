@@ -818,9 +818,9 @@ class Elem {
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
            out['document has title'] = 'red'
         if (document.compatMode === 'CSS1Compat') out['standards mode']='lightgreen'
-   console.log('Seo check:')
+   console.debug('Seo check:')
    for (let [key,value] of Object.entries(out)) {
-    console.log('%c'+key,'font-size:10px;color:'+value)
+    console.debug('%c'+key,'font-size:10px;color:'+value)
    }
     }
     clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
