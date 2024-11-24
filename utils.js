@@ -765,7 +765,7 @@ class Elem {
         }
     }
     static listeners = new Map
-    static warn = message => this.logLevels.warn && console.trace('%cWarn %c'+message,"font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;","font-family:'Choco cooky',monospace")
+    static warn = message => this.logLevels.warn && console.trace('%cWarning %c'+message,"font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;","font-family:'Choco cooky',monospace")
     static error = message => this.logLevels.error && console.trace('%cError %c'+message,"font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;","font-family:'Choco cooky',monospace")
     static info = message => this.logLevels.info && console.trace('%cInfo %c'+message,"font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;","font-family:'Choco cooky',monospace")
     static success = message => this.logLevels.success && console.trace('%cSucceed %c '+message,'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;'+"font-family: 'Choco cooky',monospace;","font-family: 'Choco cooky',monospace;")
@@ -1319,8 +1319,8 @@ window.addEventListener('load',async function x (){
      let n = new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
      document.fonts.add(n)
      await n.load()
-     console.log('%cCutesy Font Loaded hehe',"font-family: 'Choco cooky';color:magenta;")
+     Elem.success('Cutesy font loaded hehe')
    } catch {
-        console.log('Cutesy font could not be loaded 😞')
+     Elem.error('Cutesy font could not be loaded 😞')
    }})
    //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
