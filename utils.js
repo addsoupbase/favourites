@@ -773,10 +773,10 @@ class Elem {
     static elements = new WeakSet
     static logLevels = {
         debug: false,
-        warn: false,
-        error: false,
+        warn: true,
+        error: true,
         info: false,
-        success: false,
+        success: true,
     }
     static select(self) {
         let out = new Elem({ self })
@@ -1323,4 +1323,4 @@ window.addEventListener('load',async function x (){
    } catch {
         console.log('Cutesy font could not be loaded 😞')
    }})
-   Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
+   //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
