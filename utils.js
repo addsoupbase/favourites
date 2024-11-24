@@ -832,7 +832,7 @@ class Elem {
         return out
     }
     static {
-        let out = { 'standards mode': 'red', 'document has <title>': 'lightgreen' };
+        let out = { 'standards mode': 'red' };
         'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
         let body = window.body = this.select(document.body)
             // body.content.setAttribute('id', 'body')
@@ -853,8 +853,9 @@ class Elem {
             if (o.getAttribute('name') === 'og:title') out['og:title'] = o
             if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
         }
-        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
+        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title'))
             out['document has <title>'] = 'red'
+        else out['document has <title>'] = document.querySelector('title')
         if (document.compatMode === 'CSS1Compat') out['standards mode'] = 'lightgreen'
         
         console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
