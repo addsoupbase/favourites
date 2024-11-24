@@ -40,12 +40,12 @@ assign(assign, {
     },
     invoke(target, methods) {
         let out = []
-        for (let key of Object.keys(methods)) out.push(target[key].apply(target, methods[key]||[]))
+        for (let key of Object.keys(methods)) out.push(target[key].apply(target, methods[key] || []))
         return out
     },
-    get'??='(){return assign.nullish},
-    get'&&='(){return assign.and},
-    get'||='(){return assign.not}
+    get '??='() { return assign.nullish },
+    get '&&='() { return assign.and },
+    get '||='() { return assign.not }
 })
 const ran = {
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
@@ -72,7 +72,7 @@ const ran = {
     }
 }
 const SUPPORTS = {
-    attributeStyleMap:0 // 'StylePropertyMap'in globalThis
+    attributeStyleMap: 0 // 'StylePropertyMap'in globalThis
 }
 ran.gen.previouslygenerated = new Set
 const utilMath = {
@@ -87,11 +87,11 @@ const utilMath = {
         }
         return true
     },
-    toRad:deg=>deg*Math.PI/180,
-    toDeg:rad=>rad*180/Math.PI,
+    toRad: deg => deg * Math.PI / 180,
+    toDeg: rad => rad * 180 / Math.PI,
     diff: (a, b) => Math.abs(a - b),
     clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
-    get cycle(){return utilMath.Cycle},
+    get cycle() { return utilMath.Cycle },
     Cycle: function (...items) {
         return Object.defineProperty(function* (x = 0) {
             for (; ;)yield items[x++ % items.length]
@@ -118,7 +118,7 @@ const utilString = {
 }
 
 {
-  
+
     let map = new Map([
         ["1", "st"],
         ["2", "nd"],
@@ -148,7 +148,7 @@ const utilString = {
 }*/
 utilString.ALPHABET = utilString.alphabet.toUpperCase()
 const utilArray = {
-    assemble(arrayLike,...sequence) {
+    assemble(arrayLike, ...sequence) {
         let out = []
         for (let digit of sequence) out.push(arrayLike.at(digit))
         return out
@@ -180,13 +180,13 @@ const utilArray = {
 }
 utilMath.average = (...nums) => utilArray.avg(nums)
 
-{let z=(...a)=>utilArray.assemble(utilString.alphabet,...a).join('');utilString.badwords=RegExp([z(13,8,6,6,4,17),z(1,8,19,2,7),z(5,20,2,10),z(18,7,8,19),z(2,14,2,10),z(5,0,6),z(17,4,19,0,17,3),z(3,8,2,10)].join('|'))}
-const [local,session] = (()=>{
-    let StorageManager=managee=> {
+{ let z = (...a) => utilArray.assemble(utilString.alphabet, ...a).join(''); utilString.badwords = RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|')) }
+const [local, session] = (() => {
+    let StorageManager = managee => {
         if (managee instanceof Storage) return new Proxy(managee, {
             get: (target, prop) =>
                 prop === '__all__'
-                    ? Object.fromEntries(Array.from({length:target.length},(_, i) => [target.key(i), target.getItem(target.key(i))]))
+                    ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))]))
                     : target.getItem(prop),
             set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value) : 1),
             deleteProperty: (target, prop) => !(prop === '__all__' ? target.clear() : target.removeItem(prop)),
@@ -194,7 +194,7 @@ const [local,session] = (()=>{
         })
         throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
-    return[StorageManager(localStorage),StorageManager(sessionStorage)]
+    return [StorageManager(localStorage), StorageManager(sessionStorage)]
 })()
 async function getDataUrl(url) {
     let data
@@ -239,7 +239,7 @@ const Vector = class v {
         this.x = x
     }
     [Symbol.toPrimitive](type) {
-        return type == 'number' ? this.x : ''+this.x
+        return type == 'number' ? this.x : '' + this.x
     }
 }
 const Vector2 = class v {
@@ -308,7 +308,7 @@ const Vector2 = class v {
         if (numbers.length === 1) numbers = [...numbers[0]]
         for (let i = 0, { length } = numbers; i < length; ++i) {
             let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-            if (Object.keys(this)[i] in this) 
+            if (Object.keys(this)[i] in this)
                 this[Object.keys(this)[i]] = n
         }
     }
@@ -394,7 +394,7 @@ const Vector2 = class v {
         return [this.x, this.y]//Object.values(this)
     }
     toString() {
-        return '('+this.value.join(', ')+')'
+        return '(' + this.value.join(', ') + ')'
     }
     get 0() {
         return this.x
@@ -440,9 +440,9 @@ class Matrix {
     elements = []
     constructor(length, height) {
         assign(this, { length, height })
-        for (let i = height + 1; --i;) 
+        for (let i = height + 1; --i;)
             this.elements.push(Array.from({ length }, () => null))
-        
+
     }
     get(x, y) {
         return this.elements.at(y).at(x)
@@ -462,13 +462,13 @@ class Matrix {
             , height = this.height * cellSize
         const canvas = new OffscreenCanvas(length, height)
             , ctx = canvas.getContext('2d')
-            assign(ctx, {
-                fillStyle: color.grey,
-                textAlign: 'center',
-                textBaseline: 'middle',
-                font: `${cellSize / 10}px monospace`,
-            })
-            ctx.fillRect(0, 0, length, height)
+        assign(ctx, {
+            fillStyle: color.grey,
+            textAlign: 'center',
+            textBaseline: 'middle',
+            font: `${cellSize / 10}px monospace`,
+        })
+        ctx.fillRect(0, 0, length, height)
         function matchColor(value) {
             switch (typeof value) {
                 case 'string': return color.red
@@ -565,12 +565,12 @@ const Color = class z {
     }
 }
 class Elem {
-    static USE_CUTESY_FONT=true
-    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE)$/
+    static USE_CUTESY_FONT = true
+    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML)$/
     static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
     static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
-        return [].map.call(document.querySelectorAll('*'),o => o.content).filter(o => o instanceof Elem)
+        return [].map.call(document.querySelectorAll('*'), o => o.content).filter(o => o instanceof Elem)
     }
     raw() {
         return this.content.getHTML({ serializableShadowRoots: true })
@@ -630,7 +630,7 @@ class Elem {
             if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
             else if (propName == 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
             else {
-                if (SUPPORTS.attributeStyleMap) try{
+                if (SUPPORTS.attributeStyleMap) try {
                     //this one is slower
                     let n = propValue
                     if (typeof n == 'string') n = CSSStyleValue.parse(propName, n)
@@ -681,25 +681,25 @@ class Elem {
     }
     )
     static bulk(callback, ...src) {
-        return Promise.all(src.map(o=>fetch(o).then(response => {
+        return Promise.all(src.map(o => fetch(o).then(response => {
             if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
             const contentType = response.headers.get('Content-Type');
-            if (contentType && contentType.includes('application/json')) 
-              return response.json()
-             else if (contentType && contentType.includes('text/html')) 
-              return response.text()
-            else if (contentType && contentType.includes('application/xml')) 
-              return response.text()
-             else if (contentType && contentType.includes('application/octet-stream')) 
-              return response.blob()
-            else 
-             return response.text()
-    }))).then(()=>callback(...src))
+            if (contentType && contentType.includes('application/json'))
+                return response.json()
+            else if (contentType && contentType.includes('text/html'))
+                return response.text()
+            else if (contentType && contentType.includes('application/xml'))
+                return response.text()
+            else if (contentType && contentType.includes('application/octet-stream'))
+                return response.blob()
+            else
+                return response.text()
+        }))).then(() => callback(...src))
     }
     static preload(src, callback) {
         if (Elem.loaded.has(src)) return src
         if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
-        fetch(src).then((res)=>{
+        fetch(src).then((res) => {
             if (!res.ok) {
                 Elem.error(`Resource error: ${res.status}`)
                 Elem.failed.add(src)
@@ -709,7 +709,7 @@ class Elem {
                 Elem.success(`Resource Pre-loaded: ${src}`)
                 Elem.loaded.add(src)
             }
-    })
+        })
         Elem.info(`Preloading Resource: ${src}`)
         return src
     }
@@ -745,8 +745,8 @@ class Elem {
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
                 this.prototype[key] = ((侗, 俉俊) => {
-                    return function(...अ){if(this instanceof 侗)return 우정.apply(this,अ);throw 俉俊}
-                })(Elem,TypeError('Illegal invocation'))
+                    return function (...अ) { if (this instanceof 侗) return 우정.apply(this, अ); throw 俉俊 }
+                })(Elem, TypeError('Illegal invocation'))
             }
         }
         Object.getOwnPropertyNames(this.prototype).forEach(k)
@@ -765,12 +765,44 @@ class Elem {
             })
         }
     }
+    static animateOnRequestAnimationFrame = new Set
+    static requestAnimationFrame = (() => {
+        let frame = 0
+        let r =   
+        window.requestAnimationFrame       ?? 
+        window.webkitRequestAnimationFrame ?? 
+        window.mozRequestAnimationFrame    ?? 
+        window.oRequestAnimationFrame      ?? 
+        window.msRequestAnimationFrame     ?? 
+        (callback=>setTimeout(callback,12))
+        return function n() {
+            if (!Elem.animateOnRequestAnimationFrame.size) {
+                return
+            }
+            r(n)
+            ++frame
+            for (let toAnimate of Elem.animateOnRequestAnimationFrame) {
+                try {
+                    toAnimate.update(frame)
+                }
+                catch {
+                    Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
+                    Elem.animateOnRequestAnimationFrame.delete(toAnimate)
+                }
+            }
+        }
+    })()
     static listeners = new Map
-    static warn = message => this.logLevels.warn && console.trace('%cWarning %c'+message,"font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;","font-family:'Choco cooky',monospace")
-    static error = message => this.logLevels.error && console.trace('%cError %c'+message,"font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;","font-family:'Choco cooky',monospace")
-    static info = message => this.logLevels.info && console.trace('%cInfo %c'+message,"font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;","font-family:'Choco cooky',monospace")
-    static success = message => this.logLevels.success && console.trace('%cSucceed %c '+message,'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;'+"font-family: 'Choco cooky',monospace;","font-family: 'Choco cooky',monospace;")
-    static debug = message => this.logLevels.debug && console.trace('%cDebug %c'+message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;","font-size: 10;font-family: 'Choco cooky',monospace;")
+    static warn = message => this.logLevels.warn && 
+    console.trace('%cWarning %c' + message, "font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static error = message => this.logLevels.error && 
+    console.trace('%cError %c' + message, "font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static info = message => this.logLevels.info && 
+    console.trace('%cInfo %c' + message, "font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static success = message => this.logLevels.success && 
+    console.trace('%cSuccess %c ' + message, 'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+    static debug = message => this.logLevels.debug && 
+    console.trace('%cDebug %c' + message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
     static elements = new WeakSet
     static logLevels = {
         error: true,
@@ -795,33 +827,54 @@ class Elem {
         return out
     }
     static {
-        let out = {'standards mode':'red','document has title':'lightgreen'};
-        'application-name og:description color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o=>out[o]='red')
+        let out = { 'standards mode': 'red', 'document has title': 'lightgreen' };
+        'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
         let body = window.body = this.select(document.body)
             // body.content.setAttribute('id', 'body')
             //body.id = 'body'
-            , head = [...document.head.children]
-           for (let o of head) {
-                let butes = o.attributes
-                if (butes.charset) out.charset = 'lightgreen'
-                if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description']='lightgreen'
-                if (o.getAttribute('property') === 'og:description') out['og:description']='lightgreen'
-                if (o.getAttribute('name') === 'theme-color'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
-                if (o.getAttribute('name') === 'application-name'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
-                if (o.getAttribute('name') === 'googlebot'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
-                if (o.getAttribute('name') === 'color-scheme'&& o.getAttribute('content')?.replaceAll(' ','')) out['theme-color']='lightgreen'
-                if (o.getAttribute('property') === 'og:image') out['og:image'] = 'lightgreen'
-                if (o.getAttribute('property') === 'og:url') out['og:url'] = 'lightgreen'
-                if (o.getAttribute('name') === 'og:title') out['og:title'] = 'lightgreen'
-                if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = 'lightgreen'
-            }
+            , head = document.head.children
+        for (let o of head) {
+            let butes = o.attributes
+            if (butes.charset) out.charset = 'lightgreen'
+            if (o.getAttribute('rel') === 'icon') out['favicon'] = 'lightgreen'
+            if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = 'lightgreen'
+            if (o.getAttribute('property') === 'og:description') out['og:description'] = 'lightgreen'
+            if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
+            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
+            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
+            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = 'lightgreen'
+            if (o.getAttribute('property') === 'og:image') out['og:image'] = 'lightgreen'
+            if (o.getAttribute('property') === 'og:url') out['og:url'] = 'lightgreen'
+            if (o.getAttribute('name') === 'og:title') out['og:title'] = 'lightgreen'
+            if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = 'lightgreen'
+        }
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', ''))
-           out['document has title'] = 'red'
-        if (document.compatMode === 'CSS1Compat') out['standards mode']='lightgreen'
-   console.debug('Seo check:')
-   for (let [key,value] of Object.entries(out)) {
-    console.debug('%c'+key,'font-size:10px;color:'+value)
-   }
+            out['document has title'] = 'red'
+        if (document.compatMode === 'CSS1Compat') out['standards mode'] = 'lightgreen'
+        
+        console.group('%cQuick SEO Check:', 'font-family:\'Choco cooky\',monospace')
+        for (let [key, value] of Object.entries(out)) {
+            console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:' + value)
+        }
+        console.groupEnd()
+        /* for (let script of document.scripts) {
+             script.addEventListener('load',function n(a){
+                 this.removeEventListener('load',n)
+                 Elem.success(this.src + ' finished executing')
+             })
+             script.addEventListener('error',function n(a){
+                 this.removeEventListener('error',n)
+                 Elem.error('Something went wrong when trying to load ' + this.src)
+             })
+         }*/
+    }
+    setOnRequestAnimationFrame(updateFunc) {
+        this.update??=updateFunc
+        Elem.animateOnRequestAnimationFrame.delete(this)
+        Elem.animateOnRequestAnimationFrame.add(this)
+        if (Elem.animateOnRequestAnimationFrame.size === 1) {
+            Elem.requestAnimationFrame()
+        }
     }
     clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
     timeouts = new Map
@@ -837,11 +890,11 @@ class Elem {
     })
     constructor(opts = {}) {
         //Main init
-        if (!('tag'in opts) && !('self'in opts) && !('shadow'in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-        if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES))throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`,"font-family:'Choco cooky',monospace")
+        if (!('tag' in opts) && !('self' in opts) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
+        if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
+        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
 
-            if (opts.self) {
+        if (opts.self) {
             this.content = opts.self
             if (this.content === document.body) opts.id = 'body'
             else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
@@ -989,13 +1042,13 @@ class Elem {
                 callback = options.callback;
                 delete options.callback;
             }*/
-           assign['??='](timing, {
+        assign['??='](timing, {
             duration: 1000,
             iterations: 1,
             easing: 'ease',
             direction: 'normal',
             fill: 'forwards'
-           })
+        })
         // timing.composition
         try {
             // Create KeyframeEffect with the provided options
@@ -1028,28 +1081,28 @@ class Elem {
     anim(target, callback) {
         let keep = false
         if ('keep class' in target) keep = delete target['keep class']
-       // switch (target.class) {
-       //     default: 
-            this.add(target);
-         //    break
-            /*    case 'fade out': this.content.animate([
-                    {opacity: 1, easing: 'ease-in'},
-                    {opacity:0, easing: 'ease-in'},
+        // switch (target.class) {
+        //     default: 
+        this.add(target);
+        //    break
+        /*    case 'fade out': this.content.animate([
+                {opacity: 1, easing: 'ease-in'},
+                {opacity:0, easing: 'ease-in'},
 
-                ],500); break;
-                case 'fade in': this.content.animate([
-                    {opacity: 0, easing: 'ease-in'},
-                    {opacity: 1, easing: 'ease-in'},
-                ],500); break;*/
-      //  }
+            ],500); break;
+            case 'fade in': this.content.animate([
+                {opacity: 0, easing: 'ease-in'},
+                {opacity: 1, easing: 'ease-in'},
+            ],500); break;*/
+        //  }
         this.addevent(['animationend', () => {
             this.noevent('animationend'); callback?.call?.(this)
             //switch (target.class) {
             //    default: 
-                keep || this.removeClass(target.class); 
-                //break
-                //    case 'fade out': alert(134);
-           // }
+            keep || this.removeClass(target.class);
+            //break
+            //    case 'fade out': alert(134);
+            // }
         }])
         return this
     }
@@ -1060,7 +1113,7 @@ class Elem {
     addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
-            if (!event) [eventName,event] = eventName
+            if (!event) [eventName, event] = eventName
             Elem.listeners.set(this.id + ':' + eventName, event)
             if (!this.eventNames.has(eventName)) {
                 let eventfunc = (...e) => {
@@ -1129,13 +1182,14 @@ class Elem {
             frames: { opacity: 0 }, timing: { duration: 300 },
         }, () => {
             callback?.call?.(this)
-            this.styleMe({ display: 'none' })
+            this.hide()
         })
     }
     // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     async fadeIn(callback) {
-        this.styleMe({ display: '' })
-        this.styleMe({ opacity: 0 }) ??
+        //his.styleMe({ display: '' })
+        this.styleMe({ opacity: 0 }) 
+        this.show()
             this.transition({
                 frames: { opacity: 1 }, timing: { duration: 300 },
             }, () => {
@@ -1148,9 +1202,9 @@ class Elem {
         callback.paused = false
         let mult
         if (typeof interval == 'object') {
-            if ('seconds'in interval) mult = 1_000 * interval.seconds
-            else if ('minutes'in interval) mult = 60_000 * interval.minutes
-            else if ('hours'in interval) mult = 3_600_000 * interval.hours
+            if ('seconds' in interval) mult = 1_000 * interval.seconds
+            else if ('minutes' in interval) mult = 60_000 * interval.minutes
+            else if ('hours' in interval) mult = 3_600_000 * interval.hours
         } else mult = interval
         let id = setTimeout(() => {
             callback.paused || this.timeouts.get(id).call(this)
@@ -1204,23 +1258,23 @@ class Elem {
   }*/
 }
 {
-let ll=3,
-map = new Map([
-    [0, ()=>Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=false)],
-    [1, (l=map.get(0)())=>
-            Elem.logLevels.error = true],
-    [2, ()=>Elem.logLevels.warn = map.get(1)()],
-    [3, ()=>Elem.logLevels.success = map.get(2)()],
-    [4, ()=>Elem.logLevels.info = map.get(3)()],
-    [5, ()=>Elem.logLevels.debug = map.get(4)()],
-])
-    Object.defineProperty(Elem,'loglevel', {
-        get(){
+    let ll = 3,
+        map = new Map([
+            [0, () => Object.keys(Elem.logLevels).forEach(o => Elem.logLevels[o] = false)],
+            [1, (l = map.get(0)()) =>
+                Elem.logLevels.error = true],
+            [2, () => Elem.logLevels.warn = map.get(1)()],
+            [3, () => Elem.logLevels.success = map.get(2)()],
+            [4, () => Elem.logLevels.info = map.get(3)()],
+            [5, () => Elem.logLevels.debug = map.get(4)()],
+        ])
+    Object.defineProperty(Elem, 'loglevel', {
+        get() {
             return ll
         },
         set(val) {
             if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
-            ll=val
+            ll = val
             return map.get(+ll)()
         }
     })
@@ -1326,23 +1380,23 @@ function remix(oldFunc, { before, after } = {}) {
     if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
     return assign(remix, oldFunc)
 }
-const color = (()=>{
-    let n = new OffscreenCanvas(0,0).getContext('2d')
+const color = (() => {
+    let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
-        dhk: { value(e, f = 40) { let $ = parseInt((e = (''+e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
+        dhk: { value(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
         choose: { value: () => ran.choose(...Object.values(color)) },
         log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
-        opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + (''+f).padStart(0,2) + (''+$).padStart(0,2) + (''+a).padStart(0,2) } }
-    }),{
-        set(t,p,v) {
-            return Reflect.set(t,p,v)
+        opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
+    }), {
+        set(t, p, v) {
+            return Reflect.set(t, p, v)
         },
-        get(t,prop) {
-            if (CSS.supports('color',prop)) {
-                n.fillStyle=prop
+        get(t, prop) {
+            if (CSS.supports('color', prop)) {
+                n.fillStyle = prop
                 return n.fillStyle
             }
-            else if (prop in t) return Reflect.get(t,prop)
+            else if (prop in t) return Reflect.get(t, prop)
             throw TypeError('Unsupported color: ' + prop)
         }
     })
@@ -1353,18 +1407,20 @@ assign(color, {
 const { body } = window
 {
     let t = 'I love you so much please don\'t disable me 🥺'
-    document.addEventListener('DOMContentLoaded',{
-        async[t](){
-            document.removeEventListener('DOMContentLoaded',this[t])
-            if (!Elem.USE_CUTESY_FONT || typeof FontFace==='undefined') return //How could you :(
-           try {
-            //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-             let n = new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
-             document.fonts.add(n)
-             await n.load()
-             Elem.success('Cutesy font loaded hehe')
-           } catch {
-             Elem.error('Cutesy font could not be loaded 😞')
-           }}}[t])
+    document.addEventListener('DOMContentLoaded', {
+        async[t]() {
+            document.removeEventListener('DOMContentLoaded', this[t])
+            if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
+            try {
+                //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
+                let n = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
+                document.fonts.add(n)
+                await n.load()
+                Elem.success('Cutesy font loaded hehe')
+            } catch {
+                Elem.error('Cutesy font could not be loaded 😞')
+            }
+        }
+    }[t])
 }
-   //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
+//Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
