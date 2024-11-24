@@ -638,7 +638,10 @@ class Elem {
                 } catch {
                     this.content.style.setProperty(propName, propValue)
                 }
-                else this.content.style.setProperty(propName, propValue)
+                else 
+                   //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val};`).join('')
+                   this.content.style.setProperty(propName, propValue)
+                
             }
             // this.content.style[propName] = propValue
             //this.content.style.setProperty(propName, propValue)
@@ -1418,7 +1421,7 @@ const color = (() => {
     let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
         dhk: { value(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
-        choose: { value: () => ran.choose(...Object.values(color)) },
+        choose: { value: () => '#'+ran.frange(0,16777216).toString(16).padStart(6,0) },
         log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
         opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
     }), {
