@@ -1,11 +1,7 @@
 import ascii from './ascii.js'
 Elem.$('progress').kill()
 let あ = Elem, r = color
-あ.log()
-
-
 const { sin, cos } = Math;
-
 new あ({
     parent: body,
     start() {
@@ -354,6 +350,17 @@ new あ({
 
             ]
         }),
+        new あ({
+            tag: 'div', class: ['holder'], style: 'background-color:#2b731e', children: [
+                new あ({
+                    tag: 'div', style: 'width:70%;', children: [
+                        new あ({ tag: 'p', style: 'color: black', text: 'Font' }),
+                      $({tag:'h1',styles:{'font-family':'Choco cooky',},text:'Choco Cooky'})
+                    ]
+                }),
+
+            ]
+        }),
         /* new あ({
              tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
                  new あ({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
@@ -520,7 +527,7 @@ const loop = function () {
                 'text-align': 'center', /* 'max-width':'80px',*/              opacity: 0,
             }, children: [
                 new Elem({
-                    tag: 'p', text: ran.choose(...ascii), styles: {
+                    tag: 'pre', text: ran.choose(...ascii), styles: {
                         'font-family': 'Choco',
                         'text-rendering':'optimizespeed',
                         'font-size': '10px',

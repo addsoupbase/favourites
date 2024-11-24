@@ -1177,6 +1177,28 @@ class Elem {
     hide() { (this.toggle('hidden', true), this) }
     show() { (this.toggle('hidden', false), this) }
     toggle($, force) { this.content.classList.toggle($, force) }
+    conceal(){
+        this.styleMe({visibility:'hidden'})
+    }
+    reveal(){
+        this.styleMe({visibility:'visible'})
+    }
+    getModifiedStyleProperties() {
+        let out = {}
+        for (let i = 0; i in this.content.style; ++i) {
+            out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
+        }
+        return out
+    }
+    get visibilityStatus() {
+        return {
+            visibility:this.style.visibility,
+            opacity: this.style.opacity,
+            display: this.style.display,
+            hidden: this.content.classList.contains('hidden'),
+            zIndex: this.style.zIndex
+        }
+    }
     async fadeOut(callback) {
         this.transition({
             frames: { opacity: 0 }, timing: { duration: 300 },
