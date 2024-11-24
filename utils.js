@@ -247,8 +247,8 @@ const Vector2 = class v {
     y = 0
     constructor(x = 0, y = 0) {
         if (arguments.length == 1) {
+            y = v.y(x)
             x = v.x(x)
-            y = v.y(y)
         }
         Object.seal(this)
         this.set(x, y)
