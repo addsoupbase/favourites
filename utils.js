@@ -845,9 +845,9 @@ class Elem {
             if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
             if (o.getAttribute('property') === 'og:description') out['og:description'] = o
             if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
+            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
+            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
             if (o.getAttribute('property') === 'og:image') out['og:image'] = o
             if (o.getAttribute('property') === 'og:url') out['og:url'] = o
             if (o.getAttribute('name') === 'og:title') out['og:title'] = o
