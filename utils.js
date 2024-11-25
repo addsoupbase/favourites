@@ -1,46 +1,58 @@
 'use strict'
-// "var" indicates the code is not mine.
-
 /* Gif to webp: 
-
 gif2webp file.gif -o file.webp
-
-
- Png to webp
-
+Png to webp
 cwebp file.png -o file.webp
-
 */
 const assign = (target, props) => Object.assign(target, props)
 assign(assign, {
     nullish(target, props) {
-        for (let key of Object.keys(props))
+        let k = Object.keys(props)
+        for (let {length} = k; length--;) {
+            let key = k[length]
             if (target[key] != null) delete props[key]
+        }
         return assign(target, props)
     },
     not(target, props) {
-        for (let key of Object.keys(props))
+        let k = Object.keys(props)
+        for (let {length} = k; length--;) {
+            let key = k[length]
             if (target[key]) delete props[key]
+        }
         return assign(target, props)
     },
     and(target, props) {
-        for (let key of Object.keys(props))
+        let k = Object.keys(props)
+        for (let {length} = k; length--;) {
+            let key = k[length]
             if (!target[key]) delete props[key]
+        }
         return assign(target, props)
     },
     notin(target, props) {
-        for (let key of Object.keys(props))
+        let k = Object.keys(props)
+        for (let {length} = k; length--;) {
+            let key = k[length]
             if (key in target) delete props[key]
+        }
         return assign(target, props)
     },
     in(target, props) {
-        for (let key of Object.keys(props))
+        let k = Object.keys(props)
+        for (let {length} = k; length--;) {
+            let key = k[length]
             if (!(key in target)) delete props[key]
+        }
         return assign(target, props)
     },
     invoke(target, methods) {
-        let out = []
-        for (let key of Object.keys(methods)) out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
+        let out = [],
+        k = Object.keys(methods)
+        for (let {length} = k; length--;) {
+            let key = k[length]
+            out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
+        } 
         return out
     },
     get '??='() { return assign.nullish },
@@ -568,7 +580,7 @@ const Color = class z {
 }
 class Elem {
     static USE_CUTESY_FONT = true
-    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|BODY)$/
+    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|BODY|TITLE)$/
     static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
     static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
@@ -865,10 +877,9 @@ class Elem {
     static {
         let out = { 'standards mode': 'red' };
         'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
-        let body = window.body = this.select(document.body)
+        let body = window.body = this.select(document.body), head = document.head.children
         // body.content.setAttribute('id', 'body')
         //body.id = 'body'
-        , head = document.head.children
         this.select(document.documentElement)
         for (let o of head) {
             let butes = o.attributes
@@ -961,7 +972,10 @@ class Elem {
         // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
         if (opts.class) {
             if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
-            for (let $class of opts.class) this.content.classList.add($class)
+            for (let { length } = opts.class; length--;) {
+                let $class = opts.class[length]
+                this.content.classList.add($class)
+            }
         }
         if (opts.events)
             this.addevent(opts.events)
@@ -1236,7 +1250,11 @@ class Elem {
         o.start?.call?.(this)
     }
     killChildren() {
-        for (let o of this.children) while (this.content.contains(o?.content)) o.kill()
+        let n = this.children
+        for (let {length} = n; length--;) {
+            let o = n[length]
+            while (this.content.contains(o?.content)) o.kill()
+        } 
         return this
     }
     hide() { (this.toggle('hidden', true), this) }
@@ -1347,7 +1365,13 @@ class Elem {
 {
     let ll = 3,
         map = new Map([
-            [0, () => Object.keys(Elem.logLevels).forEach(o => Elem.logLevels[o] = false)],
+            [0, () => {
+                let k = Object.keys(Elem.logLevels)
+                for (let {length} = k; length--;) {
+                    let o = k[length]
+                    Elem.logLevels[o] = false
+                }
+            }],
             [1, (l = map.get(0)()) =>
                 Elem.logLevels.error = true],
             [2, () => Elem.logLevels.warn = map.get(1)()],
@@ -1376,8 +1400,8 @@ class SceneryElem extends Elem {
     static frame = 0
     static update() {
         this.frame++
-        let func = o => Elem.elements.has(o) ? o.#update() : this.all.delete(o)
-        this.all.forEach(func)
+        for (let o of this.all)
+        Elem.elements.has(o) ? o.#update() : this.all.delete(o)
     }
     position = new Vector2
     rotation = 0
@@ -1388,7 +1412,9 @@ class SceneryElem extends Elem {
     flip = () => this.#mirror += 180
     velocity = new Vector2
     static {
-        let func = key => {
+        let k = Object.getOwnPropertyNames(this.prototype)
+        for (let {length} = k; length--;) {
+        let key = k[length]
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
             if (typeof descriptor.value === 'function' && key !== 'constructor') {
                 let 우정 = this.prototype[key]
@@ -1397,7 +1423,6 @@ class SceneryElem extends Elem {
                 })(SceneryElem, TypeError('Illegal invocation'))
             }
         }
-        Object.getOwnPropertyNames(this.prototype).forEach(func)
     }
     constructor(opts = {}, i) {
         opts.tag ??= 'div'
@@ -1455,8 +1480,8 @@ class svg extends Elem {
         //Really confusing
     }
 }
-//if (/*local.fragment === 'constructor'*/0)var createDocumentFragment=()=>new DocumentFragment;
-//else 
+if (local.fragment === 'constructor')var createDocumentFragment=()=>new DocumentFragment
+else 
 var createDocumentFragment = document.createDocumentFragment.bind(document)
 
 function remix(oldFunc, { before, after } = {}) {
@@ -1475,7 +1500,7 @@ const color = (() => {
     let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
         dhk: { value(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
-        choose: { value: () => '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) },
+        choose: { value: () =>'#'+ran.frange(0,16777216).toString(16).padStart(6,0) },
         log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
         opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
     }), {
@@ -1519,17 +1544,12 @@ let cursed = {
         document.write(document.documentElement.outerHTML)
     },
     shuffle() {
-        // Collect all elements and their computed styles
         let elements = [...document.querySelectorAll('*')];
         let styles = elements.map(el => getComputedStyle(el));
-
-        // Shuffle elements using Fisher-Yates
         for (let i = elements.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1));
             [elements[i], elements[j]] = [elements[j], elements[i]];
         }
-
-        // Apply each element's styles to its new partner
         elements.forEach((el, index) => {
             let sourceStyles = styles[index];
             for (let property of sourceStyles) {
@@ -1539,21 +1559,8 @@ let cursed = {
     }
 
 }
-addEventListener('load', () => {
-    Array.from(document.querySelectorAll('script'), o => o.remove())
+document.addEventListener('readystatechange', () => {
+    if (!('fragment' in local)&&typeof requestIdleCallback=== 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 })
+        document.querySelectorAll('script').forEach(o => o.remove());
 })
-/*if (!('fragment' in local)) {
-    addEventListener('load', () => {
-        requestIdleCallback(async () => {
-            let data = await import('./timetest.js')
-            data = data.default
-            if (data.constr < data.factory) {
-                local.fragment = 'constructor'
-            }
-            else {
-                local.fragment = 'factory'
-            }
-        }, { timeout: 300000 })
-    })
-}*/
 //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
