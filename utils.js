@@ -40,7 +40,7 @@ assign(assign, {
     },
     invoke(target, methods) {
         let out = []
-        for (let key of Object.keys(methods)) out.push(target[key].call(target, ...(methods[key] || [])))
+        for (let key of Object.keys(methods)) out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
         return out
     },
     get '??='() { return assign.nullish },
@@ -638,10 +638,10 @@ class Elem {
                 } catch {
                     this.content.style.setProperty(propName, propValue)
                 }
-                else 
-                   //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val};`).join('')
-                   this.content.style.setProperty(propName, propValue)
-                
+                else
+                    //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val};`).join('')
+                    this.content.style.setProperty(propName, propValue)
+
             }
             // this.content.style[propName] = propValue
             //this.content.style.setProperty(propName, propValue)
@@ -700,7 +700,7 @@ class Elem {
         }))).then(() => {
             callback?.(...src)
             console.groupCollapsed('Bulk load:')
-            for (let sr of src) Elem.success(`${new URL(sr,location)} loaded successfully`)
+            for (let sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
             console.groupEnd()
         })
     }
@@ -714,11 +714,11 @@ class Elem {
             }
             else {
                 callback?.(src)
-                Elem.success(`Resource Pre-loaded: ${new URL(src,location)}`)
+                Elem.success(`Resource Pre-loaded: ${new URL(src, location)}`)
                 Elem.loaded.add(src)
             }
         })
-        Elem.info(`Preloading Resource: ${new URL(src,location)}`)
+        Elem.info(`Preloading Resource: ${new URL(src, location)}`)
         return src
     }
     static youtube = class extends this {
@@ -748,7 +748,7 @@ class Elem {
     }
     static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label stroke-width innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
     static {
-        let k = key => {
+        for (let key of Object.getOwnPropertyNames(this.prototype)) {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
             if (typeof descriptor.value == 'function' && key != 'constructor') {
                 let 우정 = this.prototype[key]
@@ -757,8 +757,8 @@ class Elem {
                 })(Elem, TypeError('Illegal invocation'))
             }
         }
-        Object.getOwnPropertyNames(this.prototype).forEach(k)
         for (let attribute of this.attributes) {
+            let a = attribute.match(/textContent|innerHTML|innerText/)
             Object.defineProperty(this.prototype, attribute, {
                 get() {
                     if (!this.content) throw TypeError('Illegal invocation')
@@ -766,8 +766,9 @@ class Elem {
                 },
                 set(val) {
                     if (!this.content) throw TypeError('Illegal invocation')
-                    if (Elem.#attrMap.has(attribute))
-                        Elem.#attrMap.get(attribute).call(this, val)
+                    if (a && this.content.childElementCount) throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
+                    // if (Elem.#attrMap.has(attribute))
+                    //  Elem.#attrMap.get(attribute).call(this, val)
                     else this.content[attribute] = val
                 }
             })
@@ -776,13 +777,13 @@ class Elem {
     static animateOnRequestAnimationFrame = new Set
     static requestAnimationFrame = (() => {
         let frame = 0
-        let r =   
-        window.requestAnimationFrame       ?? 
-        window.webkitRequestAnimationFrame ?? 
-        window.mozRequestAnimationFrame    ?? 
-        window.oRequestAnimationFrame      ?? 
-        window.msRequestAnimationFrame     ?? 
-        (callback=>setTimeout(callback,12))
+        let r =
+            window.requestAnimationFrame ??
+            window.webkitRequestAnimationFrame ??
+            window.mozRequestAnimationFrame ??
+            window.oRequestAnimationFrame ??
+            window.msRequestAnimationFrame ??
+            (callback => setTimeout(callback, 12))
         return function n() {
             if (!Elem.animateOnRequestAnimationFrame.size) {
                 return
@@ -801,16 +802,16 @@ class Elem {
         }
     })()
     static listeners = new Map
-    static warn = message => this.logLevels.warn && 
-    console.trace('%cWarning %c' + message, "font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static error = message => this.logLevels.error && 
-    console.trace('%cError %c' + message, "font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static info = message => this.logLevels.info && 
-    console.trace('%cInfo %c' + message, "font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static success = message => this.logLevels.success && 
-    console.trace('%cSuccess %c ' + message, 'color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
-    static debug = message => this.logLevels.debug && 
-    console.trace('%cDebug %c' + message, "color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+    static warn = message => this.logLevels.warn &&
+        console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static error = message => this.logLevels.error &&
+        console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static info = message => this.logLevels.info &&
+        console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+    static success = message => this.logLevels.success &&
+        console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+    static debug = message => this.logLevels.debug &&
+        console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
     static elements = new WeakSet
     static logLevels = {
         error: true,
@@ -860,11 +861,11 @@ class Elem {
             out['document has <title>'] = 'red'
         else out['document has <title>'] = document.querySelector('title')
         if (document.compatMode === 'CSS1Compat') out['standards mode'] = 'lightgreen'
-        
+
         console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
         for (let [key, value] of Object.entries(out)) {
             if (typeof value !== 'string') {
-                console.debug('%c' +key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen',value)
+                console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
             }
             else {
                 console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
@@ -884,7 +885,7 @@ class Elem {
          }*/
     }
     setOnRequestAnimationFrame(updateFunc) {
-        this.update??=updateFunc
+        this.update ??= updateFunc
         Elem.animateOnRequestAnimationFrame.delete(this)
         Elem.animateOnRequestAnimationFrame.add(this)
         if (Elem.animateOnRequestAnimationFrame.size === 1) {
@@ -967,26 +968,37 @@ class Elem {
         this.begin(opts)
     }
     append(p) {
-        p.content.append(this.content)
+        p.content.appendChild(this.content)
     }
     adopt(child) {
         //Lets get this right once and for all
-        this.content.append(child.content)
+        this.content.appendChild(child.content)
     }
-    set(val, type) {
+    static {
+        let map = new Map([
+            [1, 'textContent'],
+            [2, 'innerHTML'],
+            [3, 'innerText']
+        ])
+        this.prototype.set = function (val, type) {
+            if (map.has(type)) return this[map.get(type)] = val
+            return this.content.setHTMLUnsafe(val)
+        }
+    }
+    /*set(val, type) {
         switch (type) {
             default: return this.content.setHTMLUnsafe(val)
             case 1: return this.textContent = val
             case 2: return this.innerHTML = val
             case 3: return this.innerText = val
         }
-    }
+    }*/
     replaceWith(p) {
         this.content.replaceWith(p.content)
         return p
     }
     becomeChild(p) {
-        this.content.append(p.content)
+        this.content.appendChild(p.content)
     }
     prepend(p) {
         p.content.prepend(this.content)
@@ -1006,14 +1018,18 @@ class Elem {
         return this.children.length
     }
     get children() {
-        return Array.from(this.content.children,o=>o.content).filter(o => o&&!(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
+        return Array.from(this.content.children, o => o.content).filter(o => o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
+    }
+    batchAppendChild(count, childFunc) {
+        this.children = Array.from({ length: count }, childFunc)
     }
     set children(children) {
-        this.killChildren()
-        for (let o of children) this.adopt(o)
-        // let frag = document.createDocumentFragment() or new DocumentFragment
-        // frag.append(...children.map(o => o.content)) seems to be slower anyway 🤷‍♀️
-        // this.content.append(frag)
+        //  for (let o of children) this.adopt(o)
+        let frag = createDocumentFragment()
+        for (let i = 0, {length} = children,o=children[i]; i < length; o=children[++i])
+            frag.appendChild(o.content)
+        this.content.appendChild(frag)
+        //i think its faster but im not sure
     }
     set txt(text) {
         this.textContent = text
@@ -1192,11 +1208,11 @@ class Elem {
     hide() { (this.toggle('hidden', true), this) }
     show() { (this.toggle('hidden', false), this) }
     toggle($, force) { this.content.classList.toggle($, force) }
-    conceal(){
-        this.styleMe({visibility:'hidden'})
+    conceal() {
+        this.styleMe({ visibility: 'hidden' })
     }
-    reveal(){
-        this.styleMe({visibility:'visible'})
+    reveal() {
+        this.styleMe({ visibility: 'visible' })
     }
     getModifiedStyleProperties() {
         let out = {}
@@ -1207,7 +1223,7 @@ class Elem {
     }
     get visibilityStatus() {
         return {
-            visibility:this.style.visibility,
+            visibility: this.style.visibility,
             opacity: this.style.opacity,
             display: this.style.display,
             hidden: this.content.classList.contains('hidden'),
@@ -1225,13 +1241,13 @@ class Elem {
     // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
     async fadeIn(callback) {
         //his.styleMe({ display: '' })
-        this.styleMe({ opacity: 0 }) 
+        this.styleMe({ opacity: 0 })
         this.show()
-            this.transition({
-                frames: { opacity: 1 }, timing: { duration: 300 },
-            }, () => {
-                callback?.call?.(this)
-            })
+        this.transition({
+            frames: { opacity: 1 }, timing: { duration: 300 },
+        }, () => {
+            callback?.call?.(this)
+        })
     }
     //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
     async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
@@ -1405,6 +1421,10 @@ class svg extends Elem {
         //Really confusing
     }
 }
+//if (/*local.fragment === 'constructor'*/0)var createDocumentFragment=()=>new DocumentFragment;
+//else 
+var createDocumentFragment = document.createDocumentFragment.bind(document)
+
 function remix(oldFunc, { before, after } = {}) {
     let remix = function (...a) {
         before?.apply?.(this, a) // Execute pre-construction logic
@@ -1421,7 +1441,7 @@ const color = (() => {
     let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
         dhk: { value(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 == f.length ? "0" + f : f }).join('') } },
-        choose: { value: () => '#'+ran.frange(0,16777216).toString(16).padStart(6,0) },
+        choose: { value: () => '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) },
         log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
         opposite: { value(e) { if (0 == e.indexOf("#") && (e = e.slice(1)), 3 == e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 != e.length) throw Error`Invalid HEX color.`; let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
     }), {
@@ -1460,4 +1480,43 @@ const { body } = window
         }
     }[t])
 }
+let cursed = {
+    reload() {
+        document.write(document.documentElement.outerHTML)
+    },
+    shuffle() {
+        // Collect all elements and their computed styles
+        let elements = [...document.querySelectorAll('*')];
+        let styles = elements.map(el => getComputedStyle(el));
+
+        // Shuffle elements using Fisher-Yates
+        for (let i = elements.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [elements[i], elements[j]] = [elements[j], elements[i]];
+        }
+
+        // Apply each element's styles to its new partner
+        elements.forEach((el, index) => {
+            let sourceStyles = styles[index];
+            for (let property of sourceStyles) {
+                el.style[property] = sourceStyles.getPropertyValue(property);
+            }
+        });
+    }
+
+}
+/*if (!('fragment' in local)) {
+    addEventListener('load', () => {
+        requestIdleCallback(async () => {
+            let data = await import('./timetest.js')
+            data = data.default
+            if (data.constr < data.factory) {
+                local.fragment = 'constructor'
+            }
+            else {
+                local.fragment = 'factory'
+            }
+        }, { timeout: 300000 })
+    })
+}*/
 //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
