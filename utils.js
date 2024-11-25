@@ -150,7 +150,9 @@ utilString.ALPHABET = utilString.alphabet.toUpperCase()
 const utilArray = {
     assemble(arrayLike, ...sequence) {
         let out = []
-        for (let digit of sequence) out.push(arrayLike.at(digit))
+        //for (let digit of sequence) 
+        for (let { length } = sequence, i = 0; i < length; ++i)
+            out.push(arrayLike.at(sequence[i]))
         return out
     },
     center: o => o[Math.floor(o.length / 2)],
@@ -566,7 +568,7 @@ const Color = class z {
 }
 class Elem {
     static USE_CUTESY_FONT = true
-    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML)$/
+    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|BODY)$/
     static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
     static getPageAsHTML = () => document.documentElement.getHTML()
     static get allElements() {
@@ -586,6 +588,17 @@ class Elem {
     }
     set before(e) {
         this.content.before(e.content)
+    }
+    get detachedChildren() {
+        let a = Array.from(this.content.childNodes),
+            fragment = createDocumentFragment()
+        for (let i = 0, { length } = a; i < length; ++i) {
+            a[i].remove()
+            if (a[i] instanceof Element) {
+                fragment.appendChild(a[i])
+            } else a[i].nodeValue = ''
+        }
+        return fragment
     }
     age = Date.now()
     static log() {
@@ -766,7 +779,22 @@ class Elem {
                 },
                 set(val) {
                     if (!this.content) throw TypeError('Illegal invocation')
-                    if (a && this.content.childElementCount) throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
+                    if (a && this.childCount)// {
+                        // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
+                        //          let temp = this.detachedChildren
+                        //   let parser = new DOMParserm
+                        //   doc = parser.parseFromString(val,'text/html')
+                        //  if (doc.body.childElementCount) {
+                        //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
+                        //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
+                        //        this
+                        //    }
+                        //    else {
+                        //         this.content[attribute] = val
+                        //    }
+                        //          this.content.append(temp)
+                        //      }
+                        throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
                     // if (Elem.#attrMap.has(attribute))
                     //  Elem.#attrMap.get(attribute).call(this, val)
                     else this.content[attribute] = val
@@ -832,16 +860,16 @@ class Elem {
             Elem.select(node)
             //    f.parent = out
         }
-
         return out
     }
     static {
         let out = { 'standards mode': 'red' };
         'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
         let body = window.body = this.select(document.body)
-            // body.content.setAttribute('id', 'body')
-            //body.id = 'body'
-            , head = document.head.children
+        // body.content.setAttribute('id', 'body')
+        //body.id = 'body'
+        , head = document.head.children
+        this.select(document.documentElement)
         for (let o of head) {
             let butes = o.attributes
             if (butes.charset) out.charset = o
@@ -860,7 +888,7 @@ class Elem {
         if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title'))
             out['document has <title>'] = 'red'
         else out['document has <title>'] = document.querySelector('title')
-        if (document.compatMode === 'CSS1Compat') out['standards mode'] = 'lightgreen'
+        if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
 
         console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
         for (let [key, value] of Object.entries(out)) {
@@ -1026,7 +1054,7 @@ class Elem {
     set children(children) {
         //  for (let o of children) this.adopt(o)
         let frag = createDocumentFragment()
-        for (let i = 0, {length} = children,o=children[i]; i < length; o=children[++i])
+        for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
             frag.appendChild(o.content)
         this.content.appendChild(frag)
         //i think its faster but im not sure
@@ -1050,14 +1078,17 @@ class Elem {
     add(props) {
         if (props.class) {
             if (typeof props.class === 'string') props.class = [props.class]
-            for (let $class of props.class)
+            //for (let $class of props.class)
+            for (let { length } = props.class; length--;) {
+                let $class = props.class[length]
                 /*   if (!Elem.findClass($class)) {
-                       Elem.messages.noclass($class)
-                   } else if ([...this.content.classList].includes($class)) {
-                       Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
-                   }
-                   else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
+                    Elem.messages.noclass($class)
+                    } else if ([...this.content.classList].includes($class)) {
+                        Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
+                        }
+                        else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
                 this.toggle($class, true)
+            }
         }
         return this
     }
@@ -1138,8 +1169,9 @@ class Elem {
         return this
     }
     removeClass(...className) {
-        for (let name of className)
-            this.toggle(name, false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
+        //for (let name of className)
+        for (let { length } = className; length--;)
+            this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
     }
     addevent(...events) {
         if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
@@ -1166,7 +1198,9 @@ class Elem {
     }
     hasevent(eventName) { return this.eventNames.has(eventName) }
     noevent(...target) {
-        for (let event of target) {
+        // for (let event of target) {
+        for (let { length } = target; length--;) {
+            let event = target[length]
             this.content.removeEventListener(event, this.eventNames.get(event))
             this.eventNames.has(event) ?
                 Elem.listeners.delete(this.id + ':' + event)
@@ -1505,6 +1539,9 @@ let cursed = {
     }
 
 }
+addEventListener('load', () => {
+    Array.from(document.querySelectorAll('script'), o => o.remove())
+})
 /*if (!('fragment' in local)) {
     addEventListener('load', () => {
         requestIdleCallback(async () => {
