@@ -59,7 +59,7 @@ assign(assign, {
     get '||='() { return assign.not }
 })
 const ran = {
-    get flip(){return ran.choose(1,-1)},
+    get flip() { return ran.choose(1, -1) },
     choose: (...a) => a[Math.floor(Math.random() * a.length)],
     range: (min, max) => Math.random() * (max - min) + min,
     frange: (min, max) => Math.floor(ran.range(min, max)),
@@ -84,7 +84,8 @@ const ran = {
     }
 }
 const SUPPORTS = {
-    attributeStyleMap: 0 // 'StylePropertyMap'in globalThis
+    attributeStyleMap: false //'StylePropertyMap'in globalThis
+    //Firefox does not support it and it seems like its slower anyway so
 }
 ran.gen.previouslygenerated = new Set
 const utilMath = {
@@ -577,823 +578,841 @@ const Color = class z {
         }
     }
 }
-class Elem {
-//    static{debugger}
-    static USE_CUTESY_FONT = true
-    static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/
-    static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
-    static getPageAsHTML = () => document.documentElement.getHTML()
-    static get allElements() {
-        return [].map.call(document.querySelectorAll('*'), o => o.content).filter(o => o instanceof Elem)
-    }
-    raw() {
-        return this.content.getHTML({ serializableShadowRoots: true })
-    }
-    eval(code) {
-        return new Function(`with(this){${code}}`).call(this)
-    }
-    assign(obj) {
-        assign(this, obj)
-    }
-    set after(e) {
-        this.content.after(e.content)
-    }
-    set before(e) {
-        this.content.before(e.content)
-    }
-    get detachedChildren() {
-        let a = Array.from(this.content.childNodes),
-            fragment = createDocumentFragment()
-        for (let i = 0, { length } = a; i < length; ++i) {
-            a[i].remove()
-            if (a[i] instanceof Element) {
-                fragment.appendChild(a[i])
-            } else a[i].nodeValue = ''
+{
+    let verified = Symbol('🔒')
+    var Elem = class Elem {
+        //    static{debugger}
+        [verified]
+        static USE_CUTESY_FONT = true
+        static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/
+        static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
+        static getPageAsHTML = () => document.documentElement.getHTML()
+        static get allElements() {
+            return [].map.call(document.querySelectorAll('*'), o => o.content).filter(o => verified in Elem)
         }
-        return fragment
-    }
-    age = Date.now()
-    static log() {
-        console.log('bleh')
-        //Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
-    }
-    static registry = new FinalizationRegistry(heldValue =>
-        Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
-    )
-    observer = {
-        observe(child) {
-            delete child.content.parent.observer
-            child.content.parent.observer = new IntersectionObserver(entries => {
-                for (let entry of entries) {
-                    if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
-                    else entry.target.content.detectVisibility?.(true)
+        raw() {
+            return this.content.getHTML({ serializableShadowRoots: true })
+        }
+        eval(code) {
+            return new Function(`with(this){${code}}`).call(this)
+        }
+        assign(obj) {
+            assign(this, obj)
+        }
+        set after(e) {
+            this.content.after(e.content)
+        }
+        set before(e) {
+            this.content.before(e.content)
+        }
+        get detachedChildren() {
+            let a = Array.from(this.content.childNodes),
+                fragment = createDocumentFragment()
+            for (let i = 0, { length } = a; i < length; ++i) {
+                a[i].remove()
+                if (a[i] instanceof Element) {
+                    fragment.appendChild(a[i])
+                } else a[i].nodeValue = ''
+            }
+            return fragment
+        }
+        age = Date.now()
+        static log() {
+            console.log('bleh')
+            //Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
+        }
+        static registry = new FinalizationRegistry(heldValue =>
+            Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
+        )
+        /* get styler(){
+             return new Proxy(this.content.style,{
+                 get(targ,prop){
+                     return targ.getPropertyValue()
+                 }
+             })
+         }*/
+        observer = {
+            observe(child) {
+                delete child.content.parent.observer
+                child.content.parent.observer = new IntersectionObserver(entries => {
+                    for (let entry of entries) {
+                        if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
+                        else entry.target.content.detectVisibility?.(true)
+                    }
+                }, {
+                    root: child.content.parent.content,
+                    threshold: 0,
+                })
+                child.content.parent.observer.observe(child)
+            }
+        }
+        static $ = id => {
+            let out = document.getElementById(id.replace('#', ''))
+            out || Elem.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
+            return out?.content ?? out ?? null
+        }
+        static formats = {
+            image: /webp|png|jpeg|jpg|gif/,
+            video: /mp4|mpeg|webm|avi|mov/,
+            audio: /mp3|ogg|wav|aiff|aac|flac/
+        }
+        static textStyle = (message, options) => {
+            let elf = JSON.stringify(options).replaceAll(/\{|\}|\"/g, '').replaceAll(',', ';')
+            console.trace(`%c ${message}`, elf)
+        }
+        styleMe(...prop) {
+            if (!Array.isArray(prop[0]) && typeof prop[0] === 'object' && prop.length === 1 && prop[0]) prop = Object.entries(prop[0])
+            //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val}`).join(';')
+            for (let [propName, propValue] of prop) {
+                if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
+                else if (propName === 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
+                else {
+                    if (SUPPORTS.attributeStyleMap) try {
+                        //this one is slower
+                        let n = propValue
+                        if (typeof n === 'string') n = CSSStyleValue.parse(propName, n)
+                        this.content.attributeStyleMap.set(propName, n)
+                    } catch {
+                        this.content.style.setProperty(propName, propValue)
+                    }
+                    else
+    
+                        this.content.style.setProperty(propName, propValue)
+    
                 }
-            }, {
-                root: child.content.parent.content,
-                threshold: 0,
+                // this.content.style[propName] = propValue
+                //this.content.style.setProperty(propName, propValue)
+                //  CSSStyleValue.parse(propName,propValue)
+    
+            }
+        }
+        static noConsole() {
+            console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
+            addEventListener('keydown', function ({ key }) {
+                let value
+                if (key?.toLowerCase?.() === 'backspace') {
+                    try {
+                        prompt('Return Value:', eval?.('"use strict";' + (value = prompt('Input eval code...'))))
+                    }
+                    catch (error) {
+                        prompt(error.constructor.name, error.message)
+                    }
+                    finally {
+                        navigator.clipboard.writeText(value)
+                    }
+                }
             })
-            child.content.parent.observer.observe(child)
+            delete this.noConsole
         }
-    }
-    static $ = id => {
-        debugger
-        let out = document.getElementById(id.replace('#', ''))
-        out || Elem.warn(`Element with id "${id.replace('#', '')}" might not exist`)
-        return out?.content ?? out ?? null
-    }
-    static formats = {
-        image: /webp|png|jpeg|jpg|gif/,
-        video: /mp4|mpeg|webm|avi|mov/,
-        audio: /mp3|ogg|wav|aiff|aac|flac/
-    }
-    static textStyle = (message, options) => {
-        let elf = JSON.stringify(options).replaceAll(/\{|\}|\"/g, '').replaceAll(',', ';')
-        console.trace(`%c ${message}`, elf)
-    }
-    styleMe(...prop) {
-        if (!Array.isArray(prop[0]) && typeof prop[0] === 'object' && prop.length === 1 && prop[0]) prop = Object.entries(prop[0])
-        for (let [propName, propValue] of prop) {
-            if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
-            else if (propName === 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
-            else {
-                if (SUPPORTS.attributeStyleMap) try {
-                    //this one is slower
-                    let n = propValue
-                    if (typeof n === 'string') n = CSSStyleValue.parse(propName, n)
-                    this.content.attributeStyleMap.set(propName, n)
-                } catch {
-                    this.content.style.setProperty(propName, propValue)
-                }
+        static loaded = new Set
+        static failed = new Set
+        static RO = new ResizeObserver(entries => {
+            for (let { contentBoxSize, target } of entries) {
+                // For modern browsers that return an array (contentBoxSize[0])
+                let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
+                // target.content ??= {}
+                if (target.content)
+                    target.content.bounds = {
+                        x: size.inlineSize,  // Width
+                        y: size.blockSize    // Height
+                    }
+    
+            }
+        }
+        )
+        static bulk(callback, ...src) {
+            return Promise.all(src.map(o => fetch(o).then(response => {
+                if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
+                const contentType = response.headers.get('Content-Type');
+                if (contentType && contentType.includes('application/json'))
+                    return response.json()
+                else if (contentType && contentType.includes('text/html'))
+                    return response.text()
+                else if (contentType && contentType.includes('application/xml'))
+                    return response.text()
+                else if (contentType && contentType.includes('application/octet-stream'))
+                    return response.blob()
                 else
-                    //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val};`).join('')
-                    this.content.style.setProperty(propName, propValue)
-
-            }
-            // this.content.style[propName] = propValue
-            //this.content.style.setProperty(propName, propValue)
-            //  CSSStyleValue.parse(propName,propValue)
-
-        }
-    }
-    static noConsole() {
-        console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
-        addEventListener('keydown', function ({key}) {
-            let value
-            if (key?.toLowerCase?.() === 'backspace') {
-                try {
-                    prompt('Return Value:', eval?.('"use strict";' + (value = prompt('Input eval code...'))))
-                }
-                catch (error) {
-                    prompt(error.constructor.name, error.message)
-                }
-                finally {
-                    navigator.clipboard.writeText(value)
-                }
-            }
-        })
-        delete this.noConsole
-    }
-    static loaded = new Set
-    static failed = new Set
-    static RO = new ResizeObserver(entries => {
-        for (let { contentBoxSize, target } of entries) {
-            // For modern browsers that return an array (contentBoxSize[0])
-            let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
-            // target.content ??= {}
-            if (target.content)
-                target.content.bounds = {
-                    x: size.inlineSize,  // Width
-                    y: size.blockSize    // Height
-                }
-
-        }
-    }
-    )
-    static bulk(callback, ...src) {
-        return Promise.all(src.map(o => fetch(o).then(response => {
-            if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
-            const contentType = response.headers.get('Content-Type');
-            if (contentType && contentType.includes('application/json'))
-                return response.json()
-            else if (contentType && contentType.includes('text/html'))
-                return response.text()
-            else if (contentType && contentType.includes('application/xml'))
-                return response.text()
-            else if (contentType && contentType.includes('application/octet-stream'))
-                return response.blob()
-            else
-                return response.text()
-        }))).then(() => {
-            callback?.(...src)
-            console.groupCollapsed('Bulk load:')
-            for (let sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
-            console.groupEnd()
-        })
-    }
-    static preload(src, callback) {
-        if (Elem.loaded.has(src)) return src
-        if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
-        fetch(src).then((res) => {
-            if (!res.ok) {
-                Elem.error(`Resource error: ${res.status}`)
-                Elem.failed.add(src)
-            }
-            else {
-                callback?.(src)
-                Elem.success(`Resource Pre-loaded: ${new URL(src, location)}`)
-                Elem.loaded.add(src)
-            }
-        })
-        Elem.info(`Preloading Resource: ${new URL(src, location)}`)
-        return src
-    }
-    static youtube = class extends this {
-        constructor(opts) {
-            opts.tag = 'iframe'
-            super(opts)
-            assign(this, {
-                loading: 'lazy',
-                frameborder: 0,
-                referrerpolicy: 'strict-origin-when-cross-origin',
-                allow: 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                    return response.text()
+            }))).then(() => {
+                callback?.(...src)
+                console.groupCollapsed('Bulk load:')
+                for (let sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
+                console.groupEnd()
             })
         }
-    }
-    static #attrMap = new Map(/*[
-        ['id', function(val){
-            if (Elem.elements.has(this)0) throw TypeError("Not allowed re-assign element id")
-            else { this.content['id'] = val; }
-        }]
-    ]*/)
-    static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
-    static {
-        for (let a of this.svgattr) this.#attrMap.set(a, function (val) {
-            this.content.setAttribute(a, val)
-            //requestAnimationFrame(()=>this.innerHTML+='')
-        })
-    }
-    get'🩸🪦'(){return this.kill(),'Why did you kill me 😢'}
-    static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
-    static {
-        for (let key of Object.getOwnPropertyNames(this.prototype)) {
-            const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
-            if (typeof descriptor.value === 'function' && key !== 'constructor') {
-                let 우정 = this.prototype[key]
-                this.prototype[key] = ((侗, 俉俊) => {
-                    return function (...अ) { if (this instanceof 侗) return 우정.apply(this, अ); throw 俉俊 }
-                })(Elem, TypeError('Illegal invocation'))
-            }
-        }
-        for (let attribute of this.attributes) {
-            let a = attribute.match(/textContent|innerHTML|innerText/)
-            Object.defineProperty(this.prototype, attribute, {
-                get() {
-                    if (!this.content) throw TypeError('Illegal invocation')
-                    return this.content[attribute]??null
-                },
-                set(val) {
-                    if (!this.content) throw TypeError('Illegal invocation')
-                    if (a && this.childCount)// {
-                        // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
-                        //          let temp = this.detachedChildren
-                        //   let parser = new DOMParserm
-                        //   doc = parser.parseFromString(val,'text/html')
-                        //  if (doc.body.childElementCount) {
-                        //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
-                        //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
-                        //        this
-                        //    }
-                        //    else {
-                        //         this.content[attribute] = val
-                        //    }
-                        //          this.content.append(temp)
-                        //      }
-                        throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
-                    // if (Elem.#attrMap.has(attribute))
-                    //  Elem.#attrMap.get(attribute).call(this, val)
-                    else this.content[attribute] = val
+        static preload(src, callback) {
+            if (Elem.loaded.has(src)) return src
+            if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
+            fetch(src).then((res) => {
+                if (!res.ok) {
+                    Elem.error(`Resource error: ${res.status}`)
+                    Elem.failed.add(src)
+                }
+                else {
+                    callback?.(src)
+                    Elem.success(`Resource Pre-loaded: ${new URL(src, location)}`)
+                    Elem.loaded.add(src)
                 }
             })
+            Elem.info(`Preloading Resource: ${new URL(src, location)}`)
+            return src
         }
-    }
-    static animateOnRequestAnimationFrame = new Set
-    static requestAnimationFrame = (() => {
-        let frame = 0
-        let r =
-            window.requestAnimationFrame ??
-            window.webkitRequestAnimationFrame ??
-            window.mozRequestAnimationFrame ??
-            window.oRequestAnimationFrame ??
-            window.msRequestAnimationFrame ??
-            (callback => setTimeout(callback, 12))
-        return function n() {
-            if (!Elem.animateOnRequestAnimationFrame.size) return
-            
-            r(n)
-            ++frame
-            for (let toAnimate of Elem.animateOnRequestAnimationFrame) 
-                try {
-                    toAnimate.update(frame)
+        static youtube = class extends this {
+            constructor(opts) {
+                opts.tag = 'iframe'
+                super(opts)
+                assign(this, {
+                    loading: 'lazy',
+                    frameborder: 0,
+                    referrerpolicy: 'strict-origin-when-cross-origin',
+                    allow: 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                })
+            }
+        }
+        static #attrMap = new Map(/*[
+            ['id', function(val){
+                if (Elem.elements.has(this)0) throw TypeError("Not allowed re-assign element id")
+                else { this.content['id'] = val; }
+            }]
+        ]*/)
+        static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
+        static {
+            for (let a of this.svgattr) this.#attrMap.set(a, function (val) {
+                this.content.setAttribute(a, val)
+                //requestAnimationFrame(()=>this.innerHTML+='')
+            })
+        }
+        get '🩸🪦'() { return this.kill(), 'Why did you kill me 😢' }
+        static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
+        static {
+            for (let key of Object.getOwnPropertyNames(this.prototype)) {
+                const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
+                if (typeof descriptor.value === 'function' && key !== 'constructor') {
+                    let 우정 = this.prototype[key]
+                    this.prototype[key] = (俉俊 => {
+                        return function (...अ) { if (verified in this) return 우정.apply(this, अ); throw 俉俊 }
+                    })(TypeError('Illegal invocation'))
                 }
-                catch {
-                    Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
-                    Elem.animateOnRequestAnimationFrame.delete(toAnimate)
-                }
-            
+            }
+            for (let attribute of this.attributes) {
+                let a = attribute.match(/textContent|innerHTML|innerText/)
+                Object.defineProperty(this.prototype, attribute, {
+                    get() {
+                        if (!this.content) throw TypeError('Illegal invocation')
+                        return this.content[attribute] ?? null
+                    },
+                    set(val) {
+                        if (!this.content) throw TypeError('Illegal invocation')
+                        if (a && this.childCount)// {
+                            // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
+                            //          let temp = this.detachedChildren
+                            //   let parser = new DOMParserm
+                            //   doc = parser.parseFromString(val,'text/html')
+                            //  if (doc.body.childElementCount) {
+                            //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
+                            //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
+                            //        this
+                            //    }
+                            //    else {
+                            //         this.content[attribute] = val
+                            //    }
+                            //          this.content.append(temp)
+                            //      }
+                            throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
+                        // if (Elem.#attrMap.has(attribute))
+                        //  Elem.#attrMap.get(attribute).call(this, val)
+                        else this.content[attribute] = val
+                    }
+                })
+            }
         }
-    })()
-    static listeners = new Map
-    static warn = message => this.logLevels.warn &&
-        console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static error = message => this.logLevels.error &&
-        console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static info = message => this.logLevels.info &&
-        console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-    static success = message => this.logLevels.success &&
-        console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
-    static debug = message => this.logLevels.debug &&
-        console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
-    static elements = new WeakSet
-    static logLevels = {
-        error: true,
-        warn: true,
-        success: true,
-        info: false,
-        debug: false,
-    }
-    static select(self) {
-        let out = new Elem({ self })
-        if (out.content.children) for (let node of out.content.children) {
-            if (node.nodeName.match(Elem.ILLEGAL_TAGNAMES)) continue
-            // if ('content'in node && node instanceof Elem) {
-            //out.children.push(node)
-            // node.content.parent = out
-            //   }
-            //  else 
-            Elem.select(node)
-            //    f.parent = out
+        static animateOnRequestAnimationFrame = new Set
+        static requestAnimationFrame = (() => {
+            let frame = 0
+            let r =
+                window.requestAnimationFrame ??
+                window.webkitRequestAnimationFrame ??
+                window.mozRequestAnimationFrame ??
+                window.oRequestAnimationFrame ??
+                window.msRequestAnimationFrame ??
+                (callback => setTimeout(callback, 12))
+            return function n() {
+                if (!Elem.animateOnRequestAnimationFrame.size) return
+    
+                r(n)
+                ++frame
+                for (let toAnimate of Elem.animateOnRequestAnimationFrame)
+                    try {
+                        toAnimate.update(frame)
+                    }
+                    catch {
+                        Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
+                        Elem.animateOnRequestAnimationFrame.delete(toAnimate)
+                    }
+    
+            }
+        })()
+        static listeners = new Map
+        static warn = message => this.logLevels.warn &&
+            console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        static error = message => this.logLevels.error &&
+            console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        static info = message => this.logLevels.info &&
+            console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        static success = message => this.logLevels.success &&
+            console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+        static debug = message => this.logLevels.debug &&
+            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+        static elements = new WeakSet
+        static logLevels = {
+            error: true,
+            warn: true,
+            success: true,
+            info: false,
+            debug: false,
         }
-        return out
-    }
-    static {
-        let out = { 'standards mode': 'red' };
-        'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
-        let body = window.body = this.select(document.body), head = document.head.children
+        static select(self) {
+            let out = new Elem({ self })
+            if (out.content.children) for (let node of out.content.children) {
+                if (node.nodeName.match(Elem.ILLEGAL_TAGNAMES)) continue
+                // if ('content'in node && node instanceof Elem) {
+                //out.children.push(node)
+                // node.content.parent = out
+                //   }
+                //  else 
+                Elem.select(node)
+                //    f.parent = out
+            }
+            return out
+        }
+        static {
+            let out = { 'standards mode': 'red' };
+            'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
+        let head = document.head.children
         // body.content.setAttribute('id', 'body')
         //body.id = 'body'
         this.select(document.documentElement)
-        for (let o of head) {
-            let butes = o.attributes
-            if (butes.charset) out.charset = o
-            if (o.getAttribute('rel') === 'icon') out['favicon'] = o
-            if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
-            if (o.getAttribute('property') === 'og:description') out['og:description'] = o
-            if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-            if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
-            if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
-            if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
-            if (o.getAttribute('property') === 'og:image') out['og:image'] = o
-            if (o.getAttribute('property') === 'og:url') out['og:url'] = o
-            if (o.getAttribute('name') === 'og:title') out['og:title'] = o
-            if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
+        window.body = document.querySelector('body').content
+            for (let o of head) {
+                let butes = o.attributes
+                if (butes.charset) out.charset = o
+                if (o.getAttribute('rel') === 'icon') out['favicon'] = o
+                if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
+                if (o.getAttribute('property') === 'og:description') out['og:description'] = o
+                if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+                if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
+                if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
+                if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
+                if (o.getAttribute('property') === 'og:image') out['og:image'] = o
+                if (o.getAttribute('property') === 'og:url') out['og:url'] = o
+                if (o.getAttribute('name') === 'og:title') out['og:title'] = o
+                if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
+            }
+            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title'))
+                out['document has <title>'] = 'red'
+            else out['document has <title>'] = document.querySelector('title')
+            if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
+    
+            console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
+            for (let [key, value] of Object.entries(out)) {
+                if (typeof value !== 'string') {
+                    console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
+                }
+                else {
+                    console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
+    
+                }
+            }
+            console.groupEnd()
+            /* for (let script of document.scripts) {
+                 script.addEventListener('load',function n(a){
+                     this.removeEventListener('load',n)
+                     Elem.success(this.src + ' finished executing')
+                 })
+                 script.addEventListener('error',function n(a){
+                     this.removeEventListener('error',n)
+                     Elem.error('Something went wrong when trying to load ' + this.src)
+                 })
+             }*/
         }
-        if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title'))
-            out['document has <title>'] = 'red'
-        else out['document has <title>'] = document.querySelector('title')
-        if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
-
-        console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
-        for (let [key, value] of Object.entries(out)) {
-            if (typeof value !== 'string') {
-                console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
+        setOnRequestAnimationFrame(updateFunc) {
+            if (updateFunc) this.update = updateFunc
+            Elem.animateOnRequestAnimationFrame.add(this)
+            if (Elem.animateOnRequestAnimationFrame.size === 1)
+                Elem.requestAnimationFrame()
+    
+        }
+        clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
+        timeouts = new Map
+        intervals = new Map;
+        eventNames = Object.defineProperty(new Map, 'trigger', {
+            value(search) {
+                if (search) {
+                    if (this.eventNames.has(search)) this.eventNames.get(search)()
+                    else Elem.warn(`Non-existent event: ${search}`)
+                }
+                else for (let [, n] of this.eventNames) n.call(this)
+            }
+        })
+        constructor(opts = {}) {
+            //Main init
+            if (!('tag' in opts) && (!('self' in opts ) || !(opts.self instanceof Element))  && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
+            if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
+            if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+                if (opts.self) {
+                if (Elem.elements.has(opts.self.content)) {
+                    console.error(opts.self)
+                    throw ReferenceError(`Duplicate element not allowed`)
+                    
+                }
+                this.content = opts.self
+                if (this.content === document.body) opts.id = 'body'
+                else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
             }
             else {
-                console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-
-            }
-        }
-        console.groupEnd()
-        /* for (let script of document.scripts) {
-             script.addEventListener('load',function n(a){
-                 this.removeEventListener('load',n)
-                 Elem.success(this.src + ' finished executing')
-             })
-             script.addEventListener('error',function n(a){
-                 this.removeEventListener('error',n)
-                 Elem.error('Something went wrong when trying to load ' + this.src)
-             })
-         }*/
-    }
-    setOnRequestAnimationFrame(updateFunc) {
-        if (updateFunc)this.update = updateFunc
-        Elem.animateOnRequestAnimationFrame.add(this)
-        if (Elem.animateOnRequestAnimationFrame.size === 1) 
-            Elem.requestAnimationFrame()
-        
-    }
-    clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
-    timeouts = new Map
-    intervals = new Map;
-    eventNames = Object.defineProperty(new Map, 'trigger', {
-        value(search) {
-            if (search) {
-                if (this.eventNames.has(search)) this.eventNames.get(search)()
-                else Elem.warn(`Non-existent event: ${search}`)
-            }
-            else for (let [, n] of this.eventNames) n.call(this)
-        }
-    })
-    constructor(opts = {}) {
-        //Main init
-        if (!('tag' in opts) && !('self' in opts) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-        if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-        if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
-
-        if (opts.self) {
-            this.content = opts.self
-            if (this.content === document.body) opts.id = 'body'
-            else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
-        }
-        else {
-            if (opts.shadow) {
-                this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
-            }
-            else this.content = document.createElement(opts.tag)
-            opts.id ??= ran.gen(7)
-        }
-        this.content.content = this
-        for (let attr of Elem.attributes) if (attr in opts) this[attr] = opts[attr]
-        if (opts.text) this.innerHTML = opts.text
-        if (opts.message) this.innerText = opts.message
-        if (this.content.getBoundingClientRect) {
-            let f = this.content.getBoundingClientRect()
-            this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
-        }
-        // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
-        if (opts.class) {
-            if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
-            for (let { length } = opts.class; length--;) {
-                let $class = opts.class[length]
-                this.content.classList.add($class)
-            }
-        }
-        if (opts.events)
-            this.addevent(opts.events)
-        // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
-
-        if (opts.styles)
-            this.styleMe(opts.styles)
-        //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
-
-        if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
-        // this.append(opts.parent)
-        this.current = this.content
-        if (arguments[1] === true) {
-            Elem.warn(`Migrate to parent instead of using arguments[1]`)
-            opts.parent = body
-        }
-        if (opts.parent) this.parent = opts.parent
-        if (opts.children) this.children = opts.children
-        // if (Elem.logLevels.debug && !opts.self) {
-        /*    let arr = ''
-            for (let [key, value] of Object.entries(opts)) {
-                if (typeof value == 'object') {
-                    value = Object.entries(value)
-                    let str = ''
-                    for (let [_key, _value] of value) str += `${_key}: ${_value}\n`
-                    value = str
+                if (opts.shadow) {
+                    this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
                 }
-                arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
-            }*/
-        //       Elem.debug(`New <${opts.tag}> element: ${this.id}`)//`:\n ${arr}`)
-        //   }
-        this.begin(opts)
-    }
-    append(p) {
-        p.content.appendChild(this.content)
-    }
-    adopt(child) {
-        //Lets get this right once and for all
-        this.content.appendChild(child.content)
-    }
-    static {
-        let map = new Map([
-            [1, 'textContent'],
-            [2, 'innerHTML'],
-            [3, 'innerText']
-        ])
-        this.prototype.set = function (val, type) {
-            if (map.has(type)) return this[map.get(type)] = val
-            return this.content.setHTMLUnsafe(val)
-        }
-    }
-    /*set(val, type) {
-        switch (type) {
-            default: return this.content.setHTMLUnsafe(val)
-            case 1: return this.textContent = val
-            case 2: return this.innerHTML = val
-            case 3: return this.innerText = val
-        }
-    }*/
-    replaceWith(p) {
-        this.content.replaceWith(p.content)
-        return p
-    }
-    becomeChild(p) {
-        this.content.appendChild(p.content)
-    }
-    prepend(p) {
-        p.content.prepend(this.content)
-    }
-    get parent() {
-        return this.content.parentElement?.content ?? null
-    }
-    set parent(val) {
-        if (!this.content) throw TypeError('Invalid setter')
-        val == null
-            ?
-            this.content.remove()
-            :
-            val.adopt(this)
-    }
-    get childCount() {
-        return this.children.length
-    }
-    get children() {
-        return Array.from(this.content.children, o => o.content).filter(o => o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
-    }
-    batchAppendChild(count, childFunc) {
-        this.children = Array.from({ length: count }, childFunc)
-    }
-    set children(children) {
-        //  for (let o of children) this.adopt(o)
-        let frag = createDocumentFragment()
-        for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
-            frag.appendChild(o.content)
-        this.content.appendChild(frag)
-        //i think its faster but im not sure
-    }
-    set txt(text) {
-        this.textContent = text
-    }
-    get previous() {
-        return this.content.previousElementSibling?.content ?? null
-    }
-    get next() {
-        return this.content.nextElementSibling?.content ?? null
-    }
-    get firstChild() {
-        return this.content.firstElementChild?.content ?? null
-    }
-    get index() {
-        return this.parent?.children?.indexOf?.(this.content.content) ?? null
-    }
-    addClass(...className) { return this.add({ class: className }) }
-    add(props) {
-        if (props.class) {
-            if (typeof props.class === 'string') props.class = [props.class]
-            //for (let $class of props.class)
-            for (let { length } = props.class; length--;) {
-                let $class = props.class[length]
-                /*   if (!Elem.findClass($class)) {
-                    Elem.messages.noclass($class)
-                    } else if ([...this.content.classList].includes($class)) {
-                        Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
-                        }
-                        else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
-                this.toggle($class, true)
+                else this.content = document.createElement(opts.tag)
+                opts.id ??= ran.gen(7)
             }
-        }
-        return this
-    }
-    disableEvent(name) { this.eventNames.get(name).disabled = true }
-    enableEvent(name) { this.eventNames.get(name).disabled = false }
-    toggleEvent(name) { this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled }
-    async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
-        /*    if (options.time) {
-                time = options.time;
-                delete options.time;
+            this.content.content = this
+            for (let attr of Elem.attributes) if (attr in opts) this[attr] = opts[attr]
+            if (opts.text) this.innerHTML = opts.text
+            if (opts.message) this.innerText = opts.message
+            if (this.content.getBoundingClientRect) {
+                let f = this.content.getBoundingClientRect()
+                this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
             }
-            if (options.callback) {
-                callback = options.callback;
-                delete options.callback;
-            }*/
-        assign['??='](timing, {
-            duration: 1000,
-            iterations: 1,
-            easing: 'ease',
-            direction: 'normal',
-            fill: 'forwards'
-        })
-        // timing.composition
-        try {
-            // Create KeyframeEffect with the provided options
-            const keyframeEffect = new KeyframeEffect(
-                this.content, // Element to animate
-                frames,      // Keyframes
-                timing // Animation options
-            )
-            // Create an Animation instance
-            const animation = new Animation(keyframeEffect)
-            // Play the animation and wait for it to finish
-            animation.play()
-            await animation.finished
-            // Ensure the final styles are applied
-            // for (let n of Object.keys(frames)) {
-            //   if (Array.isArray(frames[n])) frames[n] = frames[n].at(-1);
-            // }
-            //  this.styleMe(frames);
-            animation.commitStyles()
-            // Call the callback if provided
-            callback?.call?.(this)
-        }
-        catch (e) {
-            if (!e.message.includes(`Target element is not rendered.`)) {
-                Elem.error(`Something went wrong when applying a transition to element ${this.id}. The ${e.constructor.name} is shown below:`)
-                throw e
-            }
-        }
-    }
-    anim(target, callback) {
-        let keep = false
-        if ('keep class' in target) keep = delete target['keep class']
-        // switch (target.class) {
-        //     default: 
-        this.add(target)
-        //    break
-        /*    case 'fade out': this.content.animate([
-                {opacity: 1, easing: 'ease-in'},
-                {opacity:0, easing: 'ease-in'},
-
-            ],500); break;
-            case 'fade in': this.content.animate([
-                {opacity: 0, easing: 'ease-in'},
-                {opacity: 1, easing: 'ease-in'},
-            ],500); break;*/
-        //  }
-        function _____() {
-            this.noevent('animationend'); callback?.call?.(this)
-            //switch (target.class) {
-            //    default: 
-            keep || this.removeClass(target.class);
-            //break
-            //    case 'fade out': alert(134);
-            // }
-        }
-        this.addevent(['animationend',_____])
-        return this
-    }
-    removeClass(...className) {
-        //for (let name of className)
-        for (let { length } = className; length--;)
-            this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
-    }
-    addevent(...events) {
-        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-        for (let [eventName, event] of events) {
-            if (!event) [eventName, event] = eventName
-            Elem.listeners.set(this.id + ':' + eventName, event)
-            if (!this.eventNames.has(eventName)) {
-                let eventfunc = (...e) => {
-                    eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
+            // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
+            if (opts.class) {
+                if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
+                for (let { length } = opts.class; length--;) {
+                    let $class = opts.class[length]
+                    this.content.classList.add($class)
                 }
-                eventfunc.disabled = !1
-                eventfunc.count = 1 / 0
-                if (eventName.includes(':')) {
-                    let a = eventName.split(':')
-                    eventName = a[0]
-                    eventfunc.count = parseInt(a[1])
-                }
-                this.content.addEventListener(eventName, eventfunc)
-                this.eventNames.set(eventName, eventfunc)
-                Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
             }
-            else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
+            if (opts.events)
+                this.addevent(opts.events)
+            // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
+    
+            if (opts.styles)
+                this.styleMe(opts.styles)
+            //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
+    
+            if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
+            // this.append(opts.parent)
+            this.current = this.content
+            if (arguments[1] === true) {
+                Elem.warn(`Migrate to parent instead of using arguments[1]`)
+                opts.parent = body
+            }
+            if (opts.parent) this.parent = opts.parent
+            if (opts.children) this.children = opts.children
+            // if (Elem.logLevels.debug && !opts.self) {
+            /*    let arr = ''
+                for (let [key, value] of Object.entries(opts)) {
+                    if (typeof value == 'object') {
+                        value = Object.entries(value)
+                        let str = ''
+                        for (let [_key, _value] of value) str += `${_key}: ${_value}\n`
+                        value = str
+                    }
+                    arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
+                }*/
+            //       Elem.debug(`New <${opts.tag}> element: ${this.id}`)//`:\n ${arr}`)
+            //   }
+            this.begin(opts)
         }
-    }
-    hasevent(eventName) { return this.eventNames.has(eventName) }
-    noevent(...target) {
-        // for (let event of target) {
-        for (let { length } = target; length--;) {
-            let event = target[length]
-            this.content.removeEventListener(event, this.eventNames.get(event))
-            this.eventNames.has(event) ?
-                Elem.listeners.delete(this.id + ':' + event)
-                : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
-            Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
-            this.eventNames.delete(event)
+        append(p) {
+            p.content.appendChild(this.content)
         }
-    }
-    kill() {
-        this.ondeath?.()
-        this.cleanup()
-        if (body !== this) {
-            this.content.remove()
-            Elem.debug(`Element ${this.id} was removed from body`)
+        adopt(child) {
+            //Lets get this right once and for all
+            this.content.appendChild(child.content)
         }
-    }
-    cleanup() {
-        assign.invoke(this, {
-            noevent: this.eventNames.keys(),
-            removeIntervals: 0,
-            removeTimeouts: 0,
-        })
-        Elem.RO.unobserve(this.content)
-        this.parent?.observer.unobserve?.(this.content)
-        this.observer.disconnect?.()
-        this.killChildren()
-    }
-    begin(o) {
-        Elem.RO.observe(this.content)
-        Elem.elements.add(this)
-        Elem.registry.register(this, this.id)
-        o.start?.call(this)
-    }
-    killChildren() {
-        let n = this.children
-        for (let { length } = n; length--;) {
-            let o = n[length]
-            while (this.content.contains(o?.content)) o.kill()
+        static {
+            let map = new Map([
+                [1, 'textContent'],
+                [2, 'innerHTML'],
+                [3, 'innerText']
+            ])
+            this.prototype.set = function (val, type) {
+                if (map.has(type)) return this[map.get(type)] = val
+                return this.content.setHTMLUnsafe(val)
+            }
         }
-        return this
-    }
-    hide() { (this.toggle('hidden', true), this) }
-    show() { (this.toggle('hidden', false), this) }
-    toggle($, force) { this.content.classList.toggle($, force) }
-    conceal() {
-        this.styleMe({ visibility: 'hidden' })
-    }
-    reveal() {
-        this.styleMe({ visibility: 'visible' })
-    }
-    getModifiedStyleProperties() {
-        let out = {}
-        for (let i = 0; i in this.content.style; ++i) {
-            out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
+        /*set(val, type) {
+            switch (type) {
+                default: return this.content.setHTMLUnsafe(val)
+                case 1: return this.textContent = val
+                case 2: return this.innerHTML = val
+                case 3: return this.innerText = val
+            }
+        }*/
+        replaceWith(p) {
+            this.content.replaceWith(p.content)
+            return p
         }
-        return out
-    }
-    get visibilityStatus() {
-        return {
-            visibility: this.style.visibility,
-            opacity: this.style.opacity,
-            display: this.style.display,
-            hidden: this.content.classList.contains('hidden'),
-            zIndex: this.style.zIndex
+        becomeChild(p) {
+            this.content.appendChild(p.content)
         }
-    }
-    async fadeOut(callback) {
-        this.transition({
-            frames: { opacity: 0 }, timing: { duration: 300 },
-        }, () => {
-            callback?.call(this)
-            this.hide()
-        })
-    }
-    // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
-    async fadeIn(callback) {
-        //his.styleMe({ display: '' })
-        this.styleMe({ opacity: 0 })
-        this.show()
-        this.transition({
-            frames: { opacity: 1 }, timing: { duration: 300 },
-        }, () => {
-            callback?.call(this)
-        })
-    }
-    //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
-    async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
-    addTimeout(callback, interval) {
-        callback.paused = false
-        let mult
-        if (typeof interval === 'object') {
-            if ('seconds' in interval) mult = 1_000 * interval.seconds
-            else if ('minutes' in interval) mult = 60_000 * interval.minutes
-            else if ('hours' in interval) mult = 3_600_000 * interval.hours
-        } else mult = interval
-        let id = setTimeout(() => {
-            callback.paused || this.timeouts.get(id).call(this)
+        prepend(p) {
+            p.content.prepend(this.content)
+        }
+        get parent() {
+            return this.content.parentElement?.content ?? null
+        }
+        set parent(val) {
+            if (!this.content) throw TypeError('Invalid setter')
+            val == null
+                ?
+                this.content.remove()
+                :
+                val.adopt(this)
+        }
+        get childCount() {
+            return this.children.length
+        }
+        get children() {
+            return Array.from(this.content.children, o => o.content).filter(o => o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
+        }
+        batchAppendChild(count, childFunc) {
+            this.children = Array.from({ length: count }, childFunc)
+        }
+        set children(children) {
+            //  for (let o of children) this.adopt(o)
+            let frag = createDocumentFragment()
+            for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
+                frag.appendChild(o.content)
+            this.content.appendChild(frag)
+            //i think its faster but im not sure
+        }
+        set txt(text) {
+            this.textContent = text
+        }
+        get previous() {
+            return this.content.previousElementSibling?.content ?? null
+        }
+        get next() {
+            return this.content.nextElementSibling?.content ?? null
+        }
+        get firstChild() {
+            return this.content.firstElementChild?.content ?? null
+        }
+        get index() {
+            return this.parent?.children?.indexOf?.(this.content.content) ?? null
+        }
+        addClass(...className) { return this.add({ class: className }) }
+        add(props) {
+            if (props.class) {
+                if (typeof props.class === 'string') props.class = [props.class]
+                //for (let $class of props.class)
+                for (let { length } = props.class; length--;) {
+                    let $class = props.class[length]
+                    /*   if (!Elem.findClass($class)) {
+                        Elem.messages.noclass($class)
+                        } else if ([...this.content.classList].includes($class)) {
+                            Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
+                            }
+                            else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
+                    this.toggle($class, true)
+                }
+            }
+            return this
+        }
+        disableEvent(name) { this.eventNames.get(name).disabled = true }
+        enableEvent(name) { this.eventNames.get(name).disabled = false }
+        toggleEvent(name) { this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled }
+        async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
+            /*    if (options.time) {
+                    time = options.time;
+                    delete options.time;
+                }
+                if (options.callback) {
+                    callback = options.callback;
+                    delete options.callback;
+                }*/
+            assign['??='](timing, {
+                duration: 1000,
+                iterations: 1,
+                easing: 'ease',
+                direction: 'normal',
+                fill: 'forwards'
+            })
+            // timing.composition
+            try {
+                // Create KeyframeEffect with the provided options
+                const keyframeEffect = new KeyframeEffect(
+                    this.content, // Element to animate
+                    frames,      // Keyframes
+                    timing // Animation options
+                )
+                // Create an Animation instance
+                const animation = new Animation(keyframeEffect)
+                // Play the animation and wait for it to finish
+                animation.play()
+                await animation.finished
+                // Ensure the final styles are applied
+                // for (let n of Object.keys(frames)) {
+                //   if (Array.isArray(frames[n])) frames[n] = frames[n].at(-1);
+                // }
+                //  this.styleMe(frames);
+                animation.commitStyles()
+                // Call the callback if provided
+                callback?.call?.(this)
+            }
+            catch (e) {
+                if (!e.message.includes(`Target element is not rendered.`)) {
+                    Elem.error(`Something went wrong when applying a transition to element ${this.id}. The ${e.constructor.name} is shown below:`)
+                    throw e
+                }
+            }
+        }
+        anim(target, callback) {
+            let keep = false
+            if ('keep class' in target) keep = delete target['keep class']
+            // switch (target.class) {
+            //     default: 
+            this.add(target)
+            //    break
+            /*    case 'fade out': this.content.animate([
+                    {opacity: 1, easing: 'ease-in'},
+                    {opacity:0, easing: 'ease-in'},
+    
+                ],500); break;
+                case 'fade in': this.content.animate([
+                    {opacity: 0, easing: 'ease-in'},
+                    {opacity: 1, easing: 'ease-in'},
+                ],500); break;*/
+            //  }
+            function _____() {
+                this.noevent('animationend'); callback?.call?.(this)
+                //switch (target.class) {
+                //    default: 
+                keep || this.removeClass(target.class);
+                //break
+                //    case 'fade out': alert(134);
+                // }
+            }
+            this.addevent(['animationend', _____])
+            return this
+        }
+        removeClass(...className) {
+            //for (let name of className)
+            for (let { length } = className; length--;)
+                this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
+        }
+        addevent(...events) {
+            if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
+            for (let [eventName, event] of events) {
+                if (!event) [eventName, event] = eventName
+                Elem.listeners.set(this.id + ':' + eventName, event)
+                if (!this.eventNames.has(eventName)) {
+                    let eventfunc = (...e) => {
+                        eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
+                    }
+                    eventfunc.disabled = !1
+                    eventfunc.count = 1 / 0
+                    if (eventName.includes(':')) {
+                        let a = eventName.split(':')
+                        eventName = a[0]
+                        eventfunc.count = parseInt(a[1])
+                    }
+                    this.content.addEventListener(eventName, eventfunc)
+                    this.eventNames.set(eventName, eventfunc)
+                    Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
+                }
+                else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
+            }
+        }
+        hasevent(eventName) { return this.eventNames.has(eventName) }
+        noevent(...target) {
+            // for (let event of target) {
+            for (let { length } = target; length--;) {
+                let event = target[length]
+                this.content.removeEventListener(event, this.eventNames.get(event))
+                this.eventNames.has(event) ?
+                    Elem.listeners.delete(this.id + ':' + event)
+                    : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
+                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
+                this.eventNames.delete(event)
+            }
+        }
+        kill() {
+            this.ondeath?.()
+            this.cleanup()
+            if (body !== this) {
+                this.content.remove()
+                Elem.debug(`Element ${this.id} was removed from body`)
+            }
+        }
+        cleanup() {
+            assign.invoke(this, {
+                noevent: this.eventNames.keys(),
+                removeIntervals: 0,
+                removeTimeouts: 0,
+            })
+            Elem.RO.unobserve(this.content)
+            this.parent?.observer.unobserve?.(this.content)
+            this.observer.disconnect?.()
+            this.killChildren()
+        }
+        begin(o) {
+            Elem.RO.observe(this.content)
+            Elem.elements.add(this)
+            Elem.registry.register(this, this.id)
+            o.start?.call(this)
+        }
+        killChildren() {
+            let n = this.children
+            for (let { length } = n; length--;) {
+                let o = n[length]
+                while (this.content.contains(o?.content)) o.kill()
+            }
+            return this
+        }
+        hide() { (this.toggle('hidden', true), this) }
+        show() { (this.toggle('hidden', false), this) }
+        toggle($, force) { this.content.classList.toggle($, force) }
+        conceal() {
+            this.styleMe({ visibility: 'hidden' })
+        }
+        reveal() {
+            this.styleMe({ visibility: 'visible' })
+        }
+        getModifiedStyleProperties() {
+            let out = {}
+            for (let i = 0; i in this.content.style; ++i) {
+                out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
+            }
+            return out
+        }
+        get visibilityStatus() {
+            return {
+                visibility: this.style.visibility,
+                opacity: this.style.opacity,
+                display: this.style.display,
+                hidden: this.content.classList.contains('hidden'),
+                zIndex: this.style.zIndex
+            }
+        }
+        async fadeOut(callback) {
+            this.transition({
+                frames: { opacity: 0 }, timing: { duration: 300 },
+            }, () => {
+                callback?.call(this)
+                this.hide()
+            })
+        }
+        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
+        async fadeIn(callback) {
+            //his.styleMe({ display: '' })
+            this.styleMe({ opacity: 0 })
+            this.show()
+            this.transition({
+                frames: { opacity: 1 }, timing: { duration: 300 },
+            }, () => {
+                callback?.call(this)
+            })
+        }
+        //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
+        async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
+        addTimeout(callback, interval) {
+            callback.paused = false
+            let mult
+            if (typeof interval === 'object') {
+                if ('seconds' in interval) mult = 1_000 * interval.seconds
+                else if ('minutes' in interval) mult = 60_000 * interval.minutes
+                else if ('hours' in interval) mult = 3_600_000 * interval.hours
+            } else mult = interval
+            let id = setTimeout(() => {
+                callback.paused || this.timeouts.get(id).call(this)
+                this.timeouts.delete(id)
+            }, mult)
+            this.timeouts.set(id, callback)
+            return id
+        }
+        toggleInterval(id) {
+            let n = this.intervals.get(id)
+            return n.paused = !n.paused
+        }
+        addInterval(callback, interval) {
+            callback.paused = false
+            callback.count = interval?.count ?? -1
+            let mult
+            if (typeof interval === 'object') {
+                if ('seconds' in interval) mult = 1_000 * interval.seconds
+                else if ('minutes' in interval) mult = 60_000 * interval.minutes
+                else if ('hours' in interval) mult = 3_600_000 * interval.hours
+            } else mult = interval
+            let id = setInterval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
+            this.intervals.set(id, callback)
+            return id
+        }
+        removeInterval(id) {
+            this.intervals.delete(id)
+            clearInterval(id)
+        }
+        removeIntervals() {
+            for (let [id] of this.intervals) this.removeInterval(id)
+        }
+        removeTimeout(id) {
             this.timeouts.delete(id)
-        }, mult)
-        this.timeouts.set(id, callback)
-        return id
-    }
-    toggleInterval(id) {
-        let n = this.intervals.get(id)
-        return n.paused = !n.paused
-    }
-    addInterval(callback, interval) {
-        callback.paused = false
-        callback.count = interval?.count ?? -1
-        let mult
-        if (typeof interval === 'object') {
-            if ('seconds' in interval) mult = 1_000 * interval.seconds
-            else if ('minutes' in interval) mult = 60_000 * interval.minutes
-            else if ('hours' in interval) mult = 3_600_000 * interval.hours
-        } else mult = interval
-        let id = setInterval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
-        this.intervals.set(id, callback)
-        return id
-    }
-    removeInterval(id) {
-        this.intervals.delete(id)
-        clearInterval(id)
-    }
-    removeIntervals() {
-        for (let [id] of this.intervals) this.removeInterval(id)
-    }
-    removeTimeout(id) {
-        this.timeouts.delete(id)
-        clearTimeout(id)
-    }
-    removeTimeouts() {
-        for (let [id] of this.timeouts) this.removeTimeout(id)
-    }
-    /*static findClass(className) {
-      const styleSheets = document.styleSheets;
-      for (let i = 0; i < styleSheets.length; ++i) {
-          const rules = styleSheets[i].cssRules || styleSheets[i].rules;
-          for (let j = 0; j < rules.length; j++) {
-              if (rules[j].selectorText === `.${className}`) {
-                  return true;
+            clearTimeout(id)
+        }
+        removeTimeouts() {
+            for (let [id] of this.timeouts) this.removeTimeout(id)
+        }
+        /*static findClass(className) {
+          const styleSheets = document.styleSheets;
+          for (let i = 0; i < styleSheets.length; ++i) {
+              const rules = styleSheets[i].cssRules || styleSheets[i].rules;
+              for (let j = 0; j < rules.length; j++) {
+                  if (rules[j].selectorText === `.${className}`) {
+                      return true;
+                  }
               }
           }
-      }
-      return false
-  }*/
+          return false
+      }*/
+    }
 }
-{       
-        function _0(){
-            
-                let k = Object.keys(Elem.logLevels)
-                for (let { length } = k; length--;) {
-                    let o = k[length]
-                    Elem.logLevels[o] = false
-                }
-            
+
+{
+    function _0() {
+
+        let k = Object.keys(Elem.logLevels)
+        for (let { length } = k; length--;) {
+            let o = k[length]
+            Elem.logLevels[o] = false
         }
-        function _1(){
-            map.get(0)()
-            return Elem.logLevels.error = true
-        }
-        function _2() {
-           return Elem.logLevels.warn = map.get(1)()
-        }
-        function _3(){
-           return Elem.logLevels.success = map.get(2)()
-        }
-        function _4(){
-            return Elem.logLevels.info = map.get(3)()
-        }function _5(){
-            return Elem.logLevels.debug = map.get(4)()}
+
+    }
+    function _1() {
+        map.get(0)()
+        return Elem.logLevels.error = true
+    }
+    function _2() {
+        return Elem.logLevels.warn = map.get(1)()
+    }
+    function _3() {
+        return Elem.logLevels.success = map.get(2)()
+    }
+    function _4() {
+        return Elem.logLevels.info = map.get(3)()
+    } function _5() {
+        return Elem.logLevels.debug = map.get(4)()
+    }
     let ll = 3,
         map = new Map([
-            [0,_0],
-            [1,_1],
-            [2,_2],
-            [3,_3],
-            [4,_4],
-            [5,_5],
+            [0, _0],
+            [1, _1],
+            [2, _2],
+            [3, _3],
+            [4, _4],
+            [5, _5],
         ])
     Object.defineProperty(Elem, 'loglevel', {
         get() {
@@ -1407,17 +1426,17 @@ class Elem {
     })
 }
 window._ = Elem.$.bind(Elem)
+window.__ = id => _(id)?.kill()
 function $(opts, t = Elem) {
     if (typeof opts === 'string') throw TypeError('This is not jQuery')
-    return new(t===true?Elem:t)(opts)
+    return new (t === true ? Elem : t)(opts)
 }
 class SceneryElem extends Elem {
     static all = new Set
     static frame = 0
     static update() {
         this.frame++
-        for (let o of this.all)
-            Elem.elements.has(o) ? o.#update() : this.all.delete(o)
+        for (let o of this.all) o.#update()
     }
     position = new Vector2
     rotation = 0
@@ -1428,11 +1447,11 @@ class SceneryElem extends Elem {
     flip() {
         this.#mirror += 180
     }
-    velocity = new Vector2
     cleanup(){
-        Elem.elements.delete(this)
+        SceneryElem.all.delete(this)
         super.cleanup()
     }
+    velocity = new Vector2
     static {
         let k = Object.getOwnPropertyNames(this.prototype)
         for (let { length } = k; length--;) {
@@ -1440,9 +1459,9 @@ class SceneryElem extends Elem {
             const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
             if (typeof descriptor.value === 'function' && key !== 'constructor') {
                 let 우정 = this.prototype[key]
-                this.prototype[key] = ((乓, 份) => {
-                    return function (...l) { if (!(this instanceof 乓)) throw 份; return 우정.apply(this, l) }
-                })(SceneryElem, TypeError('Illegal invocation'))
+                this.prototype[key] = (份 => {
+                    return function (...l) { if(verified in this) return 우정.apply(this, l);throw 份}
+                })(TypeError('Illegal invocation'))
             }
         }
     }
@@ -1453,7 +1472,7 @@ class SceneryElem extends Elem {
         this.styleMe({ position: 'absolute', margin: 'auto' })
         this.position.set(+opts.x || 0, +opts.y || 0)
         this.#update()
-        this.parent.observer.observe(this.content)
+        this.parent?.observer.observe(this.content)
     }
     rotate(rot = 0) {
         this.rotation += rot
@@ -1472,17 +1491,15 @@ class SceneryElem extends Elem {
         if (this.#lifetime > 1) {
             if (!this.isOverFlowed) {
                 if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
-                    || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent.bounds.y)
+                    || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
                     ||
                     (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
-                        || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent.bounds.x)) this.outofbounds?.()
+                        || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
             } else this.#hasBeenSeen = true
             this.update?.()
         }
         this.styleMe({
-            'transform': `
-                rotateY(${this.#mirror}deg) 
-                translate(${(this.position.x)}px, ${(this.position.y)}px)`,
+            'transform': `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
             'transform-origin': 'center',
         })
         this.rotate(this.angular)
@@ -1504,7 +1521,7 @@ class svg extends Elem {
         //Really confusing
     }
 }
-if (local.fragment === 'constructor')createDocumentFragment=()=>new DocumentFragment
+if (local.fragment === 'constructor') createDocumentFragment = () => new DocumentFragment
 function remix(oldFunc, { before, after } = {}) {
     let remix = function (...a) {
         before?.apply(this, a) // Execute pre-construction logic
@@ -1520,7 +1537,7 @@ function remix(oldFunc, { before, after } = {}) {
 const color = (() => {
     let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
-        dhk: { value(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') } },
+        dhk: { value(e, f = 40) {let $=parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') } },
         choose: { value: () => '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) },
         log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
         opposite: { value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
@@ -1534,7 +1551,7 @@ const color = (() => {
                 return n.fillStyle
             }
             else if (prop in t) return Reflect.get(t, prop)
-            throw TypeError('Unsupported color: ' + prop)
+            throw TypeError('CSS does not support the color "' + prop + '"')
         }
     })
 })()
@@ -1580,16 +1597,16 @@ let cursed = {
     }
 }
 {
-    function _____(){
+    function _____() {
         if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 })
         document.querySelectorAll('script').forEach(o => o.remove());
     }
-    document.addEventListener('readystatechange',_____)
+    document.addEventListener('readystatechange', _____)
 }
 //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
 function assign(target, props) {
     return Object.assign(target, props)
-} 
+}
 function createDocumentFragment() {
     return document.createDocumentFragment()
 }

@@ -1,5 +1,5 @@
 import ascii from './ascii.js'
-Elem.$('progress').kill()
+__('progress')
 let あ = Elem, r = color
 const { sin, cos } = Math;
 new あ({
@@ -48,7 +48,6 @@ new あ({
                             tag: 'img', parent: div,
                             src: second,
                             draggable: false,
-
                             styles: {
                                 'box-shadow': '0 0 30px yellow',
                                 width: '100px',
