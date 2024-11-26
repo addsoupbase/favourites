@@ -4,139 +4,173 @@ Png to webp
 cwebp file.png -o file.webp
 */
 'use strict'
-assign(assign, {
-    nullish(target, props) {
-        let k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            if (target[key] != null) delete props[key]
-        }
-        return assign(target, props)
-    },
-    not(target, props) {
-        let k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            if (target[key]) delete props[key]
-        }
-        return assign(target, props)
-    },
-    and(target, props) {
-        let k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            if (!target[key]) delete props[key]
-        }
-        return assign(target, props)
-    },
-    notin(target, props) {
-        let k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            if (key in target) delete props[key]
-        }
-        return assign(target, props)
-    },
-    in(target, props) {
-        let k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            if (!(key in target)) delete props[key]
-        }
-        return assign(target, props)
-    },
-    invoke(target, methods) {
-        let out = [],
-            k = Object.keys(methods)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
-        }
-        return out
-    },
-    get '??='() { return assign.nullish },
-    get '&&='() { return assign.and },
-    get '||='() { return assign.not }
-})
-const ran = {
-    get flip() { return ran.choose(1, -1) },
-    choose: (...a) => a[Math.floor(Math.random() * a.length)],
-    range: (min, max) => Math.random() * (max - min) + min,
-    frange: (min, max) => Math.floor(ran.range(min, max)),
-    pseudo: () => performance.now() % 1,
-    true: () => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff,
-    shuffle(...item) {
-        for (let i = 0, { length } = item; i < length; ++i) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [item[i], item[j]] = [item[j], item[i]]
-        }
-        return item
-    },
-    gen(length = 6) {
-        let pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length, str
-        do str = Array.from({ length }, () => pool[Math.floor(Math.random() * poolSize)]).join('')
-        while (ran.gen.previouslygenerated.has(str))
-        ran.gen.previouslygenerated.add(str)
-        return str
-    },
-    Randomizer: function (n = 6) {
-        return new Proxy({}, { get: (t, p) => t[p] ??= ran.gen(n) })
-    }
+{
+    assign(assign, {
+        nullish(target, props) {
+            let k = Object.keys(props)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                if (target[key] != null) delete props[key]
+            }
+            return assign(target, props)
+        },
+        not(target, props) {
+            let k = Object.keys(props)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                if (target[key]) delete props[key]
+            }
+            return assign(target, props)
+        },
+        and(target, props) {
+            let k = Object.keys(props)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                if (!target[key]) delete props[key]
+            }
+            return assign(target, props)
+        },
+        notin(target, props) {
+            let k = Object.keys(props)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                if (key in target) delete props[key]
+            }
+            return assign(target, props)
+        },
+        in(target, props) {
+            let k = Object.keys(props)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                if (!(key in target)) delete props[key]
+            }
+            return assign(target, props)
+        },
+        invoke(target, methods) {
+            let out = [],
+                k = Object.keys(methods)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
+            }
+            return out
+        },
+        get '??='() { return assign.nullish },
+        get '&&='() { return assign.and },
+        get '||='() { return assign.not }
+    })
 }
+
+const ran =
+    (() => {
+        return {
+            get flip() { return ran.choose(1, -1) },
+            choose,
+            range,
+            frange,
+            pseudo,
+            true: _true,
+            shuffle,
+            gen,
+            Randomizer,
+
+        }
+        function choose(...a) {return a[Math.floor(Math.random() * a.length)]}
+        function range(min, max) {return Math.random() * (max - min) + min}
+        function frange(min, max) {return Math.floor(range(min, max))}
+        function pseudo() {return performance.now() % 1}
+        function _true() {return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff}
+        function shuffle(...item) {
+            for (let i = 0, { length } = item; i < length; ++i) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [item[i], item[j]] = [item[j], item[i]]
+            }
+            return item
+        }
+        function gen(length = 6) {
+            let pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length, str
+            do str = Array.from({ length }, () => pool[Math.floor(Math.random() * poolSize)]).join('')
+            while (ran.gen.previouslygenerated.has(str))
+            ran.gen.previouslygenerated.add(str)
+            return str
+        }
+        function Randomizer(n = 6) {
+            function get(t, p) {
+                return t[p] ??= ran.gen(n)
+            }
+            return new Proxy({}, { get })
+        }
+        
+    })()
 const SUPPORTS = {
     attributeStyleMap: false //'StylePropertyMap'in globalThis
     //Firefox does not support it and it seems like its slower anyway so
 }
 ran.gen.previouslygenerated = new Set
-const utilMath = {
-    isInt: Number.isInteger,
-    sanitize: num => (num === num) && num != null && isFinite(num),
-    equality: (...target) => target.every(o => Object.is(o, target[0])),
-    arreq(...targets) {
-        if (targets.length < 2) throw RangeError('At least 2 arguments required.')
-        for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; ++i) {
-            if (!Array.isArray(targets[i])) throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
-            for (let comparisons of targets) if (!utilMath.equality(targets[0][i], comparisons[i])) return false
-        }
-        return true
-    },
-    toRad: deg => deg * Math.PI / 180,
-    toDeg: rad => rad * 180 / Math.PI,
-    diff: (a, b) => Math.abs(a - b),
-    clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val },
-    get cycle() { return utilMath.Cycle },
-    Cycle: function (...items) {
-        return Object.defineProperty(function* (x = 0) {
-            for (; ;)yield items[x++ % items.length]
-        }(), 'val', {
-            get() { return this.next().value },
-        })
+const utilMath = (() => {
+    return {
+        isInt: Number.isInteger,
+        sanitize,
+        equality,
+        toRad,
+        toDeg,
+        diff,
+        clamp,
+        get cycle() { return utilMath.Cycle },
+        Cycle,
+        /* arreq(...targets) {
+          if (targets.length < 2) throw RangeError('At least 2 arguments required.')
+          for (let i = 0, max = Math.max(...targets.map(o => o.length)) || 1; i < max; ++i) {
+              if (!Array.isArray(targets[i])) throw TypeError(`arguments[${i}] is not an Array (${typeof arguments[i]})`)
+              for (let comparisons of targets) if (!utilMath.equality(targets[0][i], comparisons[i])) return false
+          }
+          return true
+      },*/
     }
-}
-const utilString = {
-    alphabet: 'abcdefghijklmnopqrstuvwxyz',
-    numbers: '0123456789',
-    months: 'January February March April May June July August September October November December'.split(' '),
-    days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
-    contains: (string, ...searches) => searches.every(string.match, string),
-    addCommas: num => `${num}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
-    shorten(string, len = 32) {
+    function sanitize(num) { return (num === num) && num != null && isFinite(num) }
+    function equality(...target) { return target.every(o => Object.is(o, target[0])) }
+    function toRad(deg) { return deg * Math.PI / 180 }
+    function toDeg(rad) { return rad * 180 / Math.PI }
+    function diff(a, b) { return Math.abs(a - b) }
+    function clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val }
+    function Cycle(...items) {
+        return Object.defineProperty(__(), 'val', {get,})
+        function* __(x = 0) {for (; ;)yield items[x++ % items.length]}
+        function get() { return this.next().value }
+    }
+})()
+const utilString = (() => {
+    return {
+        alphabet: 'abcdefghijklmnopqrstuvwxyz',
+        numbers: '0123456789',
+        months: 'January February March April May June July August September October November December'.split(' '),
+        days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
+        contains,
+        addCommas,
+        shorten,
+        clip,
+        reverse,
+        upper,
+    }
+    function contains(string, ...searches) { return searches.every(string.match, string) }
+    function addCommas(num) { return (num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
+    function shorten(string, len = 32) {
         let out = (string + '').slice(0, len)
         if (string.length > len) out += '…'
         return out
-    },
-    clip: (string, len) => string.slice(len, string.length - len),
-    reverse: string => Array.from(string).reverse().join(''),
-    upper: string => string.at(0).toUpperCase() + string.slice(1),
-}
-
+    }
+    function clip(string, len) { return string.slice(len, string.length - len) }
+    function reverse(string) { return Array.from(string).reverse().join('') }
+    function upper(string) { return string.at(0).toUpperCase() + string.slice(1) }
+})()
 {
+    utilString.toOrdinal = x
     let map = new Map([
         ["1", "st"],
         ["2", "nd"],
         ["3", "rd"],
     ]);
-    utilString.toOrdinal = o => {
+    function x(o) {
         const num = +o,
             lastTwoDigits = num % 100,
             me = (o + "").at(-1)
@@ -159,24 +193,33 @@ const utilString = {
     )
 }*/
 utilString.ALPHABET = utilString.alphabet.toUpperCase()
-const utilArray = {
-    assemble(arrayLike, ...sequence) {
+const utilArray = (() => {
+    return {
+        assemble,
+        center,
+        insert,
+        remove,
+        swap,
+        swapInside,
+        avg
+    }
+    function assemble(arrayLike, ...sequence) {
         let out = []
         //for (let digit of sequence) 
         for (let { length } = sequence, i = 0; i < length; ++i)
             out.push(arrayLike.at(sequence[i]))
         return out
-    },
-    center: o => o[Math.floor(o.length / 2)],
-    insert: (array, item, index) => array.splice(index, 0, item),
-    remove: (item, index) => typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1),
-    swap: (item, a, b) => ([item[a], item[b]] = [item[b], item[a]], item),
-    swapInside(item, a, b) {
+    }
+    function center(o) { return o[Math.floor(o.length / 2)] }
+    function insert(array, item, index) { return array.splice(index, 0, item) }
+    function remove(item, index) { return typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1) }
+    function swap(item, a, b) { return ([item[a], item[b]] = [item[b], item[a]], item) }
+    function swapInside(item, a, b) {
         let slot = item.indexOf(a),
             slot2 = item.indexOf(b)
         if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
-    },
-    avg(array, type) {
+    }
+    function avg(array, type) {
         if (!array.length) return NaN
         let sorted = array.slice().sort((a, b) => a - b),
             { length } = sorted
@@ -190,62 +233,30 @@ const utilArray = {
                 filtered = sorted.filter(x => x >= lowerFence && x <= upperFence)
             return filtered.reduce((a, b) => a + b) / filtered.length
         } else return sorted.reduce((a, b) => a + b) / length
-    }
+    } 
+})()
+{
+    function x(...nums) { return utilArray.avg(nums) }
+    utilMath.average = x
 }
-utilMath.average = (...nums) => utilArray.avg(nums)
 
 { let z = (...a) => utilArray.assemble(utilString.alphabet, ...a).join(''); utilString.badwords = RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|')) }
 const [local, session] = (() => {
-    let StorageManager = managee => {
+    return [StorageManager(localStorage), StorageManager(sessionStorage)]
+    function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
+    function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) : 1) }
+    function deleteProperty(target, prop) { return !(prop === '__all__' ? target.clear() : target.removeItem(prop)) }
+    function has(target, prop) { return target.getItem(prop) !== null }
+    function StorageManager(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
-            get: (target, prop) =>
-                prop === '__all__'
-                    ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))]))
-                    : target.getItem(prop),
-            set: (target, prop, value) => !(prop !== '__all__' ? target.setItem(prop, value) : 1),
-            deleteProperty: (target, prop) => !(prop === '__all__' ? target.clear() : target.removeItem(prop)),
-            has: (target, prop) => target.getItem(prop) !== null,
+            get,
+            set,
+            deleteProperty,
+            has,
         })
         throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
-    return [StorageManager(localStorage), StorageManager(sessionStorage)]
 })()
-async function getDataUrl(url) {
-    let data
-    try {
-        let response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors'
-        })
-        if (!response.ok) {
-            Elem.error(`Failed to fetch image. Status: ${response.status}`)
-            throw ':('
-        }
-    } catch (e) {
-        Elem.error(`Resource Error: ${url} - ${e.message}`)
-        throw ':('
-    }
-    try {
-        data = await response.blob()
-    } catch (e) {
-        Elem.error(`Failed to convert response to blob: ${e.message}`)
-        return ':('
-    }
-    return new Promise((resolve, reject) => {
-        /*Object.assign(new FileReader(),{
-            onloadend(){
-                resolve(reader.result)
-            },
-            onerror:reject,
-        }).readAsDataURL(data)*/
-        let reader = assign(new FileReader, {
-            onloadend: () => resolve(reader.result),
-            onerror: reject
-        })
-        readAsDataURL(data) // Convert blob to data URL
-    })
-}
-
 const Vector = class v {
     x = 0
     constructor(x = 0) {
@@ -256,171 +267,197 @@ const Vector = class v {
         return type === 'number' ? this.x : '' + this.x
     }
 }
-const Vector2 = class v {
-    x = 0
-    y = 0
-    constructor(x = 0, y = 0) {
-        if (arguments.length === 1) {
-            y = v.y(x)
-            x = v.x(x)
+const Vector2 = (() => {
+    return assign(class v {
+        x = 0
+        y = 0
+        constructor(x = 0, y = 0) {
+            if (arguments.length === 1) {
+                y = v.y(x)
+                x = v.x(x)
+            }
+            Object.seal(this)
+            this.set(x, y)
         }
-        Object.seal(this)
-        this.set(x, y)
+        static get up() {
+            return new v(0, 1)
+        }
+        static get random() {
+            let out = new v
+            out.randomize()
+            return out
+        }
+        static get down() {
+            return new v(0, -1)
+        }
+        static get left() {
+            return new v(-1, 0)
+        }
+        static get right() {
+            return new v(1, 0)
+        }
+        set(...numbers) {
+            if (numbers.length === 1) numbers = Array.from(numbers[0])
+            for (let i = 0, { length } = numbers; i < length; ++i) {
+                let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                if (Object.keys(this)[i] in this)
+                    this[Object.keys(this)[i]] = n
+            }
+        }
+        pow(vector) {
+            if (!Array.isArray(vector)) vector = Array.from(vector)
+            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
+            this.set(vector)
+            return this
+        }
+        add(vector) {
+            if (!Array.isArray(vector)) {
+                if (1 in arguments) vector = [vector, arguments[1]]
+                vector = Array.from(vector)
+            }
+            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
+            this.set(vector)
+            return this
+        }
+        subtract(vector) {
+            if (!Array.isArray(vector)) {
+                if (1 in arguments) vector = [vector, arguments[1]]
+                vector = Array.from(vector)
+            }
+            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
+            this.set(vector)
+            return this
+        }
+        multiply(vector) {
+            if (!Array.isArray(vector)) {
+                if (1 in arguments) vector = [vector, arguments[1]]
+                vector = Array.from(vector)
+            }
+            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
+            this.set(vector)
+            return this
+        }
+        divide(vector) {
+            if (!Array.isArray(vector)) {
+                if (1 in arguments) vector = [vector, arguments[1]]
+                vector = Array.from(vector)
+            }
+            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
+            this.set(vector)
+            return this
+        }
+        normalize() {
+            this.set(this.normalized)
+        }
+        randomize() {
+            this.set(ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
+        }
+        negate() {
+            this.set(this.negated)
+        }
+        invert() {
+            this.set(this.inverse)
+        }
+        lerp({ to, time = 0.1 }) {
+            this.subtract((this.minus(to)).multiply(time, time))
+        }
+        minus(...other) {
+            return new v(this).subtract(...other)
+        }
+        get average() {
+            return utilMath.average(/*[...this]*/this.x, this.y)
+        }
+        get inverse() {
+            return new v(this.x ** -1, this.y ** -1)
+        }
+        get negated() {
+            return new v(-this.x, -this.y)
+        }
+        get normalized() {
+            return new v(...this.value.map(o => o / this.magnitude || 0))
+        }
+        get magnitude() {
+            return this.value.reduce((a, b) => Math.abs(a + b))
+        }
+        get sqrtMag() {
+            return Math.sqrt(this.magnitude)
+        }
+        get value() {
+            return [this.x, this.y]//Object.values(this)
+        }
+        toString() {
+            return '(' + this.value.join(', ') + ')'
+        }
+        get 0() {
+            return this.x
+        }
+        get 1() {
+            return this.y
+        }
+        *[Symbol.iterator]() {
+            yield this.x
+            yield this.y
+        }
+    }, {
+        distance,
+        x,
+        y,
+        angle,
+        average,
+        difference,
+        combine,
+        multiply,
+        min,
+        max,
+        equals,
+    })
+    function x(vectorLike) {
+        return vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
     }
-    static distance = (vector, vector2) => Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
-    static x = vectorLike => vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
-    static y = vectorLike => vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
-    static angle(first, second) {
+    function y(vectorLike) {
+        return vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
+    }
+    function angle(first, second) {
         let firstAngle = Math.atan2(v.y(first), v.x(first)),
             secondAngle = Math.atan2(v.y(second), v.x(second)),
             angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
-    static average(...vectors) {
+    function average(...vectors) {
         let x = vectors.map(o => v.x(o))
             , y = vectors.map(o => v.y(o))
         return new v(x.average(), y.average())
     }
-    static difference(vector, vector2) {
+    function difference(vector, vector2) {
         if (!Array.isArray(vector)) vector = Array.from(vector)
         if (!Array.isArray(vector2)) vector2 = Array.from(vector2)
         let out = Array.from(vector), { length } = out
         for (let i = 0; i < length; ++i) out[i] = utilMath.diff(vector2[i], vector[i])
         return new v(...out)
     }
-    static combine(...vectors) {
+    function distance(vector, vector2) {
+        return Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
+    }
+    function combine(...vectors) {
         let out = new v
         for (let v of vectors) out.add(v)
         return out
     }
-    static multiply(...vectors) {
+    function multiply(...vectors) {
         let out = new v(1, 1)
         for (let v of vectors) out.multiply(v)
         return out
     }
-    static get up() {
-        return new v(0, 1)
+    function max(vector, vector2) {
+        return new v(Math.max(v.x(vector2), v.x(vector)), Math.max(v.y(vector2), v.y(vector)))
     }
-    static get random() {
-        let out = new v
-        out.randomize()
-        return out
+    function min(vector, vector2) {
+        return new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
     }
-    static get down() {
-        return new v(0, -1)
+    function equals(...vectors) {
+        return utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
     }
-    static get left() {
-        return new v(-1, 0)
-    }
-    static get right() {
-        return new v(1, 0)
-    }
-    static max = (vector, vector2) => new v(Math.max(v.x(vector2), v.x(vector)), Math.max(v.y(vector2), v.y(vector)))
-    static min = (vector, vector2) => new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
-    static equals = (...vectors) => utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
-    set(...numbers) {
-        if (numbers.length === 1) numbers = Array.from(numbers[0])
-        for (let i = 0, { length } = numbers; i < length; ++i) {
-            let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-            if (Object.keys(this)[i] in this)
-                this[Object.keys(this)[i]] = n
-        }
-    }
-    pow(vector) {
-        if (!Array.isArray(vector)) vector = Array.from(vector)
-        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
-        this.set(vector)
-        return this
-    }
-    add(vector) {
-        if (!Array.isArray(vector)) {
-            if (1 in arguments) vector = [vector, arguments[1]]
-            vector = Array.from(vector)
-        }
-        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
-        this.set(vector)
-        return this
-    }
-    subtract(vector) {
-        if (!Array.isArray(vector)) {
-            if (1 in arguments) vector = [vector, arguments[1]]
-            vector = Array.from(vector)
-        }
-        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
-        this.set(vector)
-        return this
-    }
-    multiply(vector) {
-        if (!Array.isArray(vector)) {
-            if (1 in arguments) vector = [vector, arguments[1]]
-            vector = Array.from(vector)
-        }
-        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
-        this.set(vector)
-        return this
-    }
-    divide(vector) {
-        if (!Array.isArray(vector)) {
-            if (1 in arguments) vector = [vector, arguments[1]]
-            vector = Array.from(vector)
-        }
-        for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
-        this.set(vector)
-        return this
-    }
-    normalize() {
-        this.set(this.normalized)
-    }
-    randomize() {
-        this.set(ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
-    }
-    negate() {
-        this.set(this.negated)
-    }
-    invert() {
-        this.set(this.inverse)
-    }
-    lerp({ to, time = 0.1 }) {
-        this.subtract((this.minus(to)).multiply(time, time))
-    }
-    minus(...other) {
-        return new v(this).subtract(...other)
-    }
-    get average() {
-        return utilMath.average(/*[...this]*/this.x, this.y)
-    }
-    get inverse() {
-        return new v(this.x ** -1, this.y ** -1)
-    }
-    get negated() {
-        return new v(-this.x, -this.y)
-    }
-    get normalized() {
-        return new v(...this.value.map(o => o / this.magnitude || 0))
-    }
-    get magnitude() {
-        return this.value.reduce((a, b) => Math.abs(a + b))
-    }
-    get sqrtMag() {
-        return Math.sqrt(this.magnitude)
-    }
-    get value() {
-        return [this.x, this.y]//Object.values(this)
-    }
-    toString() {
-        return '(' + this.value.join(', ') + ')'
-    }
-    get 0() {
-        return this.x
-    }
-    get 1() {
-        return this.y
-    }
-    *[Symbol.iterator]() {
-        yield this.x
-        yield this.y
-    }
-}
+})()
 /*class Vector3 extends v {
     z
     constructor(x = 0, y = 0, z = 0) {
@@ -434,7 +471,7 @@ const Vector2 = class v {
         return this.z
     }
 }*/
-class StrictArray {
+/*class StrictArray {
     constructor(bouncer, ...elements) {
         return new Proxy(elements, {
             set(obj, prop, value) {
@@ -512,7 +549,7 @@ class Matrix {
 function modifyAt(array, index, modifier) {
     const idx = index < 0 ? array.length + index : index
     if (idx >= 0 && idx < array.length) array[idx] = modifier(array[idx])
-}
+}*/
 
 const Color = class z {
     r = 0
@@ -580,15 +617,55 @@ const Color = class z {
 }
 {
     let verified = Symbol('🔒')
+    function __(){
+        return document.documentElement.getHTML()
+    }
     var Elem = class Elem {
         //    static{debugger}
         [verified]
         static USE_CUTESY_FONT = true
         static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/
         static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
-        static getPageAsHTML = () => document.documentElement.getHTML()
-        static get allElements() {
-            return [].map.call(document.querySelectorAll('*'), o => o.content).filter(o => verified in Elem)
+        static getPageAsHTML = __
+        static {
+            Object.defineProperties(this,{
+                allElements:{get: allElements}
+            })
+            Object.defineProperties(this.prototype,{
+                children:{get:getChildren,set:setChildren},
+                before:{set:before},
+                after:{set:after},
+                detachedChildren:{get:detachedChildren},
+            },)
+            function allElements() {
+                return [].map.call(document.querySelectorAll('*'), map).filter(filter)
+                function map(o){return o.content}
+                function filter(o){return Elem.elements.has(o)}
+            }
+            function detachedChildren() {
+                let a = Array.from(this.content.childNodes),
+                    fragment = createDocumentFragment()
+                for (let i = 0, { length } = a; i < length; ++i) {
+                    a[i].remove()
+                    if (a[i] instanceof Element) {
+                        fragment.appendChild(a[i])
+                    } else a[i].nodeValue = ''
+                }
+                return fragment
+            }
+            function before(e){this.content.before(e.content)}
+            function after(e){this.content.after(e.content)}
+            function from(o){return o.content}
+            function filter(o){return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES))}
+            function getChildren(){return Array.from(this.content.children, from).filter(filter)}
+            function setChildren(children) {
+                //  for (let o of children) this.adopt(o)
+                let frag = createDocumentFragment()
+                for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
+                    frag.appendChild(o.content)
+                this.content.appendChild(frag)
+                //i think its faster but im not sure
+            }
         }
         raw() {
             return this.content.getHTML({ serializableShadowRoots: true })
@@ -598,23 +675,6 @@ const Color = class z {
         }
         assign(obj) {
             assign(this, obj)
-        }
-        set after(e) {
-            this.content.after(e.content)
-        }
-        set before(e) {
-            this.content.before(e.content)
-        }
-        get detachedChildren() {
-            let a = Array.from(this.content.childNodes),
-                fragment = createDocumentFragment()
-            for (let i = 0, { length } = a; i < length; ++i) {
-                a[i].remove()
-                if (a[i] instanceof Element) {
-                    fragment.appendChild(a[i])
-                } else a[i].nodeValue = ''
-            }
-            return fragment
         }
         age = Date.now()
         static log() {
@@ -633,20 +693,21 @@ const Color = class z {
          }*/
         observer = {
             observe(child) {
-                delete child.content.parent.observer
-                child.content.parent.observer = new IntersectionObserver(entries => {
+                function く(entries){
                     for (let entry of entries) {
                         if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
                         else entry.target.content.detectVisibility?.(true)
                     }
-                }, {
+                }
+                delete child.content.parent.observer
+                child.content.parent.observer = new IntersectionObserver(く, {
                     root: child.content.parent.content,
                     threshold: 0,
                 })
                 child.content.parent.observer.observe(child)
             }
         }
-        static $ = id => {
+        static $(id) {
             let out = document.getElementById(id.replace('#', ''))
             out || Elem.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
             return out?.content ?? out ?? null
@@ -656,7 +717,7 @@ const Color = class z {
             video: /mp4|mpeg|webm|avi|mov/,
             audio: /mp3|ogg|wav|aiff|aac|flac/
         }
-        static textStyle = (message, options) => {
+        static textStyle(message, options) {
             let elf = JSON.stringify(options).replaceAll(/\{|\}|\"/g, '').replaceAll(',', ';')
             console.trace(`%c ${message}`, elf)
         }
@@ -676,19 +737,21 @@ const Color = class z {
                         this.content.style.setProperty(propName, propValue)
                     }
                     else
-    
+
                         this.content.style.setProperty(propName, propValue)
-    
+
                 }
                 // this.content.style[propName] = propValue
                 //this.content.style.setProperty(propName, propValue)
                 //  CSSStyleValue.parse(propName,propValue)
-    
+
             }
         }
         static noConsole() {
             console.warn(`No console mode was enabled, which means if you're reading this it was probably not on purpose (for obvious reasons)`)
-            addEventListener('keydown', function ({ key }) {
+            addEventListener('keydown', __)
+            delete this.noConsole
+            function __({ key }) {
                 let value
                 if (key?.toLowerCase?.() === 'backspace') {
                     try {
@@ -701,25 +764,27 @@ const Color = class z {
                         navigator.clipboard.writeText(value)
                     }
                 }
-            })
-            delete this.noConsole
+            }
         }
         static loaded = new Set
         static failed = new Set
-        static RO = new ResizeObserver(entries => {
-            for (let { contentBoxSize, target } of entries) {
-                // For modern browsers that return an array (contentBoxSize[0])
-                let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
-                // target.content ??= {}
-                if (target.content)
-                    target.content.bounds = {
-                        x: size.inlineSize,  // Width
-                        y: size.blockSize    // Height
-                    }
+        static {
+            this.RO = new ResizeObserver(Ro)
+            
+            function Ro(entries){
+                for (let { contentBoxSize, target } of entries) {
+                    // For modern browsers that return an array (contentBoxSize[0])
+                    let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
+                    // target.content ??= {}
+                    if (target.content)
+                        target.content.bounds = {
+                            x: size.inlineSize,  // Width
+                            y: size.blockSize    // Height
+                        }
     
+                }
             }
         }
-        )
         static bulk(callback, ...src) {
             return Promise.all(src.map(o => fetch(o).then(response => {
                 if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
@@ -839,7 +904,7 @@ const Color = class z {
                 (callback => setTimeout(callback, 12))
             return function n() {
                 if (!Elem.animateOnRequestAnimationFrame.size) return
-    
+
                 r(n)
                 ++frame
                 for (let toAnimate of Elem.animateOnRequestAnimationFrame)
@@ -850,7 +915,7 @@ const Color = class z {
                         Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
                         Elem.animateOnRequestAnimationFrame.delete(toAnimate)
                     }
-    
+
             }
         })()
         static listeners = new Map
@@ -889,11 +954,11 @@ const Color = class z {
         static {
             let out = { 'standards mode': 'red' };
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
-        let head = document.head.children
-        // body.content.setAttribute('id', 'body')
-        //body.id = 'body'
-        this.select(document.documentElement)
-        window.body = document.querySelector('body').content
+            let head = document.head.children
+            // body.content.setAttribute('id', 'body')
+            //body.id = 'body'
+            this.select(document.documentElement)
+            window.body = document.querySelector('body').content
             for (let o of head) {
                 let butes = o.attributes
                 if (butes.charset) out.charset = o
@@ -913,7 +978,7 @@ const Color = class z {
                 out['document has <title>'] = 'red'
             else out['document has <title>'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
-    
+
             console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
             for (let [key, value] of Object.entries(out)) {
                 if (typeof value !== 'string') {
@@ -921,7 +986,7 @@ const Color = class z {
                 }
                 else {
                     console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-    
+
                 }
             }
             console.groupEnd()
@@ -941,7 +1006,7 @@ const Color = class z {
             Elem.animateOnRequestAnimationFrame.add(this)
             if (Elem.animateOnRequestAnimationFrame.size === 1)
                 Elem.requestAnimationFrame()
-    
+
         }
         clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
         timeouts = new Map
@@ -957,14 +1022,14 @@ const Color = class z {
         })
         constructor(opts = {}) {
             //Main init
-            if (!('tag' in opts) && (!('self' in opts ) || !(opts.self instanceof Element))  && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
+            if (!('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
             if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
             if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
-                if (opts.self) {
+            if (opts.self) {
                 if (Elem.elements.has(opts.self.content)) {
                     console.error(opts.self)
                     throw ReferenceError(`Duplicate element not allowed`)
-                    
+
                 }
                 this.content = opts.self
                 if (this.content === document.body) opts.id = 'body'
@@ -996,11 +1061,11 @@ const Color = class z {
             if (opts.events)
                 this.addevent(opts.events)
             // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
-    
+
             if (opts.styles)
                 this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
-    
+
             if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
             // this.append(opts.parent)
             this.current = this.content
@@ -1075,19 +1140,9 @@ const Color = class z {
         get childCount() {
             return this.children.length
         }
-        get children() {
-            return Array.from(this.content.children, o => o.content).filter(o => o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)))
-        }
+        
         batchAppendChild(count, childFunc) {
             this.children = Array.from({ length: count }, childFunc)
-        }
-        set children(children) {
-            //  for (let o of children) this.adopt(o)
-            let frag = createDocumentFragment()
-            for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
-                frag.appendChild(o.content)
-            this.content.appendChild(frag)
-            //i think its faster but im not sure
         }
         set txt(text) {
             this.textContent = text
@@ -1161,7 +1216,7 @@ const Color = class z {
                 //  this.styleMe(frames);
                 animation.commitStyles()
                 // Call the callback if provided
-                callback?.call?.(this)
+                callback?.call(this)
             }
             catch (e) {
                 if (!e.message.includes(`Target element is not rendered.`)) {
@@ -1188,7 +1243,7 @@ const Color = class z {
                 ],500); break;*/
             //  }
             function _____() {
-                this.noevent('animationend'); callback?.call?.(this)
+                this.noevent('animationend'); callback?.call(this)
                 //switch (target.class) {
                 //    default: 
                 keep || this.removeClass(target.class);
@@ -1394,7 +1449,7 @@ const Color = class z {
         flip() {
             this.#mirror += 180
         }
-        cleanup(){
+        cleanup() {
             SceneryElem.all.delete(this)
             super.cleanup()
         }
@@ -1407,7 +1462,7 @@ const Color = class z {
                 if (typeof descriptor.value === 'function' && key !== 'constructor') {
                     let 우정 = this.prototype[key]
                     this.prototype[key] = (份 => {
-                        return function (...l) { if(verified in this) return 우정.apply(this, l);throw 份}
+                        return function (...l) { if (verified in this) return 우정.apply(this, l); throw 份 }
                     })(TypeError('Illegal invocation'))
                 }
             }
@@ -1459,30 +1514,6 @@ const Color = class z {
 }
 
 {
-    function _0() {
-
-        let k = Object.keys(Elem.logLevels)
-        for (let { length } = k; length--;) {
-            let o = k[length]
-            Elem.logLevels[o] = false
-        }
-
-    }
-    function _1() {
-        map.get(0)()
-        return Elem.logLevels.error = true
-    }
-    function _2() {
-        return Elem.logLevels.warn = map.get(1)()
-    }
-    function _3() {
-        return Elem.logLevels.success = map.get(2)()
-    }
-    function _4() {
-        return Elem.logLevels.info = map.get(3)()
-    } function _5() {
-        return Elem.logLevels.debug = map.get(4)()
-    }
     let ll = 3,
         map = new Map([
             [0, _0],
@@ -1493,22 +1524,24 @@ const Color = class z {
             [5, _5],
         ])
     Object.defineProperty(Elem, 'loglevel', {
-        get() {
-            return ll
-        },
-        set(val) {
-            if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
-            ll = val
-            return map.get(+ll)()
-        }
+        get,
+        set
     })
+    function _0() { let k = Object.keys(Elem.logLevels); for (let { length } = k; length--;) { let o = k[length]; Elem.logLevels[o] = false } }
+    function _1() { map.get(0)(); return Elem.logLevels.error = true }
+    function _2() { return Elem.logLevels.warn = map.get(1)() }
+    function _3() { return Elem.logLevels.success = map.get(2)() }
+    function _4() { return Elem.logLevels.info = map.get(3)() }
+    function _5() { return Elem.logLevels.debug = map.get(4)() }
+    function get() { return ll }
+    function set(val) {
+        if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
+        ll = val
+        return map.get(+ll)()
+    }
 }
 window._ = Elem.$.bind(Elem)
 window.__ = id => _(id)?.kill()
-function $(opts, t = Elem) {
-    if (typeof opts === 'string') throw TypeError('This is not jQuery')
-    return new (t === true ? Elem : t)(opts)
-}
 
 class svg extends Elem {
     constructor(n) {
@@ -1522,39 +1555,37 @@ class svg extends Elem {
         //Really confusing
     }
 }
-if (local.fragment === 'constructor') createDocumentFragment = () => new DocumentFragment
-function remix(oldFunc, { before, after } = {}) {
-    let remix = function (...a) {
-        before?.apply(this, a) // Execute pre-construction logic
-        let instance
-        if (new.target) instance = new oldFunc(...a) // Call the original constructor
-        else instance = oldFunc(...a)
-        after?.apply(instance, a) // Execute post-construction logic
-        return instance // Return the new instance
+if (local.fragment === 'constructor') {
+    function df() {
+        return new DocumentFragment
     }
-    if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
-    return assign(remix, oldFunc)
+    createDocumentFragment = df
 }
+
 const color = (() => {
     let n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
-        dhk: { value(e, f = 40) {let $=parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') } },
-        choose: { value: () => '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) },
-        log: { value: e => console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) },
-        opposite: { value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) } }
+        dhk: { value: ___ },
+        choose: { value: choose, },
+        log: { value: __ },
+        opposite: { value }
     }), {
-        set(t, p, v) {
-            return Reflect.set(t, p, v)
-        },
-        get(t, prop) {
-            if (CSS.supports('color', prop)) {
-                n.fillStyle = prop
-                return n.fillStyle
-            }
-            else if (prop in t) return Reflect.get(t, prop)
-            throw TypeError('CSS does not support the color "' + prop + '"')
-        }
+        set,
+        get
     })
+    function set(t, p, b) { Reflect.set(t, p, v) }
+    function __(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }
+    function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
+    function choose() { return '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) }
+    function value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
+    function get(t, prop) {
+        if (CSS.supports('color', prop)) {
+            n.fillStyle = prop
+            return n.fillStyle
+        }
+        else if (prop in t) return Reflect.get(t, prop)
+        throw TypeError('CSS does not support the color "' + prop + '"')
+    }
 })()
 assign(color, {
     //Extra colors go here
@@ -1610,4 +1641,53 @@ function assign(target, props) {
 }
 function createDocumentFragment() {
     return document.createDocumentFragment()
+}
+function $(opts, t = Elem) {
+    if (typeof opts === 'string') throw TypeError('This is not jQuery')
+    return new (t === true ? Elem : t)(opts)
+}
+function remix(oldFunc, { before, after } = {}) {
+    function remix(...a) {
+        before?.apply(this, a) // Execute pre-construction logic
+        let instance
+        if (new.target) instance = new oldFunc(...a) // Call the original constructor
+        else instance = oldFunc(...a)
+        after?.apply(instance, a) // Execute post-construction logic
+        return instance // Return the new instance
+    }
+    if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
+    return assign(remix, oldFunc)
+}
+async function getDataUrl(url) {
+    let data
+    try {
+        let response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors'
+        })
+        if (!response.ok) {
+            Elem.error(`Failed to fetch image. Status: ${response.status}`)
+            throw ':('
+        }
+    } catch (e) {
+        Elem.error(`Resource Error: ${url} - ${e.message}`)
+        throw ':('
+    }
+    try {
+        data = await response.blob()
+    } catch (e) {
+        Elem.error(`Failed to convert response to blob: ${e.message}`)
+        return ':('
+    }
+    function x(resolve, onerror) {
+        function onloadend() {
+            return resolve(reader.result)
+        }
+        let reader = assign(new FileReader, {
+            onloadend,
+            onerror
+        })
+        readAsDataURL(data) // Convert blob to data URL
+    }
+    return new Promise(x)
 }
