@@ -1378,6 +1378,84 @@ const Color = class z {
           return false
       }*/
     }
+    var SceneryElem = class SceneryElem extends Elem {
+        static all = new Set
+        static frame = 0
+        static update() {
+            this.frame++
+            for (let o of this.all) o.#update()
+        }
+        position = new Vector2
+        rotation = 0
+        angular = 0
+        #mirror = 0
+        #lifetime = 0
+        #hasBeenSeen = false
+        flip() {
+            this.#mirror += 180
+        }
+        cleanup(){
+            SceneryElem.all.delete(this)
+            super.cleanup()
+        }
+        velocity = new Vector2
+        static {
+            let k = Object.getOwnPropertyNames(this.prototype)
+            for (let { length } = k; length--;) {
+                let key = k[length]
+                const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
+                if (typeof descriptor.value === 'function' && key !== 'constructor') {
+                    let 우정 = this.prototype[key]
+                    this.prototype[key] = (份 => {
+                        return function (...l) { if(verified in this) return 우정.apply(this, l);throw 份}
+                    })(TypeError('Illegal invocation'))
+                }
+            }
+        }
+        constructor(opts = {}, i) {
+            opts.tag ??= 'div'
+            super(opts, i)
+            new.target.all.add(this)
+            this.styleMe({ position: 'absolute', margin: 'auto' })
+            this.position.set(+opts.x || 0, +opts.y || 0)
+            this.#update()
+            this.parent?.observer.observe(this.content)
+        }
+        rotate(rot = 0) {
+            this.rotation += rot
+        }
+        setAV(speed = 0) {
+            this.angular = speed
+        }
+        outofbounds() {
+            this.kill()
+        }
+        detectVisibility(n) {
+            this.isOverFlowed = n
+        }
+        #update() {
+            this.#lifetime++
+            if (this.#lifetime > 1) {
+                if (!this.isOverFlowed) {
+                    if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
+                        || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
+                        ||
+                        (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
+                            || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
+                } else this.#hasBeenSeen = true
+                this.update?.()
+            }
+            this.styleMe({
+                'transform': `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
+                'transform-origin': 'center',
+            })
+            this.rotate(this.angular)
+            this.position.add(this.velocity)
+            // Do not use this ⤵️
+            //  this.style.left = `${Math.trunc(this.position.x)}px`
+            //  this.style.top = `${Math.trunc(this.position.y)}px`
+        }
+    }
 }
 
 {
@@ -1431,84 +1509,7 @@ function $(opts, t = Elem) {
     if (typeof opts === 'string') throw TypeError('This is not jQuery')
     return new (t === true ? Elem : t)(opts)
 }
-class SceneryElem extends Elem {
-    static all = new Set
-    static frame = 0
-    static update() {
-        this.frame++
-        for (let o of this.all) o.#update()
-    }
-    position = new Vector2
-    rotation = 0
-    angular = 0
-    #mirror = 0
-    #lifetime = 0
-    #hasBeenSeen = false
-    flip() {
-        this.#mirror += 180
-    }
-    cleanup(){
-        SceneryElem.all.delete(this)
-        super.cleanup()
-    }
-    velocity = new Vector2
-    static {
-        let k = Object.getOwnPropertyNames(this.prototype)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
-            if (typeof descriptor.value === 'function' && key !== 'constructor') {
-                let 우정 = this.prototype[key]
-                this.prototype[key] = (份 => {
-                    return function (...l) { if(verified in this) return 우정.apply(this, l);throw 份}
-                })(TypeError('Illegal invocation'))
-            }
-        }
-    }
-    constructor(opts = {}, i) {
-        opts.tag ??= 'div'
-        super(opts, i)
-        new.target.all.add(this)
-        this.styleMe({ position: 'absolute', margin: 'auto' })
-        this.position.set(+opts.x || 0, +opts.y || 0)
-        this.#update()
-        this.parent?.observer.observe(this.content)
-    }
-    rotate(rot = 0) {
-        this.rotation += rot
-    }
-    setAV(speed = 0) {
-        this.angular = speed
-    }
-    outofbounds() {
-        this.kill()
-    }
-    detectVisibility(n) {
-        this.isOverFlowed = n
-    }
-    #update() {
-        this.#lifetime++
-        if (this.#lifetime > 1) {
-            if (!this.isOverFlowed) {
-                if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
-                    || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
-                    ||
-                    (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
-                        || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
-            } else this.#hasBeenSeen = true
-            this.update?.()
-        }
-        this.styleMe({
-            'transform': `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
-            'transform-origin': 'center',
-        })
-        this.rotate(this.angular)
-        this.position.add(this.velocity)
-        // Do not use this ⤵️
-        //  this.style.left = `${Math.trunc(this.position.x)}px`
-        //  this.style.top = `${Math.trunc(this.position.y)}px`
-    }
-}
+
 class svg extends Elem {
     constructor(n) {
         assign(n, {
