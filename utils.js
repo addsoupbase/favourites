@@ -117,7 +117,7 @@ const utilMath = (() => {
         toDeg,
         diff,
         clamp,
-        get cycle() { return utilMath.Cycle },
+        get cycle() { return Cycle },
         Cycle,
         /* arreq(...targets) {
           if (targets.length < 2) throw RangeError('At least 2 arguments required.')
