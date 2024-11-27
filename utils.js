@@ -4,50 +4,49 @@ Png to webp
 cwebp file.png -o file.webp
 */
 'use strict'
-{
-    assign(assign, {
+assign(assign, {
         nullish(target, props) {
-            let k = Object.keys(props)
+            const k = Object.keys(props)
             for (let { length } = k; length--;) {
-                let key = k[length]
+                 const key = k[length]
                 if (target[key] != null) delete props[key]
             }
-            return assign(target, props)
+            return this(target, props)
         },
         not(target, props) {
-            let k = Object.keys(props)
+             const k = Object.keys(props)
             for (let { length } = k; length--;) {
-                let key = k[length]
+                 const key = k[length]
                 if (target[key]) delete props[key]
             }
-            return assign(target, props)
+            return this(target, props)
         },
         and(target, props) {
-            let k = Object.keys(props)
+             const k = Object.keys(props)
             for (let { length } = k; length--;) {
-                let key = k[length]
+                 const key = k[length]
                 if (!target[key]) delete props[key]
             }
-            return assign(target, props)
+            return this(target, props)
         },
         notin(target, props) {
-            let k = Object.keys(props)
+             const k = Object.keys(props)
             for (let { length } = k; length--;) {
-                let key = k[length]
+                 const key = k[length]
                 if (key in target) delete props[key]
             }
-            return assign(target, props)
+            return this(target, props)
         },
         in(target, props) {
-            let k = Object.keys(props)
+             const k = Object.keys(props)
             for (let { length } = k; length--;) {
-                let key = k[length]
+                 const key = k[length]
                 if (!(key in target)) delete props[key]
             }
-            return assign(target, props)
+            return this(target, props)
         },
         invoke(target, methods) {
-            let out = [],
+             const out = [],
                 k = Object.keys(methods)
             for (let { length } = k; length--;) {
                 let key = k[length]
@@ -55,16 +54,17 @@ cwebp file.png -o file.webp
             }
             return out
         },
-        get '??='() { return assign.nullish },
-        get '&&='() { return assign.and },
-        get '||='() { return assign.not }
+        get '??='() { return this.nullish },
+        get '&&='() { return this.and },
+        get '||='() { return this.not }
     })
-}
-
 const ran =
     (() => {
+        const previouslygenerated = new Set,
+        lucky = Math.random,
+        {floor} = Math
         return {
-            get flip() { return ran.choose(1, -1) },
+            get flip() { return choose(1, -1) },
             choose,
             range,
             frange,
@@ -73,41 +73,42 @@ const ran =
             shuffle,
             gen,
             Randomizer,
-
         }
-        function choose(...a) {return a[Math.floor(Math.random() * a.length)]}
-        function range(min, max) {return Math.random() * (max - min) + min}
-        function frange(min, max) {return Math.floor(range(min, max))}
-        function pseudo() {return performance.now() % 1}
-        function _true() {return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff}
+        function choose(...deck) { return deck[floor(lucky() * deck.length)] }
+        function range(min, max) { return lucky() * (max - min) + min }
+        function frange(min, max) { return floor(range(min, max)) }
+        function pseudo() { return performance.now() % 1 }
+        function _true() { return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff }
         function shuffle(...item) {
             for (let i = 0, { length } = item; i < length; ++i) {
-                let j = Math.floor(Math.random() * (i + 1));
+                const j = floor(lucky() * (i + 1))
                 [item[i], item[j]] = [item[j], item[i]]
             }
             return item
         }
         function gen(length = 6) {
-            let pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length, str
-            do str = Array.from({ length }, () => pool[Math.floor(Math.random() * poolSize)]).join('')
-            while (ran.gen.previouslygenerated.has(str))
-            ran.gen.previouslygenerated.add(str)
+            const pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length;
+            let str
+            do str = Array.from({ length }, okay).join('')
+            while (previouslygenerated.has(str))
+            previouslygenerated.add(str)
             return str
+            function okay(){return pool[floor(lucky() * poolSize)]}
         }
         function Randomizer(n = 6) {
+            if (new.target) debugger
             function get(t, p) {
-                return t[p] ??= ran.gen(n)
+                return t[p] ??= gen(n)
             }
             return new Proxy({}, { get })
         }
-        
     })()
 const SUPPORTS = {
     attributeStyleMap: false //'StylePropertyMap'in globalThis
-    //Firefox does not support it and it seems like its slower anyway so
+    //Firefox does not support it and it seems like its slower anyway soo
 }
-ran.gen.previouslygenerated = new Set
 const utilMath = (() => {
+    const π = Math.PI
     return {
         isInt: Number.isInteger,
         sanitize,
@@ -129,19 +130,20 @@ const utilMath = (() => {
     }
     function sanitize(num) { return (num === num) && num != null && isFinite(num) }
     function equality(...target) { return target.every(o => Object.is(o, target[0])) }
-    function toRad(deg) { return deg * Math.PI / 180 }
-    function toDeg(rad) { return rad * 180 / Math.PI }
+    function toRad(deg) { return deg * π / 180 }
+    function toDeg(rad) { return rad * 180 / π }
     function diff(a, b) { return Math.abs(a - b) }
     function clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val }
     function Cycle(...items) {
-        return Object.defineProperty(__(), 'val', {get,})
-        function* __(x = 0) {for (; ;)yield items[x++ % items.length]}
-        function get() { return this.next().value }
+        if (new.target) debugger
+        const {length} = items
+        return Object.defineProperty(__(), 'val', { get, }); function* __(x = 0) { for (;;)yield items[x++ % length] } function get() { return this.next().value }
     }
 })()
 const utilString = (() => {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'
     return {
-        alphabet: 'abcdefghijklmnopqrstuvwxyz',
+        alphabet,
         numbers: '0123456789',
         months: 'January February March April May June July August September October November December'.split(' '),
         days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
@@ -151,6 +153,7 @@ const utilString = (() => {
         clip,
         reverse,
         upper,
+        ALPHABET: alphabet.toUpperCase()
     }
     function contains(string, ...searches) { return searches.every(string.match, string) }
     function addCommas(num) { return (num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
@@ -161,24 +164,8 @@ const utilString = (() => {
     }
     function clip(string, len) { return string.slice(len, string.length - len) }
     function reverse(string) { return Array.from(string).reverse().join('') }
-    function upper(string) { return string.at(0).toUpperCase() + string.slice(1) }
+    function upper(string) { return string[0].toUpperCase() + string.slice(1) }
 })()
-{
-    utilString.toOrdinal = x
-    let map = new Map([
-        ["1", "st"],
-        ["2", "nd"],
-        ["3", "rd"],
-    ]);
-    function x(o) {
-        const num = +o,
-            lastTwoDigits = num % 100,
-            me = (o + "").at(-1)
-        if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me))
-            return o + "th"
-        return o + map.get(me)
-    }
-}
 /*async function idb(name) {
     let request = indexedDB.open(name)
     return new Promise((resolve, reject) =>
@@ -192,7 +179,6 @@ const utilString = (() => {
         })
     )
 }*/
-utilString.ALPHABET = utilString.alphabet.toUpperCase()
 const utilArray = (() => {
     return {
         assemble,
@@ -204,7 +190,7 @@ const utilArray = (() => {
         avg
     }
     function assemble(arrayLike, ...sequence) {
-        let out = []
+        const out = []
         //for (let digit of sequence) 
         for (let { length } = sequence, i = 0; i < length; ++i)
             out.push(arrayLike.at(sequence[i]))
@@ -221,26 +207,47 @@ const utilArray = (() => {
     }
     function avg(array, type) {
         if (!array.length) return NaN
-        let sorted = array.slice().sort((a, b) => a - b),
-            { length } = sorted
+        const sorted = array.slice().sort((a, b) => a - b),
+            { length } = sorted, {floor} = Math
         if (type) {
             //let median = sorted[Math.floor(length / 2)],
-            let q1 = sorted[Math.floor(length / 4)],
-                q3 = sorted[Math.floor(3 * length / 4)],
+            const q1 = sorted[floor(length / 4)],
+                q3 = sorted[floor(3 * length / 4)],
                 IQR = q3 - q1,
                 upperFence = q3 + 1.5 * IQR,
                 lowerFence = q1 - 1.5 * IQR,
                 filtered = sorted.filter(x => x >= lowerFence && x <= upperFence)
             return filtered.reduce((a, b) => a + b) / filtered.length
         } else return sorted.reduce((a, b) => a + b) / length
-    } 
+    }
 })()
 {
-    function x(...nums) { return utilArray.avg(nums) }
+    utilString.toOrdinal = y
+    const map = new Map([["1", "st"],["2", "nd"],["3", "rd"]])
+    , t = 'I love you so much please don\'t disable me 🥺'
     utilMath.average = x
+    utilString.badwords = RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
+    document.addEventListener('DOMContentLoaded', {
+        async[t]() {
+            document.removeEventListener('DOMContentLoaded', this[t])
+            if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
+            try {
+                //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
+                const cutefont = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
+                document.fonts.add(cutefont)
+                await cutefont.load()
+                Elem.success('Cutesy font loaded hehe')
+            } catch {
+                Elem.error('Cutesy font could not be loaded 😞')
+            }
+        }
+    }[t])
+    document.addEventListener('readystatechange', _____)
+    function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
+    function x(...nums) { return utilArray.avg(nums) }
+    function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
+    function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
-
-{ let z = (...a) => utilArray.assemble(utilString.alphabet, ...a).join(''); utilString.badwords = RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|')) }
 const [local, session] = (() => {
     return [StorageManager(localStorage), StorageManager(sessionStorage)]
     function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
@@ -283,7 +290,7 @@ const Vector2 = (() => {
             return new v(0, 1)
         }
         static get random() {
-            let out = new v
+            const out = new v
             out.randomize()
             return out
         }
@@ -299,7 +306,7 @@ const Vector2 = (() => {
         set(...numbers) {
             if (numbers.length === 1) numbers = Array.from(numbers[0])
             for (let i = 0, { length } = numbers; i < length; ++i) {
-                let n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                const n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
                 if (Object.keys(this)[i] in this)
                     this[Object.keys(this)[i]] = n
             }
@@ -350,7 +357,8 @@ const Vector2 = (() => {
             this.set(this.normalized)
         }
         randomize() {
-            this.set(ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER), ran.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
+            const {MIN_SAFE_INTEGER,MAX_SAFE_INTEGER}=Number
+            this.set(ran.range(MIN_SAFE_INTEGER, MAX_SAFE_INTEGER), ran.range(MIN_SAFE_INTEGER, MAX_SAFE_INTEGER))
         }
         negate() {
             this.set(this.negated)
@@ -374,10 +382,12 @@ const Vector2 = (() => {
             return new v(-this.x, -this.y)
         }
         get normalized() {
-            return new v(...this.value.map(o => o / this.magnitude || 0))
+            function map(o){return o / this.magnitude || 0}
+            return new v(...this.value.map(map,this))
         }
         get magnitude() {
-            return this.value.reduce((a, b) => Math.abs(a + b))
+            return this.value.reduce(reduce)
+            function reduce(a,b){return Math.abs(a + b)}
         }
         get sqrtMag() {
             return Math.sqrt(this.magnitude)
@@ -403,7 +413,7 @@ const Vector2 = (() => {
         x,
         y,
         angle,
-        average,
+      //  average,
         difference,
         combine,
         multiply,
@@ -418,20 +428,20 @@ const Vector2 = (() => {
         return vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     }
     function angle(first, second) {
-        let firstAngle = Math.atan2(v.y(first), v.x(first)),
+        const firstAngle = Math.atan2(v.y(first), v.x(first)),
             secondAngle = Math.atan2(v.y(second), v.x(second)),
             angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
-    function average(...vectors) {
-        let x = vectors.map(o => v.x(o))
+    /*function average(...vectors) {
+        const x = vectors.map(o => v.x(o))
             , y = vectors.map(o => v.y(o))
         return new v(x.average(), y.average())
-    }
+    }*/
     function difference(vector, vector2) {
         if (!Array.isArray(vector)) vector = Array.from(vector)
         if (!Array.isArray(vector2)) vector2 = Array.from(vector2)
-        let out = Array.from(vector), { length } = out
+        const out = Array.from(vector), { length } = out
         for (let i = 0; i < length; ++i) out[i] = utilMath.diff(vector2[i], vector[i])
         return new v(...out)
     }
@@ -439,13 +449,13 @@ const Vector2 = (() => {
         return Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
     }
     function combine(...vectors) {
-        let out = new v
-        for (let v of vectors) out.add(v)
+        const out = new v
+        for (const v of vectors) out.add(v)
         return out
     }
     function multiply(...vectors) {
-        let out = new v(1, 1)
-        for (let v of vectors) out.multiply(v)
+        const out = new v(1, 1)
+        for (const v of vectors) out.multiply(v)
         return out
     }
     function max(vector, vector2) {
@@ -486,14 +496,12 @@ const Vector2 = (() => {
         });
     }
 }
-
 class Matrix {
     elements = []
     constructor(length, height) {
         assign(this, { length, height })
         for (let i = height + 1; --i;)
             this.elements.push(Array.from({ length }, () => null))
-
     }
     get(x, y) {
         return this.elements.at(y).at(x)
@@ -540,17 +548,14 @@ class Matrix {
                 )
             }
         }
-
         const blob = await canvas.convertToBlob()
         return URL.createObjectURL(blob)
     }
-
 }
 function modifyAt(array, index, modifier) {
     const idx = index < 0 ? array.length + index : index
     if (idx >= 0 && idx < array.length) array[idx] = modifier(array[idx])
 }*/
-
 const Color = class z {
     r = 0
     g = 0
@@ -565,16 +570,18 @@ const Color = class z {
     static toHex(r, g, b) {
         return `#${z.th(r)}${z.th(g)}${z.th(b)}`.toUpperCase()
     }
-    static th = n => n.toString(16).padStart(2, '0')
+    static th(n){
+        return n.toString(16).padStart(2,0)
+    }
     static toHex2(r, g, b, a) {
-        r = Math.min(255, Math.max(0, r))
-        g = Math.min(255, Math.max(0, g))
-        b = Math.min(255, Math.max(0, b))
-        a = Math.round(Math.min(1, Math.max(0, a)) * 255)
+        const {min,max,round}=Math
+        r = min(255, max(0, r))
+        g = min(255, max(0, g))
+        b = min(255, max(0, b))
+        a = round(min(1, max(0, a)) * 255)
         return `#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`
     }
     static toHSL(r, g, b) {
-        // Normalize RGB values to the range 0-1
         r /= 255, g /= 255, b /= 255
         const max = Math.max(r, g, b)
             , min = Math.min(r, g, b)
@@ -590,7 +597,6 @@ const Color = class z {
             }
             h /= 6
         }
-        // Convert to degrees and percentages
         h = Math.round(h * 360)
         s = Math.round(s * 100)
         l = Math.round(l * 100)
@@ -616,55 +622,92 @@ const Color = class z {
     }
 }
 {
-    let verified = Symbol('🔒')
-    function __(){
-        return document.documentElement.getHTML()
-    }
+    const Key = Symbol('\ud83d\udd11'),
+    ERROR_MESSAGE = TypeError('Illegal invocation')
     var Elem = class Elem {
-        //    static{debugger}
-        [verified]
+        [Key] = '\ud83d\udd12'
         static USE_CUTESY_FONT = true
-        static ILLEGAL_TAGNAMES = /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/
-        static DEPRECATED_TAGNAMES = /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/
         static getPageAsHTML = __
         static {
-            Object.defineProperties(this,{
-                allElements:{get: allElements}
+            Object.defineProperties(this, {
+                DEPRECATED_TAGNAMES:{value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/},
+                ILLEGAL_TAGNAMES:{value:/^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
+                allElements: { get: allElements },
+                registry:{value:new FinalizationRegistry(bleep)},
+                RO: {value:new ResizeObserver(Ro)},
+                loaded: {value:new Set},
+                failed: {value:new Set},
+                $:{value(id){ 
+                    const out = document.getElementById(id.replace('#', ''))
+                    out || this.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
+                    return out?.content ?? out ?? null
+                }},
+                formats: {value:{
+                    image: /webp|png|jpeg|jpg|gif/,
+                    video: /mp4|mpeg|webm|avi|mov/,
+                    audio: /mp3|ogg|wav|aiff|aac|flac/
+                }}
             })
-            Object.defineProperties(this.prototype,{
-                children:{get:getChildren,set:setChildren},
-                before:{set:before},
-                after:{set:after},
-                detachedChildren:{get:detachedChildren},
-            },)
+            Object.defineProperties(this.prototype, {
+                children: { get: getChildren, set: setChildren },
+                before: { set: before },
+                after: { set: after },
+                detachedChildren: { get: detachedChildren },
+                set:{
+                configurable:1,writable:1,
+                    value(val, type) {
+                    if (map.has(type)) return this[map.get(type)] = val
+                    return this.content.setHTMLUnsafe(val)
+                }}
+            },) 
+            const map = new Map([
+                [1, 'textContent'],
+                [2, 'innerHTML'],
+                [3, 'innerText']
+            ])
+            function Ro(entries) {
+                for (const { contentBoxSize, target } of entries) {
+                    // For modern browsers that return an array (contentBoxSize[0])
+                    const size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
+                    // target.content ??= {}
+                    if (target.content)
+                        target.content.bounds = {
+                            x: size.inlineSize,  // Width
+                            y: size.blockSize    // Height
+                        }
+                }
+            }
             function allElements() {
-                return [].map.call(document.querySelectorAll('*'), map).filter(filter)
-                function map(o){return o.content}
-                function filter(o){return Elem.elements.has(o)}
+                return[].map.call(document.querySelectorAll('*'), map).filter(filter)
+                function map(o) { return o.content }
+                function filter(o) { return Elem.elements.has(o) }
             }
             function detachedChildren() {
-                let a = Array.from(this.content.childNodes),
+                const a = Array.from(this.content.childNodes),
                     fragment = createDocumentFragment()
                 for (let i = 0, { length } = a; i < length; ++i) {
                     a[i].remove()
-                    if (a[i] instanceof Element) {
+                    if (a[i] instanceof Element) 
                         fragment.appendChild(a[i])
-                    } else a[i].nodeValue = ''
+                     else a[i].nodeValue = ''
                 }
                 return fragment
             }
-            function before(e){this.content.before(e.content)}
-            function after(e){this.content.after(e.content)}
-            function from(o){return o.content}
-            function filter(o){return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES))}
-            function getChildren(){return Array.from(this.content.children, from).filter(filter)}
+            function before(e) { this.content.before(e.content) }
+            function after(e) { this.content.after(e.content) }
+            function from(o) { return o.content }
+            function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
+            function getChildren() { return Array.from(this.content.children, from).filter(filter) }
             function setChildren(children) {
                 //  for (let o of children) this.adopt(o)
-                let frag = createDocumentFragment()
+                const frag = createDocumentFragment()
                 for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
                     frag.appendChild(o.content)
                 this.content.appendChild(frag)
                 //i think its faster but im not sure
+            }
+            function bleep(heldValue){
+                Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
             }
         }
         raw() {
@@ -676,14 +719,11 @@ const Color = class z {
         assign(obj) {
             assign(this, obj)
         }
-        age = Date.now()
+        age = performance.now()
         static log() {
             console.log('bleh')
             //Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
         }
-        static registry = new FinalizationRegistry(heldValue =>
-            Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
-        )
         /* get styler(){
              return new Proxy(this.content.style,{
                  get(targ,prop){
@@ -693,11 +733,11 @@ const Color = class z {
          }*/
         observer = {
             observe(child) {
-                function く(entries){
-                    for (let entry of entries) {
+                function く(entries) {
+                    for (const entry of entries) 
                         if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
                         else entry.target.content.detectVisibility?.(true)
-                    }
+                    
                 }
                 delete child.content.parent.observer
                 child.content.parent.observer = new IntersectionObserver(く, {
@@ -707,24 +747,14 @@ const Color = class z {
                 child.content.parent.observer.observe(child)
             }
         }
-        static $(id) {
-            let out = document.getElementById(id.replace('#', ''))
-            out || Elem.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
-            return out?.content ?? out ?? null
-        }
-        static formats = {
-            image: /webp|png|jpeg|jpg|gif/,
-            video: /mp4|mpeg|webm|avi|mov/,
-            audio: /mp3|ogg|wav|aiff|aac|flac/
-        }
-        static textStyle(message, options) {
-            let elf = JSON.stringify(options).replaceAll(/\{|\}|\"/g, '').replaceAll(',', ';')
+        /*static textStyle(message, options) {
+            const elf = JSON.stringify(options).replaceAll(/\{|\}|\"/g, '').replaceAll(',', ';')
             console.trace(`%c ${message}`, elf)
-        }
+        }*/
         styleMe(...prop) {
             if (!Array.isArray(prop[0]) && typeof prop[0] === 'object' && prop.length === 1 && prop[0]) prop = Object.entries(prop[0])
             //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val}`).join(';')
-            for (let [propName, propValue] of prop) {
+            for (const [propName, propValue] of prop) {
                 if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
                 else if (propName === 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
                 else {
@@ -736,15 +766,11 @@ const Color = class z {
                     } catch {
                         this.content.style.setProperty(propName, propValue)
                     }
-                    else
-
-                        this.content.style.setProperty(propName, propValue)
-
+                    else this.content.style.setProperty(propName, propValue)
                 }
                 // this.content.style[propName] = propValue
                 //this.content.style.setProperty(propName, propValue)
                 //  CSSStyleValue.parse(propName,propValue)
-
             }
         }
         static noConsole() {
@@ -753,7 +779,7 @@ const Color = class z {
             delete this.noConsole
             function __({ key }) {
                 let value
-                if (key?.toLowerCase?.() === 'backspace') {
+                if (key?.toLowerCase?.() === 'backspace') 
                     try {
                         prompt('Return Value:', eval?.('"use strict";' + (value = prompt('Input eval code...'))))
                     }
@@ -763,53 +789,44 @@ const Color = class z {
                     finally {
                         navigator.clipboard.writeText(value)
                     }
-                }
-            }
-        }
-        static loaded = new Set
-        static failed = new Set
-        static {
-            this.RO = new ResizeObserver(Ro)
-            
-            function Ro(entries){
-                for (let { contentBoxSize, target } of entries) {
-                    // For modern browsers that return an array (contentBoxSize[0])
-                    let size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
-                    // target.content ??= {}
-                    if (target.content)
-                        target.content.bounds = {
-                            x: size.inlineSize,  // Width
-                            y: size.blockSize    // Height
-                        }
-    
-                }
+                
             }
         }
         static bulk(callback, ...src) {
-            return Promise.all(src.map(o => fetch(o).then(response => {
+            return Promise.all(src.map(map)).then(final)
+            function res(response){
                 if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
                 const contentType = response.headers.get('Content-Type');
-                if (contentType && contentType.includes('application/json'))
+                if (contentType) {
+                if (contentType.includes('application/json'))
                     return response.json()
-                else if (contentType && contentType.includes('text/html'))
+                else if (contentType.includes('text/html'))
                     return response.text()
-                else if (contentType && contentType.includes('application/xml'))
+                else if (contentType.includes('application/xml'))
                     return response.text()
-                else if (contentType && contentType.includes('application/octet-stream'))
+                else if (contentType.includes('application/octet-stream'))
                     return response.blob()
-                else
-                    return response.text()
-            }))).then(() => {
+                else return response.text() 
+                }
+            }
+            async function map(o){
+                const response = await fetch(o)
+                return res(response)
+            }
+            function final () {
                 callback?.(...src)
                 console.groupCollapsed('Bulk load:')
-                for (let sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
+                for (const sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
                 console.groupEnd()
-            })
+            }
         }
         static preload(src, callback) {
             if (Elem.loaded.has(src)) return src
             if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
-            fetch(src).then((res) => {
+            fetch(src).then(response)
+            Elem.info(`Preloading Resource: ${new URL(src, location)}`)
+            return src
+            function response(res){
                 if (!res.ok) {
                     Elem.error(`Resource error: ${res.status}`)
                     Elem.failed.add(src)
@@ -819,9 +836,7 @@ const Color = class z {
                     Elem.success(`Resource Pre-loaded: ${new URL(src, location)}`)
                     Elem.loaded.add(src)
                 }
-            })
-            Elem.info(`Preloading Resource: ${new URL(src, location)}`)
-            return src
+            }
         }
         static youtube = class extends this {
             constructor(opts) {
@@ -835,59 +850,61 @@ const Color = class z {
                 })
             }
         }
-        static #attrMap = new Map(/*[
+        /*static #attrMap = new Map([
             ['id', function(val){
                 if (Elem.elements.has(this)0) throw TypeError("Not allowed re-assign element id")
                 else { this.content['id'] = val; }
             }]
-        ]*/)
+        ])*/
         static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
-        static {
-            for (let a of this.svgattr) this.#attrMap.set(a, function (val) {
+       /* static {
+            for (const a of this.svgattr) this.#attrMap.set(a, function hey(val) {
                 this.content.setAttribute(a, val)
                 //requestAnimationFrame(()=>this.innerHTML+='')
             })
-        }
+        }*/
         get '🩸🪦'() { return this.kill(), 'Why did you kill me 😢' }
         static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
         static {
-            for (let key of Object.getOwnPropertyNames(this.prototype)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
+            const {prototype} = this
+            for (const key of Object.getOwnPropertyNames(prototype)) {
+                const descriptor = Object.getOwnPropertyDescriptor(prototype, key)
                 if (typeof descriptor.value === 'function' && key !== 'constructor') {
-                    let 우정 = this.prototype[key]
-                    this.prototype[key] = (俉俊 => {
-                        return function (...अ) { if (verified in this) return 우정.apply(this, अ); throw 俉俊 }
-                    })(TypeError('Illegal invocation'))
+                    const 우정 = prototype[key]
+                    prototype[key] = (俉俊 => 
+                         function (...अ) { if (Key in this) return 우정.apply(this, अ); throw 俉俊 }
+                    )(ERROR_MESSAGE)
                 }
             }
-            for (let attribute of this.attributes) {
-                let a = attribute.match(/textContent|innerHTML|innerText/)
+            for (const attribute of this.attributes) {
+                const a = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if (!this.content) throw TypeError('Illegal invocation')
-                        return this.content[attribute] ?? null
+                        if (Key in this) return this.content[attribute] ?? null
+                        throw ERROR_MESSAGE
                     },
                     set(val) {
-                        if (!this.content) throw TypeError('Illegal invocation')
-                        if (a && this.childCount)// {
-                            // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
-                            //          let temp = this.detachedChildren
-                            //   let parser = new DOMParserm
-                            //   doc = parser.parseFromString(val,'text/html')
-                            //  if (doc.body.childElementCount) {
-                            //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
-                            //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
-                            //        this
-                            //    }
-                            //    else {
-                            //         this.content[attribute] = val
-                            //    }
-                            //          this.content.append(temp)
-                            //      }
-                            throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
-                        // if (Elem.#attrMap.has(attribute))
-                        //  Elem.#attrMap.get(attribute).call(this, val)
-                        else this.content[attribute] = val
+                        if (Key in this) {
+                            if (a && this.childCount)// {
+                                // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
+                                //          let temp = this.detachedChildren
+                                //   let parser = new DOMParserm
+                                //   doc = parser.parseFromString(val,'text/html')
+                                //  if (doc.body.childElementCount) {
+                                //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
+                                //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
+                                //        this
+                                //    }
+                                //    else {
+                                //         this.content[attribute] = val
+                                //    }
+                                //          this.content.append(temp)
+                                //      }
+                                throw TypeError(`Operation failed on "${this.id}": Changing the "${attribute}" property of a parent element could change the behaviour of its children in unexpected ways`)
+                            // if (Elem.#attrMap.has(attribute))
+                            //  Elem.#attrMap.get(attribute).call(this, val)
+                            else this.content[attribute] = val
+                        } else throw ERROR_MESSAGE
                     }
                 })
             }
@@ -895,7 +912,7 @@ const Color = class z {
         static animateOnRequestAnimationFrame = new Set
         static requestAnimationFrame = (() => {
             let frame = 0
-            let r =
+            const r =
                 window.requestAnimationFrame ??
                 window.webkitRequestAnimationFrame ??
                 window.mozRequestAnimationFrame ??
@@ -904,7 +921,6 @@ const Color = class z {
                 (callback => setTimeout(callback, 12))
             return function n() {
                 if (!Elem.animateOnRequestAnimationFrame.size) return
-
                 r(n)
                 ++frame
                 for (let toAnimate of Elem.animateOnRequestAnimationFrame)
@@ -915,20 +931,29 @@ const Color = class z {
                         Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
                         Elem.animateOnRequestAnimationFrame.delete(toAnimate)
                     }
-
             }
         })()
         static listeners = new Map
-        static warn = message => this.logLevels.warn &&
-            console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-        static error = message => this.logLevels.error &&
-            console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-        static info = message => this.logLevels.info &&
-            console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
-        static success = message => this.logLevels.success &&
-            console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
-        static debug = message => this.logLevels.debug &&
-            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+        static warn(message) {
+            this.logLevels.warn &&
+                console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        }
+        static error(message) {
+            this.logLevels.error &&
+                console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        }
+        static info(message) {
+            this.logLevels.info &&
+                console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+        }
+        static success(message) {
+            this.logLevels.success &&
+                console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+        }
+        static debug(message) {
+            this.logLevels.debug &&
+                console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+        }
         static elements = new WeakSet
         static logLevels = {
             error: true,
@@ -938,57 +963,42 @@ const Color = class z {
             debug: false,
         }
         static select(self) {
-            let out = new Elem({ self })
-            if (out.content.children) for (let node of out.content.children) {
+            const out = new Elem({ self })
+            if (out.content.children) for (const node of out.content.children) {
                 if (node.nodeName.match(Elem.ILLEGAL_TAGNAMES)) continue
-                // if ('content'in node && node instanceof Elem) {
-                //out.children.push(node)
-                // node.content.parent = out
-                //   }
-                //  else 
                 Elem.select(node)
-                //    f.parent = out
             }
             return out
         }
         static {
-            let out = { 'standards mode': 'red' };
+            const out = { 'standards mode': 'red' }
+            , head = document.head.children
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
-            let head = document.head.children
-            // body.content.setAttribute('id', 'body')
-            //body.id = 'body'
             this.select(document.documentElement)
             window.body = document.querySelector('body').content
-            for (let o of head) {
-                let butes = o.attributes
+            for (const o of head) {
+                const butes = o.attributes
                 if (butes.charset) out.charset = o
-                if (o.getAttribute('rel') === 'icon') out['favicon'] = o
-                if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
-                if (o.getAttribute('property') === 'og:description') out['og:description'] = o
-                if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-                if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
-                if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
-                if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
-                if (o.getAttribute('property') === 'og:image') out['og:image'] = o
-                if (o.getAttribute('property') === 'og:url') out['og:url'] = o
-                if (o.getAttribute('name') === 'og:title') out['og:title'] = o
-                if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
+               else if (o.getAttribute('rel') === 'icon') out['favicon'] = o
+               else if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
+               else if (o.getAttribute('property') === 'og:description') out['og:description'] = o
+               else if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+               else if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
+               else if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
+               else if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
+               else if (o.getAttribute('property') === 'og:image') out['og:image'] = o
+               else if (o.getAttribute('property') === 'og:url') out['og:url'] = o
+               else if (o.getAttribute('name') === 'og:title') out['og:title'] = o
+               else if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
             }
-            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title'))
-                out['document has <title>'] = 'red'
+            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title')) out['document has <title>'] = 'red'
             else out['document has <title>'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
-
             console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
-            for (let [key, value] of Object.entries(out)) {
-                if (typeof value !== 'string') {
-                    console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
-                }
-                else {
-                    console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-
-                }
-            }
+            for (const [key, value] of Object.entries(out)) 
+                if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
+                else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
+            
             console.groupEnd()
             /* for (let script of document.scripts) {
                  script.addEventListener('load',function n(a){
@@ -1006,25 +1016,24 @@ const Color = class z {
             Elem.animateOnRequestAnimationFrame.add(this)
             if (Elem.animateOnRequestAnimationFrame.size === 1)
                 Elem.requestAnimationFrame()
-
         }
         clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
         timeouts = new Map
         intervals = new Map;
         eventNames = Object.defineProperty(new Map, 'trigger', {
             value(search) {
-                if (search) {
+                if (search) 
                     if (this.eventNames.has(search)) this.eventNames.get(search)()
                     else Elem.warn(`Non-existent event: ${search}`)
-                }
-                else for (let [, n] of this.eventNames) n.call(this)
+                
+                else for (const [, n] of this.eventNames) n.call(this)
             }
         })
         constructor(opts = {}) {
             //Main init
             if (!('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-            if (opts.tag?.toUpperCase?.()?.match?.(Elem.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-            if (opts.tag?.toUpperCase?.()?.match?.(Elem.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+            if (opts.tag?.toUpperCase?.()?.match?.(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
+            if (opts.tag?.toUpperCase?.()?.match?.(new.target.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
             if (opts.self) {
                 if (Elem.elements.has(opts.self.content)) {
                     console.error(opts.self)
@@ -1036,41 +1045,37 @@ const Color = class z {
                 else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
             }
             else {
-                if (opts.shadow) {
-                    this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
-                }
+                if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
                 else this.content = document.createElement(opts.tag)
                 opts.id ??= ran.gen(7)
             }
             this.content.content = this
-            for (let attr of Elem.attributes) if (attr in opts) this[attr] = opts[attr]
+            for (const attr of new.target.attributes) if (attr in opts) this[attr] = opts[attr]
             if (opts.text) this.innerHTML = opts.text
             if (opts.message) this.innerText = opts.message
             if (this.content.getBoundingClientRect) {
-                let f = this.content.getBoundingClientRect()
+                const f = this.content.getBoundingClientRect()
                 this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
             }
             // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
             if (opts.class) {
                 if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
                 for (let { length } = opts.class; length--;) {
-                    let $class = opts.class[length]
+                    const $class = opts.class[length]
                     this.content.classList.add($class)
                 }
             }
             if (opts.events)
                 this.addevent(opts.events)
             // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
-
             if (opts.styles)
                 this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
-
-            if (opts.parent && typeof opts.parent === 'string') opts.parent = Elem.$(opts.parent)
+            if (opts.parent && typeof opts.parent === 'string') opts.parent = new.target.$(opts.parent)
             // this.append(opts.parent)
             this.current = this.content
             if (arguments[1] === true) {
-                Elem.warn(`Migrate to parent instead of using arguments[1]`)
+                new.target.warn(`Migrate to parent instead of using arguments[1]`)
                 opts.parent = body
             }
             if (opts.parent) this.parent = opts.parent
@@ -1097,17 +1102,6 @@ const Color = class z {
             //Lets get this right once and for all
             this.content.appendChild(child.content)
         }
-        static {
-            let map = new Map([
-                [1, 'textContent'],
-                [2, 'innerHTML'],
-                [3, 'innerText']
-            ])
-            this.prototype.set = function (val, type) {
-                if (map.has(type)) return this[map.get(type)] = val
-                return this.content.setHTMLUnsafe(val)
-            }
-        }
         /*set(val, type) {
             switch (type) {
                 default: return this.content.setHTMLUnsafe(val)
@@ -1127,20 +1121,17 @@ const Color = class z {
             p.content.prepend(this.content)
         }
         get parent() {
+            if (Key in this)
             return this.content.parentElement?.content ?? null
+            throw ERROR_MESSAGE
         }
         set parent(val) {
-            if (!this.content) throw TypeError('Invalid setter')
-            val == null
-                ?
-                this.content.remove()
-                :
-                val.adopt(this)
+            if (Key in this) return val == null?this.parent?.content.removeChild(this.content):val.adopt(this)
+            throw ERROR_MESSAGE
         }
         get childCount() {
             return this.children.length
         }
-        
         batchAppendChild(count, childFunc) {
             this.children = Array.from({ length: count }, childFunc)
         }
@@ -1165,7 +1156,7 @@ const Color = class z {
                 if (typeof props.class === 'string') props.class = [props.class]
                 //for (let $class of props.class)
                 for (let { length } = props.class; length--;) {
-                    let $class = props.class[length]
+                    const $class = props.class[length]
                     /*   if (!Elem.findClass($class)) {
                         Elem.messages.noclass($class)
                         } else if ([...this.content.classList].includes($class)) {
@@ -1177,18 +1168,10 @@ const Color = class z {
             }
             return this
         }
-        disableEvent(name) { this.eventNames.get(name).disabled = true }
-        enableEvent(name) { this.eventNames.get(name).disabled = false }
-        toggleEvent(name) { this.eventNames.get(name).disabled = !this.eventNames.get(name).disabled }
+        disableEvent(name) {this.eventNames.get(name).disabled = true }
+        enableEvent(name) {this.eventNames.get(name).disabled = false }
+        toggleEvent(name) {const e = this.eventNames.get(name).disabled;e.disabled = !e.disabled}
         async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
-            /*    if (options.time) {
-                    time = options.time;
-                    delete options.time;
-                }
-                if (options.callback) {
-                    callback = options.callback;
-                    delete options.callback;
-                }*/
             assign['??='](timing, {
                 duration: 1000,
                 iterations: 1,
@@ -1198,24 +1181,11 @@ const Color = class z {
             })
             // timing.composition
             try {
-                // Create KeyframeEffect with the provided options
-                const keyframeEffect = new KeyframeEffect(
-                    this.content, // Element to animate
-                    frames,      // Keyframes
-                    timing // Animation options
-                )
-                // Create an Animation instance
-                const animation = new Animation(keyframeEffect)
-                // Play the animation and wait for it to finish
+                const keyframeEffect = new KeyframeEffect(this.content,frames,timing)
+                , animation = new Animation(keyframeEffect)
                 animation.play()
                 await animation.finished
-                // Ensure the final styles are applied
-                // for (let n of Object.keys(frames)) {
-                //   if (Array.isArray(frames[n])) frames[n] = frames[n].at(-1);
-                // }
-                //  this.styleMe(frames);
                 animation.commitStyles()
-                // Call the callback if provided
                 callback?.call(this)
             }
             catch (e) {
@@ -1265,13 +1235,13 @@ const Color = class z {
                 if (!event) [eventName, event] = eventName
                 Elem.listeners.set(this.id + ':' + eventName, event)
                 if (!this.eventNames.has(eventName)) {
-                    let eventfunc = (...e) => {
+                    const eventfunc = (...e) => {
                         eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
                     }
                     eventfunc.disabled = !1
                     eventfunc.count = 1 / 0
                     if (eventName.includes(':')) {
-                        let a = eventName.split(':')
+                        const a = eventName.split(':')
                         eventName = a[0]
                         eventfunc.count = parseInt(a[1])
                     }
@@ -1279,29 +1249,26 @@ const Color = class z {
                     this.eventNames.set(eventName, eventfunc)
                     Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
                 }
-                else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on ' + this.id : ''}`)
+                else Elem.warn(`Duplicate event listeners are not allowed: ${eventName} ${this.id ? 'on "' + this.id+'"' : ''}`)
             }
         }
         hasevent(eventName) { return this.eventNames.has(eventName) }
         noevent(...target) {
             // for (let event of target) {
             for (let { length } = target; length--;) {
-                let event = target[length]
+                const event = target[length]
                 this.content.removeEventListener(event, this.eventNames.get(event))
                 this.eventNames.has(event) ?
                     Elem.listeners.delete(this.id + ':' + event)
                     : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
-                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}:\n${this.eventNames.get(event).toString()}`)
+                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}`)//:\n${this.eventNames.get(event).toString()}`)
                 this.eventNames.delete(event)
             }
         }
         kill() {
             this.ondeath?.()
             this.cleanup()
-            if (body !== this) {
-                this.content.remove()
-                Elem.debug(`Element ${this.id} was removed from body`)
-            }
+            if (body !== this) this.content.remove(),Elem.debug(`Element "${this.id}" was removed from body`)
         }
         cleanup() {
             assign.invoke(this, {
@@ -1321,9 +1288,9 @@ const Color = class z {
             o.start?.call(this)
         }
         killChildren() {
-            let n = this.children
+            const n = this.children
             for (let { length } = n; length--;) {
-                let o = n[length]
+                const o = n[length]
                 while (this.content.contains(o?.content)) o.kill()
             }
             return this
@@ -1338,10 +1305,8 @@ const Color = class z {
             this.styleMe({ visibility: 'visible' })
         }
         getModifiedStyleProperties() {
-            let out = {}
-            for (let i = 0; i in this.content.style; ++i) {
-                out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
-            }
+            const out = {}
+            for (let i = 0; i in this.content.style; ++i) out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
             return out
         }
         get visibilityStatus() {
@@ -1361,7 +1326,6 @@ const Color = class z {
                 this.hide()
             })
         }
-        // this.anim({ class: 'fade out' }, () => { this.styleMe({opacity:0}); callback?.call?.(this) })
         async fadeIn(callback) {
             //his.styleMe({ display: '' })
             this.styleMe({ opacity: 0 })
@@ -1372,7 +1336,6 @@ const Color = class z {
                 callback?.call(this)
             })
         }
-        //this.anim({ class: 'fade in' }, () => { this.styleMe({opacity:1}); callback?.call?.(this) })
         async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
         addTimeout(callback, interval) {
             callback.paused = false
@@ -1382,7 +1345,7 @@ const Color = class z {
                 else if ('minutes' in interval) mult = 60_000 * interval.minutes
                 else if ('hours' in interval) mult = 3_600_000 * interval.hours
             } else mult = interval
-            let id = setTimeout(() => {
+            const id = setTimeout(() => {
                 callback.paused || this.timeouts.get(id).call(this)
                 this.timeouts.delete(id)
             }, mult)
@@ -1390,7 +1353,7 @@ const Color = class z {
             return id
         }
         toggleInterval(id) {
-            let n = this.intervals.get(id)
+            const n = this.intervals.get(id)
             return n.paused = !n.paused
         }
         addInterval(callback, interval) {
@@ -1402,7 +1365,7 @@ const Color = class z {
                 else if ('minutes' in interval) mult = 60_000 * interval.minutes
                 else if ('hours' in interval) mult = 3_600_000 * interval.hours
             } else mult = interval
-            let id = setInterval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
+            const id = setInterval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
             this.intervals.set(id, callback)
             return id
         }
@@ -1411,34 +1374,22 @@ const Color = class z {
             clearInterval(id)
         }
         removeIntervals() {
-            for (let [id] of this.intervals) this.removeInterval(id)
+            for (const [id] of this.intervals) this.removeInterval(id)
         }
         removeTimeout(id) {
             this.timeouts.delete(id)
             clearTimeout(id)
         }
         removeTimeouts() {
-            for (let [id] of this.timeouts) this.removeTimeout(id)
+            for (const [id] of this.timeouts) this.removeTimeout(id)
         }
-        /*static findClass(className) {
-          const styleSheets = document.styleSheets;
-          for (let i = 0; i < styleSheets.length; ++i) {
-              const rules = styleSheets[i].cssRules || styleSheets[i].rules;
-              for (let j = 0; j < rules.length; j++) {
-                  if (rules[j].selectorText === `.${className}`) {
-                      return true;
-                  }
-              }
-          }
-          return false
-      }*/
     }
-    var SceneryElem = class SceneryElem extends Elem {
+    , SceneryElem = class SceneryElem extends Elem {
         static all = new Set
         static frame = 0
         static update() {
             this.frame++
-            for (let o of this.all) o.#update()
+            for (const o of this.all) o.#update()
         }
         position = new Vector2
         rotation = 0
@@ -1455,15 +1406,16 @@ const Color = class z {
         }
         velocity = new Vector2
         static {
-            let k = Object.getOwnPropertyNames(this.prototype)
+            const {prototype} = this
+            , k = Object.getOwnPropertyNames(prototype)
             for (let { length } = k; length--;) {
-                let key = k[length]
-                const descriptor = Object.getOwnPropertyDescriptor(this.prototype, key)
+                const key = k[length]
+                , descriptor = Object.getOwnPropertyDescriptor(prototype, key)
                 if (typeof descriptor.value === 'function' && key !== 'constructor') {
-                    let 우정 = this.prototype[key]
-                    this.prototype[key] = (份 => {
-                        return function (...l) { if (verified in this) return 우정.apply(this, l); throw 份 }
-                    })(TypeError('Illegal invocation'))
+                    const 우정 = prototype[key]
+                    prototype[key] = (份 => 
+                         function (...l) { if (Key in this) return 우정.apply(this, l); throw 份 }
+                    )(ERROR_MESSAGE)
                 }
             }
         }
@@ -1511,11 +1463,13 @@ const Color = class z {
             //  this.style.top = `${Math.trunc(this.position.y)}px`
         }
     }
+    function __() {
+        return document.documentElement.getHTML()
+    }
 }
-
 {
-    let ll = 3,
-        map = new Map([
+    let ll = 3
+       const map = new Map([
             [0, _0],
             [1, _1],
             [2, _2],
@@ -1527,7 +1481,7 @@ const Color = class z {
         get,
         set
     })
-    function _0() { let k = Object.keys(Elem.logLevels); for (let { length } = k; length--;) { let o = k[length]; Elem.logLevels[o] = false } }
+    function _0() { const k = Object.keys(Elem.logLevels); for (let { length } = k; length--;) { let o = k[length]; Elem.logLevels[o] = false } }
     function _1() { map.get(0)(); return Elem.logLevels.error = true }
     function _2() { return Elem.logLevels.warn = map.get(1)() }
     function _3() { return Elem.logLevels.success = map.get(2)() }
@@ -1536,13 +1490,10 @@ const Color = class z {
     function get() { return ll }
     function set(val) {
         if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
-        ll = val
-        return map.get(+ll)()
+        return map.get(+(ll = val))()
     }
 }
-window._ = Elem.$.bind(Elem)
-window.__ = id => _(id)?.kill()
-
+assign(window,{_:Elem.$.bind(Elem),__(id){return _(id)?.kill()}})
 class svg extends Elem {
     constructor(n) {
         assign(n, {
@@ -1556,14 +1507,14 @@ class svg extends Elem {
     }
 }
 if (local.fragment === 'constructor') {
-    function df() {
+    function _____________() {
         return new DocumentFragment
     }
-    createDocumentFragment = df
+    createDocumentFragment = _____________
 }
 
 const color = (() => {
-    let n = new OffscreenCanvas(0, 0).getContext('2d')
+    const n = new OffscreenCanvas(0,0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
         dhk: { value: ___ },
         choose: { value: choose, },
@@ -1573,11 +1524,11 @@ const color = (() => {
         set,
         get
     })
-    function set(t, p, b) { Reflect.set(t, p, v) }
+    function set(t, p, b) { Reflect.set(t, p, b) }
     function __(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }
     function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     function choose() { return '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) }
-    function value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
+    function value(e) {if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
     function get(t, prop) {
         if (CSS.supports('color', prop)) {
             n.fillStyle = prop
@@ -1590,50 +1541,25 @@ const color = (() => {
 assign(color, {
     //Extra colors go here
 })
-const { body } = window
-{
-    let t = 'I love you so much please don\'t disable me 🥺'
-    document.addEventListener('DOMContentLoaded', {
-        async[t]() {
-            document.removeEventListener('DOMContentLoaded', this[t])
-            if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
-            try {
-                //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-                let n = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
-                document.fonts.add(n)
-                await n.load()
-                Elem.success('Cutesy font loaded hehe')
-            } catch {
-                Elem.error('Cutesy font could not be loaded 😞')
-            }
-        }
-    }[t])
-}
-let cursed = {
+const { body } = window,
+cursed = {
     reload() {
         document.write(document.documentElement.outerHTML)
     },
     shuffle() {
-        let elements = [...document.querySelectorAll('*')];
-        let styles = elements.map(el => getComputedStyle(el));
-        for (let i = elements.length - 1; i > 0; i--) {
-            let j = Math.floor(Math.random() * (i + 1));
-            [elements[i], elements[j]] = [elements[j], elements[i]];
+        let elements = [...document.querySelectorAll('*')]
+        , styles = elements.map(el => getComputedStyle(el))
+        for (let i = elements.length - 1; i; i--) {
+            let j = Math.floor(Math.random() * (i + 1))
+            [elements[i], elements[j]] = [elements[j], elements[i]]
         }
         elements.forEach((el, index) => {
-            let sourceStyles = styles[index];
-            for (let property of sourceStyles) {
+            let sourceStyles = styles[index]
+            for (let property of sourceStyles) 
                 el.style[property] = sourceStyles.getPropertyValue(property);
-            }
-        });
+            
+        })
     }
-}
-{
-    function _____() {
-        if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 })
-        document.querySelectorAll('script').forEach(o => o.remove());
-    }
-    document.addEventListener('readystatechange', _____)
 }
 //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
 function assign(target, props) {
@@ -1648,12 +1574,12 @@ function $(opts, t = Elem) {
 }
 function remix(oldFunc, { before, after } = {}) {
     function remix(...a) {
-        before?.apply(this, a) // Execute pre-construction logic
+        before?.apply(this, a)
         let instance
-        if (new.target) instance = new oldFunc(...a) // Call the original constructor
+        if (new.target) instance = new oldFunc(...a)
         else instance = oldFunc(...a)
-        after?.apply(instance, a) // Execute post-construction logic
-        return instance // Return the new instance
+        after?.apply(instance, a)
+        return instance
     }
     if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
     return assign(remix, oldFunc)
@@ -1683,7 +1609,7 @@ async function getDataUrl(url) {
         function onloadend() {
             return resolve(reader.result)
         }
-        let reader = assign(new FileReader, {
+        const reader = assign(new FileReader, {
             onloadend,
             onerror
         })
