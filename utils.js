@@ -129,7 +129,10 @@ const utilMath = (() => {
       },*/
     }
     function sanitize(num) { return (num === num) && num != null && isFinite(num) }
-    function equality(...target) { return target.every(o => Object.is(o, target[0])) }
+    function equality(...target) { 
+        function is(o){return Object.is(o, target[0])}
+        return target.every(is) 
+    }
     function toRad(deg) { return deg * π / 180 }
     function toDeg(rad) { return rad * 180 / π }
     function diff(a, b) { return Math.abs(a - b) }
@@ -137,7 +140,9 @@ const utilMath = (() => {
     function Cycle(...items) {
         if (new.target) debugger
         const {length} = items
-        return Object.defineProperty(__(), 'val', { get, }); function* __(x = 0) { for (;;)yield items[x++ % length] } function get() { return this.next().value }
+        let x = 0
+        return {get val(){return move(1)},move,*[Symbol.iterator](){for (;;)yield this.val}}
+        function move(step = 1){const old = x;x+=step;return items[old%length]}
     }
 })()
 const utilString = (() => {
@@ -609,7 +614,7 @@ const Color = class z {
         yield this.a
     }
     toString(format) {
-        switch (format?.toLowerCase?.()) {
+        switch (format?.toLowerCase()) {
             default:
                 return `rgb(${this.r} ${this.g} ${this.b} ${this.a})`
             case 'hex':
@@ -737,7 +742,6 @@ const Color = class z {
                     for (const entry of entries) 
                         if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
                         else entry.target.content.detectVisibility?.(true)
-                    
                 }
                 delete child.content.parent.observer
                 child.content.parent.observer = new IntersectionObserver(く, {
@@ -779,7 +783,7 @@ const Color = class z {
             delete this.noConsole
             function __({ key }) {
                 let value
-                if (key?.toLowerCase?.() === 'backspace') 
+                if (key?.toLowerCase() === 'backspace') 
                     try {
                         prompt('Return Value:', eval?.('"use strict";' + (value = prompt('Input eval code...'))))
                     }
@@ -789,7 +793,6 @@ const Color = class z {
                     finally {
                         navigator.clipboard.writeText(value)
                     }
-                
             }
         }
         static bulk(callback, ...src) {
@@ -821,10 +824,10 @@ const Color = class z {
             }
         }
         static preload(src, callback) {
-            if (Elem.loaded.has(src)) return src
-            if (!src || !src?.replaceAll?.(' ', '')) throw TypeError('No source for Media provided.')
+            if (this.loaded.has(src)) return src
+            if (!src?.replaceAll(' ', '')) throw TypeError('No source for Media provided.')
             fetch(src).then(response)
-            Elem.info(`Preloading Resource: ${new URL(src, location)}`)
+            this.info(`Preloading Resource: ${new URL(src, location)}`)
             return src
             function response(res){
                 if (!res.ok) {
@@ -872,7 +875,7 @@ const Color = class z {
                 if (typeof descriptor.value === 'function' && key !== 'constructor') {
                     const 우정 = prototype[key]
                     prototype[key] = (俉俊 => 
-                         function (...अ) { if (Key in this) return 우정.apply(this, अ); throw 俉俊 }
+                         function(...अ){if(Key in this)return 우정.apply(this,अ);throw 俉俊}
                     )(ERROR_MESSAGE)
                 }
             }
@@ -880,12 +883,12 @@ const Color = class z {
                 const a = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if (Key in this) return this.content[attribute] ?? null
+                        if(Key in this)return this.content[attribute]??null
                         throw ERROR_MESSAGE
                     },
                     set(val) {
                         if (Key in this) {
-                            if (a && this.childCount)// {
+                            if (a&&this.childCount)// {
                                 // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
                                 //          let temp = this.detachedChildren
                                 //   let parser = new DOMParserm
@@ -963,10 +966,10 @@ const Color = class z {
             debug: false,
         }
         static select(self) {
-            const out = new Elem({ self })
+            const out = new this({ self })
             if (out.content.children) for (const node of out.content.children) {
-                if (node.nodeName.match(Elem.ILLEGAL_TAGNAMES)) continue
-                Elem.select(node)
+                if (node.nodeName.match(this.ILLEGAL_TAGNAMES)) continue
+                this.select(node)
             }
             return out
         }
@@ -977,29 +980,30 @@ const Color = class z {
             this.select(document.documentElement)
             window.body = document.querySelector('body').content
             for (const o of head) {
-                const butes = o.attributes
-                if (butes.charset) out.charset = o
+                const butes = o.attributes,
+                name = o.getAttribute('name'),
+                prop = o.getAttribute('property')
+                    if (butes.charset) out.charset = o
                else if (o.getAttribute('rel') === 'icon') out['favicon'] = o
-               else if (o.getAttribute('name') === 'description' && butes[0]?.nodeValue) out['description'] = o
-               else if (o.getAttribute('property') === 'og:description') out['og:description'] = o
-               else if (o.getAttribute('name') === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-               else if (o.getAttribute('name') === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
-               else if (o.getAttribute('name') === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
-               else if (o.getAttribute('name') === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
-               else if (o.getAttribute('property') === 'og:image') out['og:image'] = o
-               else if (o.getAttribute('property') === 'og:url') out['og:url'] = o
-               else if (o.getAttribute('name') === 'og:title') out['og:title'] = o
-               else if (o.getAttribute('name') === 'viewport' && butes[1]?.nodeValue) out.viewport = o
+               else if (name === 'description' && butes[0]?.nodeValue) out['description'] = o
+               else if (prop === 'og:description') out['og:description'] = o
+               else if (name === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+               else if (name === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
+               else if (name === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
+               else if (name === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
+               else if (prop === 'og:image') out['og:image'] = o
+               else if (prop === 'og:url') out['og:url'] = o
+               else if (name === 'og:title') out['og:title'] = o
+               else if (name === 'viewport' && butes[1]?.nodeValue) out.viewport = o
             }
-            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll?.(' ', '') && !document.querySelector('title')) out['document has <title>'] = 'red'
+            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll(' ', '') && !document.querySelector('title')) out['document has <title>'] = 'red'
             else out['document has <title>'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
             console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
             for (const [key, value] of Object.entries(out)) 
                 if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-            
-            console.groupEnd()
+                console.groupEnd()
             /* for (let script of document.scripts) {
                  script.addEventListener('load',function n(a){
                      this.removeEventListener('load',n)
@@ -1018,27 +1022,26 @@ const Color = class z {
                 Elem.requestAnimationFrame()
         }
         clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
-        timeouts = new Map
-        intervals = new Map;
-        eventNames = Object.defineProperty(new Map, 'trigger', {
+        timeouts=new Map
+        intervals=new Map
+        eventNames=Object.defineProperty(new Map, 'trigger', {
             value(search) {
                 if (search) 
                     if (this.eventNames.has(search)) this.eventNames.get(search)()
                     else Elem.warn(`Non-existent event: ${search}`)
-                
-                else for (const [, n] of this.eventNames) n.call(this)
+                    else for (const [, n] of this.eventNames) n.call(this)
             }
         })
-        constructor(opts = {}) {
+        constructor(opts) {
             //Main init
             if (!('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-            if (opts.tag?.toUpperCase?.()?.match?.(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-            if (opts.tag?.toUpperCase?.()?.match?.(new.target.DEPRECATED_TAGNAMES)) console.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+            if (opts.tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
+            if (opts.tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+            if (opts.tag^opts.self) throw TypeError('You must only pick between self or tag')
             if (opts.self) {
-                if (Elem.elements.has(opts.self.content)) {
+                if (new.target.elements.has(opts.self.content)) {
                     console.error(opts.self)
                     throw ReferenceError(`Duplicate element not allowed`)
-
                 }
                 this.content = opts.self
                 if (this.content === document.body) opts.id = 'body'
@@ -1148,7 +1151,7 @@ const Color = class z {
             return this.content.firstElementChild?.content ?? null
         }
         get index() {
-            return this.parent?.children?.indexOf?.(this.content.content) ?? null
+            return this.parent?.children.indexOf(this.content.content) ?? null
         }
         addClass(...className) { return this.add({ class: className }) }
         add(props) {
@@ -1464,11 +1467,16 @@ const Color = class z {
         }
     }
     function __() {
+        for (let elem of SceneryElem.all)elem.kill()
         return document.documentElement.getHTML()
     }
 }
 {
     let ll = 3
+    Object.defineProperty(Elem, 'loglevel', {
+        get,
+        set
+    })
        const map = new Map([
             [0, _0],
             [1, _1],
@@ -1476,17 +1484,13 @@ const Color = class z {
             [3, _3],
             [4, _4],
             [5, _5],
-        ])
-    Object.defineProperty(Elem, 'loglevel', {
-        get,
-        set
-    })
-    function _0() { const k = Object.keys(Elem.logLevels); for (let { length } = k; length--;) { let o = k[length]; Elem.logLevels[o] = false } }
-    function _1() { map.get(0)(); return Elem.logLevels.error = true }
-    function _2() { return Elem.logLevels.warn = map.get(1)() }
-    function _3() { return Elem.logLevels.success = map.get(2)() }
-    function _4() { return Elem.logLevels.info = map.get(3)() }
-    function _5() { return Elem.logLevels.debug = map.get(4)() }
+        ]), {logLevels} = Elem
+    function _0() { const k = Object.keys(logLevels); for (let { length } = k; length--;) { let o = k[length]; logLevels[o] = false } }
+    function _1() { map.get(0)(); return logLevels.error = true }
+    function _2() { return logLevels.warn = map.get(1)() }
+    function _3() { return logLevels.success = map.get(2)() }
+    function _4() { return logLevels.info = map.get(3)() }
+    function _5() { return logLevels.debug = map.get(4)() }
     function get() { return ll }
     function set(val) {
         if (!utilMath.sanitize(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
@@ -1524,7 +1528,7 @@ const color = (() => {
         set,
         get
     })
-    function set(t, p, b) { Reflect.set(t, p, b) }
+    function set(t, p, v) { Reflect.set(t, p, v) }
     function __(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }
     function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     function choose() { return '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) }
@@ -1541,7 +1545,8 @@ const color = (() => {
 assign(color, {
     //Extra colors go here
 })
-const { body } = window,
+const { body } = window
+/*,
 cursed = {
     reload() {
         document.write(document.documentElement.outerHTML)
@@ -1560,7 +1565,7 @@ cursed = {
             
         })
     }
-}
+}*/
 //Object.keys(Elem.logLevels).forEach(o=>Elem.logLevels[o]=1)
 function assign(target, props) {
     return Object.assign(target, props)
@@ -1581,7 +1586,7 @@ function remix(oldFunc, { before, after } = {}) {
         after?.apply(instance, a)
         return instance
     }
-    if (oldFunc.prototype) remix.prototype = Object.setPrototypeOf(remix, oldFunc.prototype)
+    if (oldFunc.prototype) Object.setPrototypeOf(remix, oldFunc.prototype)
     return assign(remix, oldFunc)
 }
 async function getDataUrl(url) {
