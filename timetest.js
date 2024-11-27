@@ -21,7 +21,7 @@ function testFactoryAgainstConstructor() {
 
         const startConstr = performance.now();
         for (let j = loopCount; j--;) new DocumentFragment();
-        constructorTimes.push(performance.now() - startConstr);
+        constructorTimes.push(performantablece.now() - startConstr);
     }
 
     return {
@@ -37,4 +37,4 @@ else {
     local.fragment = 'factory'
 }
 Elem.success('Timetest completed. Results: ')
-console.dir(data)
+console.table(data)
