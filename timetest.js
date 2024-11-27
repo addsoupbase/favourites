@@ -21,7 +21,7 @@ function testFactoryAgainstConstructor() {
 
         const startConstr = performance.now();
         for (let j = loopCount; j--;) new DocumentFragment();
-        constructorTimes.push(performantablece.now() - startConstr);
+        constructorTimes.push(performance.now() - startConstr);
     }
 
     return {
