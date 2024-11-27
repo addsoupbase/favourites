@@ -87,11 +87,12 @@ const ran =
             return item
         }
         function gen(length = 6) {
-            const pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length;
+            const pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length
             let str
             do str = Array.from({ length }, okay).join('')
             while (previouslygenerated.has(str))
             previouslygenerated.add(str)
+            previouslygenerated.size > 3000 && previouslygenerated.clear()
             return str
             function okay(){return pool[floor(lucky() * poolSize)]}
         }
