@@ -129,7 +129,7 @@ const utilMath = (() => {
           return true
       },*/
     }
-    function sanitize(num) { return (num === num) && num != null && isFinite(num) }
+    function sanitize(num) { return (num === +num) && num != null && isFinite(num) }
     function equality(...target) { 
         function is(o){return Object.is(o, target[0])}
         return target.every(is) 
