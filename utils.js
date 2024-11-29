@@ -232,7 +232,7 @@ const utilArray = (() => {
 {   
     assign(utilString,{
         toOrdinal:y,
-        average: y,
+        average: x,
         badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
     })  
     const map = new Map([["1", "st"],["2", "nd"],["3", "rd"]])
