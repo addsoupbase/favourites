@@ -7,7 +7,8 @@ new あ({
     start() {
         this.anim({ class: 'bounce-in-top', 'keep class': true },
             () => {
-                new あ({
+                $({
+                    parent:body,
                     tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], styles: { opacity: 0 }, start() {
                         this.fadeIn(() => this.addevent({
                             click() {
@@ -18,7 +19,7 @@ new あ({
                             }
                         }))
                     }, id: 'foot',
-                }, true)
+                })
 
 
                 Elem.bulk((first, second) => {
@@ -512,7 +513,7 @@ function cycleImage() {
     Elem.$('caption').innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
 
-let bo = new あ({ tag: 'div', id: 'box' }, true)
+let bo = new あ({ parent:body,tag: 'div', id: 'box' },)
 Elem.preload('./media/strawberry.gif')
 let frame = 0;
 const loop = function () {
