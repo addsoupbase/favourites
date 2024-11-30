@@ -1053,6 +1053,7 @@ const Color = class z {
                 if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
                 else this.content = document.createElement(opts.tag)
                 opts.id ??= ran.gen(7)
+                if (opts.tag === 'button') this.styleMe({'cursor':'pointer'})
             }
             this.content.content = this
             for (const attr of new.target.attributes) if (attr in opts) this[attr] = opts[attr]
