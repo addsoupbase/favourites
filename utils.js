@@ -1655,8 +1655,8 @@ function noevent(...target) {
         this[Key].delete(event)
     }
 }
-var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + this)},
-off = function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + this)}
+var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + target)},
+off = function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + target)}
 , getEventListeners = eventTarget=>eventTarget?.[Key],globalEventHolder=new WeakSet
 }
 {
@@ -1690,6 +1690,7 @@ function zoom(zoom) {
 const gopd = Object.getOwnPropertyDescriptor,
 gopds = Object.getOwnPropertyDescriptors,
 gopn = Object.getOwnPropertyNames, 
-util = {...utilArray,...utilMath,...utilString,...ran};
 //Freaking methods are too long
+util = {...utilArray,...utilMath,...utilString,...ran};
+html.kill=null
 [Math,utilArray,utilMath,utilString,ran,assign,util].forEach(Object.freeze)
