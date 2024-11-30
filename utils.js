@@ -81,7 +81,7 @@ const ran =
         function _true() { return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff }
         function shuffle(...item) {
             for (let i = 0, { length } = item; i < length; ++i) {
-                const j = floor(random() * (i + 1))
+                const j = floor(random() * (i + 1));
                 [item[i], item[j]] = [item[j], item[i]]
             }
             return item
@@ -724,7 +724,7 @@ const Color = class z {
             return this.content.getHTML({ serializableShadowRoots: true })
         }
         eval(code) {
-            return new Function(`with(this){${code}}`).call(this)
+            return Function(`with(this){${code}}`).call(this)
         }
         assign(obj) {
             assign(this, obj)
@@ -734,26 +734,19 @@ const Color = class z {
             console.log('bleh')
             //Object.keys(this.logLevels).forEach(o => this.logLevels[o] = !this.logLevels[o])
         }
-        /* get styler(){
-             return new Proxy(this.content.style,{
-                 get(targ,prop){
-                     return targ.getPropertyValue()
-                 }
-             })
-         }*/
         observer = {
             observe(child) {
-                function く(entries) {
-                    for (const entry of entries) 
-                        if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
-                        else entry.target.content.detectVisibility?.(true)
-                }
                 delete child.content.parent.observer
                 child.content.parent.observer = new IntersectionObserver(く, {
                     root: child.content.parent.content,
                     threshold: 0,
                 })
                 child.content.parent.observer.observe(child)
+                function く(entries) {
+                    for (const entry of entries) 
+                        if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
+                        else entry.target.content.detectVisibility?.(true)
+                }
             }
         }
         /*static textStyle(message, options) {
@@ -1646,31 +1639,31 @@ function addevent(...events) {
             }
             this.addEventListener(eventName, eventfunc)
             this[Key].set(eventName, eventfunc)
-            Elem.debug(`Event "${eventName}" added to ${this.toString()}: \n${event}`)
+            Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
             globalEventHolder.add(event)
         }
-        else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this.toString()}`)
+        else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
     }
 }
 function noevent(...target) {
     for (let { length } = target; length--;) {
         const event = target[length]
         this.removeEventListener(event, this[Key].get(event))
-        this[Key].has(event) ? 
-      Elem.debug(`Removing event "${event}" from ${this.toString()}`)
- :    Elem.warn(`No event found for "${event}" on ${this.toString()}`)
-      this[Key].delete(event)
+        this[Key].has(event)? 
+        Elem.debug(`Removing event "${event}" from ${this}`):    
+        Elem.warn(`No event found for "${event}" on ${this}`)
+        this[Key].delete(event)
     }
 }
 var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + this)},
-off = function remove(target,...args) {if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + this)}
+off = function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + this)}
 , getEventListeners = eventTarget=>eventTarget?.[Key],globalEventHolder=new WeakSet
 }
 {
     var intervals=new Map,
     interval = a,
     timeout = b,
-    del = c
+    remove = c
     function a(callback,time) {
         const out = setInterval(callback,time)
         intervals.set(out,callback)
@@ -1688,6 +1681,15 @@ off = function remove(target,...args) {if(target instanceof EventTarget)return n
         if (intervals.has(id)) {
             clearInterval(id)
             intervals.delete(id)
-        } else Elem.warn('There does not exist an interval/timeout with id '+id)
+        } else Elem.warn('No interval/timeout with id '+id)
     }
 }
+function zoom(zoom) {
+    return html.styleMe({transform:`scale(${zoom}, ${zoom})`})
+}
+const gopd = Object.getOwnPropertyDescriptor,
+gopds = Object.getOwnPropertyDescriptors,
+gopn = Object.getOwnPropertyNames, 
+util = {...utilArray,...utilMath,...utilString,...ran};
+//Freaking methods are too long
+[Math,utilArray,utilMath,utilString,ran,assign,util].forEach(Object.freeze)
