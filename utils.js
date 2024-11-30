@@ -987,6 +987,7 @@ const Color = class z {
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
             this.select(document.documentElement)
             window.body = document.querySelector('body').content
+            window.html = document.querySelector('html').content
             for (const o of head) {
                 const butes = o.attributes,
                 name = o.getAttribute('name'),
@@ -1261,6 +1262,7 @@ const Color = class z {
                     }
                     this.content.addEventListener(eventName, eventfunc)
                     this.eventNames.set(eventName, eventfunc)
+                    globalEventHolder.add(event)
                     Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
                 }
                 else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id+'"' : ''}`)
@@ -1660,8 +1662,8 @@ function noevent(...target) {
       this[Key].delete(event)
     }
 }
-var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + this?.toString())},
-off = function remove(target,...args) {if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + this?.toString())}
+var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + this)},
+off = function remove(target,...args) {if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + this)}
 , getEventListeners = eventTarget=>eventTarget?.[Key],globalEventHolder=new WeakSet
 }
 {
