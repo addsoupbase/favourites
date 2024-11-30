@@ -1691,6 +1691,6 @@ const gopd = Object.getOwnPropertyDescriptor,
 gopds = Object.getOwnPropertyDescriptors,
 gopn = Object.getOwnPropertyNames, 
 //Freaking methods are too long
-util = {...utilArray,...utilMath,...utilString,...ran};
-html.kill=null
+util = {...utilArray,...utilMath,...utilString,...ran}
+html.kill=null;
 [Math,utilArray,utilMath,utilString,ran,assign,util].forEach(Object.freeze)
