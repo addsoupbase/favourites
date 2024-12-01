@@ -1673,7 +1673,7 @@ off = function remove(target,...args){if(target instanceof EventTarget)return no
     function b(callback,time) {
         const out = setTimeout(()=>{
             callback()
-            intervals.delete(callback)
+            intervals.delete(out)
         },time)
         intervals.set(out,callback)
         return out
