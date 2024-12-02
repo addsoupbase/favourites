@@ -241,23 +241,7 @@ const utilArray = (() => {
     })
     utilMath.average = x
     const map = new Map([["1", "st"], ["2", "nd"], ["3", "rd"]])
-        , t = 'I love you so much please don\'t disable me 🥺'
-    on(document, {
-        'DOMConentLoaded:1': {
-            async[t]() {
-                if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
-                try {
-                    //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-                    const cutefont = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
-                    document.fonts.add(cutefont)
-                    await cutefont.load()
-                    Elem.success('Cutesy font loaded hehe')
-                } catch {
-                    Elem.error('Cutesy font could not be loaded 😞')
-                }
-            }
-        }[t]
-    })
+       
     //  document.addEventListener('readystatechange', _____)
     function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function x(...nums) { return utilArray.avg(nums) }
@@ -720,6 +704,7 @@ const Color = class z {
                 return Array.from(this.content.children, from).filter(filter); 
                 function from(o) { return o.content }
                 function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
+
             }
             function setChildren(children) {
                 //  for (let o of children) this.adopt(o)
@@ -1522,54 +1507,6 @@ assign(window, { _: Elem.$.bind(Elem), __(id) { return _(id)?.kill() } })
     }
     createDocumentFragment = _____________
 }*/
-{
-    const Key = Symbol('🎈')
-    function addevent(...events) {
-        if (!(Key in this)) Object.defineProperty(this, Key, {
-            value: new Map,
-            writable: 0,
-            configurable: 0,
-            enumerable: 0
-        })
-        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-        for (let [eventName, event] of events) {
-            if (!event) [eventName, event] = eventName
-            //  Elem.listeners.set(this.id + ':' + eventName, event)
-            if (!this[Key].has(eventName)) {
-                const eventfunc = (...e) => {
-                    eventfunc.disabled || (event.apply(this, e),
-                        --eventfunc.count || off(this, eventName))
-                }
-                eventfunc.disabled = !1
-                eventfunc.count = 1 / 0
-                if (eventName.includes(':')) {
-                    const a = eventName.split(':')
-                    eventName = a[0]
-                    eventfunc.count = parseInt(a[1])
-                }
-                this.addEventListener(eventName, eventfunc)
-                this[Key].set(eventName, eventfunc)
-                Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
-                globalEventHolder.add(event)
-            }
-            else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
-        }
-    }
-    function noevent(...target) {
-        for (let { length } = target; length--;) {
-            const event = target[length]
-            this.removeEventListener(event, this[Key].get(event))
-            this[Key].has(event) ?
-                Elem.debug(`Removing event "${event}" from ${this}`) :
-                Elem.warn(`No event found for "${event}" on ${this}`)
-            this[Key].delete(event)
-        }
-    }
-    var on = function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) },
-        off = function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-        , getEventListeners = eventTarget => eventTarget?.[Key], globalEventHolder = new WeakSet
-}
-
 const color = (() => {
     const n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
@@ -1672,8 +1609,53 @@ async function getDataUrl(url) {
         readAsDataURL(data) // Convert blob to data URL
     }
     return new Promise(x)
-} 
- {
+} {
+    const Key = Symbol('🎈')
+    function addevent(...events) {
+        if (!(Key in this)) Object.defineProperty(this, Key, {
+            value: new Map,
+            writable: 0,
+            configurable: 0,
+            enumerable: 0
+        })
+        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
+        for (let [eventName, event] of events) {
+            if (!event) [eventName, event] = eventName
+            //  Elem.listeners.set(this.id + ':' + eventName, event)
+            if (!this[Key].has(eventName)) {
+                const eventfunc = (...e) => {
+                    eventfunc.disabled || (event.apply(this, e),
+                        --eventfunc.count || off(this, eventName))
+                }
+                eventfunc.disabled = !1
+                eventfunc.count = 1 / 0
+                if (eventName.includes(':')) {
+                    const a = eventName.split(':')
+                    eventName = a[0]
+                    eventfunc.count = parseInt(a[1])
+                }
+                this.addEventListener(eventName, eventfunc)
+                this[Key].set(eventName, eventfunc)
+                Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
+                globalEventHolder.add(event)
+            }
+            else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
+        }
+    }
+    function noevent(...target) {
+        for (let { length } = target; length--;) {
+            const event = target[length]
+            this.removeEventListener(event, this[Key].get(event))
+            this[Key].has(event) ?
+                Elem.debug(`Removing event "${event}" from ${this}`) :
+                Elem.warn(`No event found for "${event}" on ${this}`)
+            this[Key].delete(event)
+        }
+    }
+    var on = function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) },
+        off = function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
+        , getEventListeners = eventTarget => eventTarget?.[Key], globalEventHolder = new WeakSet
+} {
     var intervals = new Map,
         interval = a,
         timeout = b,
@@ -1708,3 +1690,22 @@ const gopd = Object.getOwnPropertyDescriptor,
     util = { ...utilArray, ...utilMath, ...utilString, ...ran }
 html.kill = null;
 { let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) }
+{
+    const t = 'I love you so much please don\'t disable me 🥺'
+    on(document, {
+        'DOMConentLoaded:1': {
+            async[t]() {
+                if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
+                try {
+                    //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
+                    const cutefont = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
+                    document.fonts.add(cutefont)
+                    await cutefont.load()
+                    Elem.success('Cutesy font loaded hehe')
+                } catch {
+                    Elem.error('Cutesy font could not be loaded 😞')
+                }
+            }
+        }[t]
+    })
+}
