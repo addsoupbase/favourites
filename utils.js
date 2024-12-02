@@ -5,65 +5,65 @@ cwebp file.png -o file.webp
 */
 'use strict'
 assign(assign, {
-        nullish(target, props) {
-            const k = Object.keys(props)
-            for (let { length } = k; length--;) {
-                 const key = k[length]
-                if (target[key] != null) delete props[key]
-            }
-            return this(target, props)
-        },
-        not(target, props) {
-             const k = Object.keys(props)
-            for (let { length } = k; length--;) {
-                 const key = k[length]
-                if (target[key]) delete props[key]
-            }
-            return this(target, props)
-        },
-        and(target, props) {
-             const k = Object.keys(props)
-            for (let { length } = k; length--;) {
-                 const key = k[length]
-                if (!target[key]) delete props[key]
-            }
-            return this(target, props)
-        },
-        notin(target, props) {
-             const k = Object.keys(props)
-            for (let { length } = k; length--;) {
-                 const key = k[length]
-                if (key in target) delete props[key]
-            }
-            return this(target, props)
-        },
-        in(target, props) {
-             const k = Object.keys(props)
-            for (let { length } = k; length--;) {
-                 const key = k[length]
-                if (!(key in target)) delete props[key]
-            }
-            return this(target, props)
-        },
-        invoke(target, methods) {
-             const out = [],
-                k = Object.keys(methods)
-            for (let { length } = k; length--;) {
-                let key = k[length]
-                out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
-            }
-            return out
-        },
-        get '??='() { return this.nullish },
-        get '&&='() { return this.and },
-        get '||='() { return this.not }
-    })
+    nullish(target, props) {
+        const k = Object.keys(props)
+        for (let { length } = k; length--;) {
+            const key = k[length]
+            if (target[key] != null) delete props[key]
+        }
+        return this(target, props)
+    },
+    not(target, props) {
+        const k = Object.keys(props)
+        for (let { length } = k; length--;) {
+            const key = k[length]
+            if (target[key]) delete props[key]
+        }
+        return this(target, props)
+    },
+    and(target, props) {
+        const k = Object.keys(props)
+        for (let { length } = k; length--;) {
+            const key = k[length]
+            if (!target[key]) delete props[key]
+        }
+        return this(target, props)
+    },
+    notin(target, props) {
+        const k = Object.keys(props)
+        for (let { length } = k; length--;) {
+            const key = k[length]
+            if (key in target) delete props[key]
+        }
+        return this(target, props)
+    },
+    in(target, props) {
+        const k = Object.keys(props)
+        for (let { length } = k; length--;) {
+            const key = k[length]
+            if (!(key in target)) delete props[key]
+        }
+        return this(target, props)
+    },
+    invoke(target, methods) {
+        const out = [],
+            k = Object.keys(methods)
+        for (let { length } = k; length--;) {
+            let key = k[length]
+            out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
+        }
+        return out
+    },
+    get '??='() { return this.nullish },
+    get '&&='() { return this.and },
+    get '||='() { return this.not }
+})
 const ran =
     (() => {
         const previouslygenerated = new Set,
-        {floor,random} = Math
+            { floor, random } = Math
         return {
-            get coin(){return choose(1,0)},
+            get coin() { return choose(1, 0) },
             get flip() { return choose(1, -1) },
             choose,
             range,
@@ -94,14 +94,14 @@ const ran =
             previouslygenerated.add(str)
             previouslygenerated.size > 3000 && previouslygenerated.clear()
             return str
-            function okay(){return pool[floor(random() * poolSize)]}
+            function okay() { return pool[floor(random() * poolSize)] }
         }
         function Randomizer(n = 6) {
             if (new.target) debugger
             function get(t, p) {
                 return t[p] ??= gen(n)
             }
-            return new Proxy({},{get})
+            return new Proxy({}, { get })
         }
     })()
 const SUPPORTS = {
@@ -130,9 +130,9 @@ const utilMath = (() => {
       },*/
     }
     function sanitize(num) { return (num === +num) && num != null && isFinite(num) }
-    function equality(...target) { 
-        return target.every(is) 
-        function is(o){return Object.is(o, target[0])}
+    function equality(...target) {
+        return target.every(is)
+        function is(o) { return Object.is(o, target[0]) }
     }
     function toRad(deg) { return deg * π / 180 }
     function toDeg(rad) { return rad * 180 / π }
@@ -140,34 +140,37 @@ const utilMath = (() => {
     function clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val }
     function Cycle(...items) {
         if (new.target) debugger
-        const {length} = items
+        const { length } = items
         let x = 0
         return {
-            get next(){return move(1)},
-            get previous(){return move(-1)},
-            get val(){return move(1)},move,*[Symbol.iterator](){for(;;)yield this.val}}
-        function move(step = 1){const old=x;x+=Math.trunc(step)||1;return items[old%length]}
+            get next() { return move(1) },
+            get previous() { return move(-1) },
+            get val() { return move(1) }, move, *[Symbol.iterator]() { for (; ;)yield this.val }
+        }
+        function move(step = 1) { const old = x; x += Math.trunc(step) || 1; return items[old % length] }
     }
 })()
 const utilString = (() => {
-    {const alphabet = 'abcdefghijklmnopqrstuvwxyz'
-    return {
-        alphabet,
-        numbers: '0123456789',
-        months: 'January February March April May June July August September October November December'.split(' '),
-        days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
-        contains,
-        addCommas,
-        shorten,
-        clip,
-        reverse,
-        upper,
-        ALPHABET: alphabet.toUpperCase()
-    }}
+    {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        return {
+            alphabet,
+            numbers: '0123456789',
+            months: 'January February March April May June July August September October November December'.split(' '),
+            days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
+            contains,
+            addCommas,
+            shorten,
+            clip,
+            reverse,
+            upper,
+            ALPHABET: alphabet.toUpperCase()
+        }
+    }
     function contains(string, ...searches) { return searches.every(string.match, string) }
-    function addCommas(num) { 
+    function addCommas(num) {
         return (+num).toLocaleString()//(num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-     }
+    }
     function shorten(string, len = 32) {
         let out = (string + '').slice(0, len)
         if (string.length > len) out += '…'
@@ -219,7 +222,7 @@ const utilArray = (() => {
     function avg(array, type) {
         if (!array.length) return NaN
         const sorted = array.slice().sort((a, b) => a - b),
-            { length } = sorted, {floor} = Math
+            { length } = sorted, { floor } = Math
         if (type) {
             //let median = sorted[Math.floor(length / 2)],
             const q1 = sorted[floor(length / 4)],
@@ -231,16 +234,16 @@ const utilArray = (() => {
             return filtered.reduce((a, b) => a + b) / filtered.length
         } else return sorted.reduce((a, b) => a + b) / length
     }
-})();{   
-    assign(utilString,{
-        toOrdinal:y,
+})(); {
+    assign(utilString, {
+        toOrdinal: y,
         badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
-    })  
-    utilMath.average= x
-    const map = new Map([["1", "st"],["2", "nd"],["3", "rd"]])
-    , t = 'I love you so much please don\'t disable me 🥺'
-    on(document,{
-        'DOMConentLoaded:1':{
+    })
+    utilMath.average = x
+    const map = new Map([["1", "st"], ["2", "nd"], ["3", "rd"]])
+        , t = 'I love you so much please don\'t disable me 🥺'
+    on(document, {
+        'DOMConentLoaded:1': {
             async[t]() {
                 if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
                 try {
@@ -255,13 +258,13 @@ const utilArray = (() => {
             }
         }[t]
     })
-  //  document.addEventListener('readystatechange', _____)
+    //  document.addEventListener('readystatechange', _____)
     function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function x(...nums) { return utilArray.avg(nums) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
-  //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
+    //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
-const[local,session]=(()=>{
+const [local, session] = (() => {
     return [StorageManager(localStorage), StorageManager(sessionStorage)]
     function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
     function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) : 1) }
@@ -370,7 +373,7 @@ const Vector2 = (() => {
             this.set(this.normalized)
         }
         randomize() {
-            const {MIN_SAFE_INTEGER,MAX_SAFE_INTEGER}=Number
+            const { MIN_SAFE_INTEGER, MAX_SAFE_INTEGER } = Number
             this.set(ran.range(MIN_SAFE_INTEGER, MAX_SAFE_INTEGER), ran.range(MIN_SAFE_INTEGER, MAX_SAFE_INTEGER))
         }
         negate() {
@@ -395,12 +398,12 @@ const Vector2 = (() => {
             return new v(-this.x, -this.y)
         }
         get normalized() {
-            return new v(...this.value.map(map,this))
-            function map(o){return o / this.magnitude || 0}
+            return new v(...this.value.map(map, this))
+            function map(o) { return o / this.magnitude || 0 }
         }
         get magnitude() {
             return this.value.reduce(reduce)
-            function reduce(a,b){return Math.abs(a + b)}
+            function reduce(a, b) { return Math.abs(a + b) }
         }
         get sqrtMag() {
             return Math.sqrt(this.magnitude)
@@ -426,7 +429,7 @@ const Vector2 = (() => {
         x,
         y,
         angle,
-      //  average,
+        //  average,
         difference,
         combine,
         multiply,
@@ -581,13 +584,13 @@ const Color = class z {
         return +(this.toString('hex').replace('#', ''))
     }
     static toHex(r, g, b) {
-        return ('#'+z.th(r)+z.th(g)+z.th(b)).toUpperCase()
+        return ('#' + z.th(r) + z.th(g) + z.th(b)).toUpperCase()
     }
-    static th(n){
-        return n.toString(16).padStart(2,0)
+    static th(n) {
+        return n.toString(16).padStart(2, 0)
     }
     static toHex2(r, g, b, a) {
-        const {min,max,round}=Math
+        const { min, max, round } = Math
         r = min(255, max(0, r))
         g = min(255, max(0, g))
         b = min(255, max(0, b))
@@ -636,43 +639,48 @@ const Color = class z {
 }
 {
     const Key = Symbol('\ud83d\udd11'),
-    ERROR_MESSAGE = TypeError('Illegal invocation')
+        ERROR_MESSAGE = TypeError('Illegal invocation')
     var Elem = class Elem {
         [Key] = '\ud83d\udd12'
         static USE_CUTESY_FONT = true
         static getPageAsHTML = __
         static {
             Object.defineProperties(this, {
-                DEPRECATED_TAGNAMES:{value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/},
-                ILLEGAL_TAGNAMES:{value:/^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
+                DEPRECATED_TAGNAMES: { value: /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/ },
+                ILLEGAL_TAGNAMES: { value: /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
                 allElements: { get: allElements },
-                registry:{value:new FinalizationRegistry(GarbageLog)},
-                RO: {value:new ResizeObserver(Ro)},
-                loaded: {value:new Set},
-                failed: {value:new Set},
-                $:{value(id){ 
-                    const out = document.getElementById(id.replace('#', ''))
-                    out || this.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
-                    return out?.content ?? out ?? null
-                }},
-                formats: {value:{
-                    image: /webp|png|jpeg|jpg|gif/,
-                    video: /mp4|mpeg|webm|avi|mov/,
-                    audio: /mp3|ogg|wav|aiff|aac|flac/
-                }}
+                registry: { value: new FinalizationRegistry(GarbageLog) },
+                RO: { value: new ResizeObserver(Ro) },
+                loaded: { value: new Set },
+                failed: { value: new Set },
+                $: {
+                    value(id) {
+                        const out = document.getElementById(id.replace('#', ''))
+                        out || this.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
+                        return out?.content ?? out ?? null
+                    }
+                },
+                formats: {
+                    value: {
+                        image: /webp|png|jpeg|jpg|gif/,
+                        video: /mp4|mpeg|webm|avi|mov/,
+                        audio: /mp3|ogg|wav|aiff|aac|flac/
+                    }
+                }
             })
             Object.defineProperties(this.prototype, {
                 children: { get: getChildren, set: setChildren },
                 before: { set: before },
                 after: { set: after },
                 detachedChildren: { get: detachedChildren },
-                set:{
-                configurable:1,writable:1,
+                set: {
+                    configurable: 1, writable: 1,
                     value(val, type) {
-                    if (map.has(type)) return this[map.get(type)] = val
-                    return this.content.setHTMLUnsafe(val)
-                }}
-            },) 
+                        if (map.has(type)) return this[map.get(type)] = val
+                        return this.content.setHTMLUnsafe(val)
+                    }
+                }
+            },)
             const map = new Map([
                 [1, 'textContent'],
                 [2, 'innerHTML'],
@@ -691,7 +699,7 @@ const Color = class z {
                 }
             }
             function allElements() {
-                return[].map.call(document.querySelectorAll('*'), map).filter(filter)
+                return [].map.call(document.querySelectorAll('*'), map).filter(filter)
                 function map(o) { return o.content }
                 function filter(o) { return Elem.elements.has(o) }
             }
@@ -700,17 +708,19 @@ const Color = class z {
                     fragment = createDocumentFragment()
                 for (let i = 0, { length } = a; i < length; ++i) {
                     a[i].remove()
-                    if (a[i] instanceof Element) 
+                    if (a[i] instanceof Element)
                         fragment.appendChild(a[i])
-                     else a[i].nodeValue = ''
+                    else a[i].nodeValue = ''
                 }
                 return fragment
             }
             function before(e) { this.content.before(e.content) }
             function after(e) { this.content.after(e.content) }
-            function from(o) { return o.content }
-            function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
-            function getChildren() { return Array.from(this.content.children, from).filter(filter) }
+            function getChildren() {
+                return Array.from(this.content.children, from).filter(filter); 
+                function from(o) { return o.content }
+                function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
+            }
             function setChildren(children) {
                 //  for (let o of children) this.adopt(o)
                 const frag = createDocumentFragment()
@@ -719,7 +729,7 @@ const Color = class z {
                 this.content.appendChild(frag)
                 //i think its faster but im not sure
             }
-            function GarbageLog(heldValue){
+            function GarbageLog(heldValue) {
                 Elem.debug(`Element "${heldValue}" was cleared from memory 📤`)
             }
         }
@@ -727,7 +737,7 @@ const Color = class z {
             return this.content.getHTML({ serializableShadowRoots: true })
         }
         eval(code) {
-            return Function(`with(this){${code}}`).call(this)
+            return Function(`with(this){(()=>{'use strict';${code}}})()`).call(this)
         }
         assign(obj) {
             assign(this, obj)
@@ -746,7 +756,7 @@ const Color = class z {
                 })
                 child.content.parent.observer.observe(child)
                 function く(entries) {
-                    for (const entry of entries) 
+                    for (const entry of entries)
                         if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
                         else entry.target.content.detectVisibility?.(true)
                 }
@@ -784,7 +794,7 @@ const Color = class z {
             delete this.noConsole
             function __({ key }) {
                 let value
-                if (key?.toLowerCase() === 'backspace') 
+                if (key?.toLowerCase() === 'backspace')
                     try {
                         prompt('Return Value:', eval?.('"use strict";' + (value = prompt('Input eval code...'))))
                     }
@@ -798,26 +808,26 @@ const Color = class z {
         }
         static bulk(callback, ...src) {
             return Promise.all(src.map(map)).then(final)
-            function res(response){
+            function res(response) {
                 if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
                 const contentType = response.headers.get('Content-Type');
                 if (contentType) {
-                if (contentType.includes('application/json'))
-                    return response.json()
-                else if (contentType.includes('text/html'))
-                    return response.text()
-                else if (contentType.includes('application/xml'))
-                    return response.text()
-                else if (contentType.includes('application/octet-stream'))
-                    return response.blob()
-                else return response.text() 
+                    if (contentType.includes('application/json'))
+                        return response.json()
+                    else if (contentType.includes('text/html'))
+                        return response.text()
+                    else if (contentType.includes('application/xml'))
+                        return response.text()
+                    else if (contentType.includes('application/octet-stream'))
+                        return response.blob()
+                    else return response.text()
                 }
             }
-            async function map(o){
+            async function map(o) {
                 const response = await fetch(o)
                 return res(response)
             }
-            function final () {
+            function final() {
                 callback?.(...src)
                 console.groupCollapsed('Bulk load:')
                 for (const sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
@@ -830,7 +840,7 @@ const Color = class z {
             fetch(src).then(response)
             this.info(`Preloading Resource: ${new URL(src, location)}`)
             return src
-            function response(res){
+            function response(res) {
                 if (!res.ok) {
                     Elem.error(`Resource error: ${res.status}`)
                     Elem.failed.add(src)
@@ -861,23 +871,23 @@ const Color = class z {
             }]
         ])*/
         static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
-       /* static {
-            for (const a of this.svgattr) this.#attrMap.set(a, function hey(val) {
-                this.content.setAttribute(a, val)
-                //requestAnimationFrame(()=>this.innerHTML+='')
-            })
-        }*/
-        get'🩸🪦'() { return this.kill(), 'Why did you kill me 😢' }
+        /* static {
+             for (const a of this.svgattr) this.#attrMap.set(a, function hey(val) {
+                 this.content.setAttribute(a, val)
+                 //requestAnimationFrame(()=>this.innerHTML+='')
+             })
+         }*/
+        get '🩸🪦'() { return this.kill(), 'Why did you kill me 😢' }
         static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
         static {
-            const {prototype} = this
+            const { prototype } = this
             for (const key of Object.getOwnPropertyNames(prototype)) {
                 const descriptor = Object.getOwnPropertyDescriptor(prototype, key)
                 if (typeof descriptor.value === 'function' && key !== 'constructor') {
                     const 우정 = prototype[key]
                     prototype[key] = (俉俊 => {
                         return You_are_so_awesome_and_i_love_you
-                        function You_are_so_awesome_and_i_love_you(...अ){if(Key in this)return 우정.apply(this,अ);throw 俉俊}
+                        function You_are_so_awesome_and_i_love_you(...अ) { if (Key in this) return 우정.apply(this, अ); throw 俉俊 }
                     }
                     )(ERROR_MESSAGE)
                 }
@@ -886,12 +896,12 @@ const Color = class z {
                 const a = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if(Key in this)return this.content[attribute]??null
+                        if (Key in this) return this.content[attribute] ?? null
                         throw ERROR_MESSAGE
                     },
                     set(val) {
                         if (Key in this) {
-                            if (a&&this.childCount)// {
+                            if (a && this.childCount)// {
                                 // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
                                 //          let temp = this.detachedChildren
                                 //   let parser = new DOMParserm
@@ -933,7 +943,7 @@ const Color = class z {
                     try {
                         toAnimate.update(frame)
                     }
-                    catch(e) {
+                    catch (e) {
                         console.error(e)
                         Elem.error(`"${toAnimate.id}" is missing an update method or has one that threw an error`)
                         Elem.animateOnRequestAnimationFrame.delete(toAnimate)
@@ -979,36 +989,36 @@ const Color = class z {
         }
         static {
             const out = { 'standards mode': 'red' }
-            , head = document.head.children
+                , head = document.head.children
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
             this.select(document.documentElement)
             window.body = document.querySelector('body').content
             window.html = document.querySelector('html').content
             for (const o of head) {
                 const butes = o.attributes,
-                name = o.getAttribute('name'),
-                prop = o.getAttribute('property')
-                    if (butes.charset) out.charset = o
-               else if (o.getAttribute('rel') === 'icon') out['favicon'] = o
-               else if (name === 'description' && butes[0]?.nodeValue) out['description'] = o
-               else if (prop === 'og:description') out['og:description'] = o
-               else if (name === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-               else if (name === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
-               else if (name === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
-               else if (name === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
-               else if (prop === 'og:image') out['og:image'] = o
-               else if (prop === 'og:url') out['og:url'] = o
-               else if (name === 'og:title') out['og:title'] = o
-               else if (name === 'viewport' && butes[1]?.nodeValue) out.viewport = o
+                    name = o.getAttribute('name'),
+                    prop = o.getAttribute('property')
+                if (butes.charset) out.charset = o
+                else if (o.getAttribute('rel') === 'icon') out['favicon'] = o
+                else if (name === 'description' && butes[0]?.nodeValue) out['description'] = o
+                else if (prop === 'og:description') out['og:description'] = o
+                else if (name === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
+                else if (name === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
+                else if (name === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
+                else if (name === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
+                else if (prop === 'og:image') out['og:image'] = o
+                else if (prop === 'og:url') out['og:url'] = o
+                else if (name === 'og:title') out['og:title'] = o
+                else if (name === 'viewport' && butes[1]?.nodeValue) out.viewport = o
             }
             if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll(' ', '') && !document.querySelector('title')) out['document has <title>'] = 'red'
             else out['document has <title>'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
             console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
-            for (const [key, value] of Object.entries(out)) 
+            for (const [key, value] of Object.entries(out))
                 if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-                console.groupEnd()
+            console.groupEnd()
             /* for (let script of document.scripts) {
                  script.addEventListener('load',function n(a){
                      this.removeEventListener('load',n)
@@ -1027,14 +1037,14 @@ const Color = class z {
                 Elem.requestAnimationFrame()
         }
         clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
-        timeouts=new Map
-        intervals=new Map
-        eventNames=Object.defineProperty(new Map, 'trigger', {
+        timeouts = new Map
+        intervals = new Map
+        eventNames = Object.defineProperty(new Map, 'trigger', {
             value(search) {
-                if (search) 
+                if (search)
                     if (this.eventNames.has(search)) this.eventNames.get(search)()
                     else Elem.warn(`Non-existent event: ${search}`)
-                    else for (const [, n] of this.eventNames) n.call(this)
+                else for (const [, n] of this.eventNames) n.call(this)
             }
         })
         constructor(opts) {
@@ -1042,7 +1052,7 @@ const Color = class z {
             if (!opts || !('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
             if (opts.tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
             if (opts.tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
-            if (opts.tag^opts.self) throw TypeError('You must only pick between self or tag')
+            if (opts.tag ^ opts.self) throw TypeError('You must only pick between self or tag')
             if (opts.self) {
                 if (new.target.elements.has(opts.self.content)) {
                     console.error(opts.self)
@@ -1056,7 +1066,7 @@ const Color = class z {
                 if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
                 else this.content = document.createElement(opts.tag)
                 opts.id ??= ran.gen(7)
-                if (opts.tag === 'button') this.styleMe({'cursor':'pointer'})
+                if (opts.tag === 'button') this.styleMe({ 'cursor': 'pointer' })
             }
             this.content.content = this
             for (const attr of new.target.attributes) if (attr in opts) this[attr] = opts[attr]
@@ -1104,7 +1114,7 @@ const Color = class z {
             //   }
             this.begin(opts)
         }
-        get current(){return this.content}
+        get current() { return this.content }
         append(p) {
             p.content.appendChild(this.content)
         }
@@ -1132,12 +1142,12 @@ const Color = class z {
         }
         get parent() {
             if (Key in this)
-            return this.content.parentElement?.content ?? null
+                return this.content.parentElement?.content ?? null
             throw ERROR_MESSAGE
         }
         set parent(val) {
             //i shouldve thought of this earlier
-            if (Key in this) return val == null?this.parent?.content.removeChild(this.content):val.adopt(this)
+            if (Key in this) return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
             throw ERROR_MESSAGE
         }
         get childCount() {
@@ -1161,7 +1171,7 @@ const Color = class z {
         get index() {
             return this.parent?.children.indexOf(this.content.content) ?? null
         }
-        toString(){
+        toString() {
             return this.content.outerHTML
         }
         addClass(...className) { return this.add({ class: className }) }
@@ -1169,7 +1179,7 @@ const Color = class z {
             if (props.class) {
                 if (typeof props.class === 'string') props.class = [props.class]
                 //for (let $class of props.class)
-                for (let { length } = props.class; length--;) 
+                for (let { length } = props.class; length--;)
                     /*   if (!Elem.findClass($class)) {
                         Elem.messages.noclass($class)
                         } else if ([...this.content.classList].includes($class)) {
@@ -1180,9 +1190,9 @@ const Color = class z {
             }
             return this
         }
-        disableEvent(name) {this.eventNames.get(name).disabled = true }
-        enableEvent(name) {this.eventNames.get(name).disabled = false }
-        toggleEvent(name) {const e = this.eventNames.get(name).disabled;e.disabled = !e.disabled}
+        disableEvent(name) { this.eventNames.get(name).disabled = true }
+        enableEvent(name) { this.eventNames.get(name).disabled = false }
+        toggleEvent(name) { const e = this.eventNames.get(name).disabled; e.disabled = !e.disabled }
         async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
             assign['??='](timing, {
                 duration: 1000,
@@ -1193,8 +1203,8 @@ const Color = class z {
             })
             // timing.composition
             try {
-                const keyframeEffect = new KeyframeEffect(this.content,frames,timing)
-                , animation = new Animation(keyframeEffect)
+                const keyframeEffect = new KeyframeEffect(this.content, frames, timing)
+                    , animation = new Animation(keyframeEffect)
                 animation.play()
                 await animation.finished
                 animation.commitStyles()
@@ -1262,7 +1272,7 @@ const Color = class z {
                     globalEventHolder.add(event)
                     Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
                 }
-                else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id+'"' : ''}`)
+                else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id + '"' : ''}`)
             }
         }
         hasevent(eventName) { return this.eventNames.has(eventName) }
@@ -1281,7 +1291,7 @@ const Color = class z {
         kill() {
             this.ondeath?.()
             this.cleanup()
-            if (body !== this) this.content.remove(),Elem.debug(`Element "${this.id}" was removed from body`)
+            if (body !== this) this.content.remove(), Elem.debug(`Element "${this.id}" was removed from body`)
         }
         cleanup() {
             assign.invoke(this, {
@@ -1342,7 +1352,7 @@ const Color = class z {
         async fadeIn(callback) {
             this.styleMe({ opacity: 0 })
             this.show()
-            this.transition({frames: { opacity: 1 }, timing: { duration: 300 },}, () => {callback?.call(this)})
+            this.transition({ frames: { opacity: 1 }, timing: { duration: 300 }, }, () => { callback?.call(this) })
         }
         async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
         addTimeout(callback, interval) {
@@ -1392,95 +1402,95 @@ const Color = class z {
             for (const [id] of this.timeouts) this.removeTimeout(id)
         }
     }
-     ,SceneryElem = class SceneryElem extends Elem {
-        static all = new Set
-        static frame = 0
-        static update() {
-            this.frame++
-            for (const o of this.all) o.#update()
-        }
-        position = new Vector2
-        rotation = 0
-        angular = 0
-        #mirror = 0
-        #lifetime = 0
-        #hasBeenSeen = false
-        flip() {
-            this.#mirror += 180
-        }
-        cleanup() {
-            SceneryElem.all.delete(this)
-            super.cleanup()
-        }
-        velocity = new Vector2
-        static {
-            const {prototype} = this
-            , k = Object.getOwnPropertyNames(prototype)
-            for (let { length } = k; length--;) {
-                const key = k[length]
-                , descriptor = Object.getOwnPropertyDescriptor(prototype, key)
-                if (typeof descriptor.value === 'function' && key !== 'constructor') {
-                    const 우정 = prototype[key]
-                    prototype[key] = (份 => {
-                        return You_are_so_awesome_and_i_love_you
-                        function You_are_so_awesome_and_i_love_you(...l){if(Key in this)return 우정.apply(this,l);throw 份}
+        , SceneryElem = class SceneryElem extends Elem {
+            static all = new Set
+            static frame = 0
+            static update() {
+                this.frame++
+                for (const o of this.all) o.#update()
+            }
+            position = new Vector2
+            rotation = 0
+            angular = 0
+            #mirror = 0
+            #lifetime = 0
+            #hasBeenSeen = false
+            flip() {
+                this.#mirror += 180
+            }
+            cleanup() {
+                SceneryElem.all.delete(this)
+                super.cleanup()
+            }
+            velocity = new Vector2
+            static {
+                const { prototype } = this
+                    , k = Object.getOwnPropertyNames(prototype)
+                for (let { length } = k; length--;) {
+                    const key = k[length]
+                        , descriptor = Object.getOwnPropertyDescriptor(prototype, key)
+                    if (typeof descriptor.value === 'function' && key !== 'constructor') {
+                        const 우정 = prototype[key]
+                        prototype[key] = (份 => {
+                            return You_are_so_awesome_and_i_love_you
+                            function You_are_so_awesome_and_i_love_you(...l) { if (Key in this) return 우정.apply(this, l); throw 份 }
+                        }
+                        )(ERROR_MESSAGE)
                     }
-                    )(ERROR_MESSAGE)
                 }
             }
-        }
-        constructor(opts = {}, i) {
-            opts.tag ??= 'div'
-            super(opts, i)
-            new.target.all.add(this)
-            this.styleMe({ position: 'absolute', margin: 'auto' })
-            this.position.set(+opts.x || 0, +opts.y || 0)
-            this.#update()
-            this.parent?.observer.observe(this.content)
-        }
-        rotate(rot = 0) {
-            this.rotation += rot
-        }
-        setAV(speed = 0) {
-            this.angular = speed
-        }
-        outofbounds() {
-            this.kill()
-        }
-        detectVisibility(n) {
-            this.isOverFlowed = n
-        }
-        #update() {
-            this.#lifetime++
-            if (this.#lifetime > 1) {
-                if (!this.isOverFlowed) {
-                    if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
-                        || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
-                        ||
-                        (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
-                        || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
-                } else this.#hasBeenSeen = true
-                this.update?.()
+            constructor(opts = {}, i) {
+                opts.tag ??= 'div'
+                super(opts, i)
+                new.target.all.add(this)
+                this.styleMe({ position: 'absolute', margin: 'auto' })
+                this.position.set(+opts.x || 0, +opts.y || 0)
+                this.#update()
+                this.parent?.observer.observe(this.content)
             }
-            this.styleMe({
-                transform: `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
-                'transform-origin': 'center',
-            })
-            this.rotate(this.angular)
-            this.position.add(this.velocity)
-            // Do not use this ⤵️
-            //  this.style.left = `${Math.trunc(this.position.x)}px`
-            //  this.style.top = `${Math.trunc(this.position.y)}px`
+            rotate(rot = 0) {
+                this.rotation += rot
+            }
+            setAV(speed = 0) {
+                this.angular = speed
+            }
+            outofbounds() {
+                this.kill()
+            }
+            detectVisibility(n) {
+                this.isOverFlowed = n
+            }
+            #update() {
+                this.#lifetime++
+                if (this.#lifetime > 1) {
+                    if (!this.isOverFlowed) {
+                        if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
+                            || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
+                            ||
+                            (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
+                                || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
+                    } else this.#hasBeenSeen = true
+                    this.update?.()
+                }
+                this.styleMe({
+                    transform: `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
+                    'transform-origin': 'center',
+                })
+                this.rotate(this.angular)
+                this.position.add(this.velocity)
+                // Do not use this ⤵️
+                //  this.style.left = `${Math.trunc(this.position.x)}px`
+                //  this.style.top = `${Math.trunc(this.position.y)}px`
+            }
         }
-    }
     function __() {
-        for (let elem of SceneryElem.all)elem.kill()
+        for (let elem of SceneryElem.all) elem.kill()
         return document.documentElement.getHTML()
     }
-}{
+} {
     let loglevel = 3
-    Object.defineProperty(Elem, 'loglevel', {get,set})
-       const map = new Map([[0, _0],[1, _1],[2, _2],[3, _3],[4, _4],[5, _5]]), {logLevels} = Elem
+    Object.defineProperty(Elem, 'loglevel', { get, set })
+    const map = new Map([[0, _0], [1, _1], [2, _2], [3, _3], [4, _4], [5, _5]]), { logLevels } = Elem
     function _0() { const k = Object.keys(logLevels); for (let { length } = k; length--;) { let o = k[length]; logLevels[o] = false } }
     function _1() { map.get(0)(); return logLevels.error = true }
     function _2() { return logLevels.warn = map.get(1)() }
@@ -1493,7 +1503,7 @@ const Color = class z {
         return map.get(+(loglevel = val))()
     }
 }
-assign(window,{_:Elem.$.bind(Elem),__(id){return _(id)?.kill()}})
+assign(window, { _: Elem.$.bind(Elem), __(id) { return _(id)?.kill() } })
 /*class svg extends Elem {
     constructor(n) {
         assign(n, {
@@ -1512,8 +1522,56 @@ assign(window,{_:Elem.$.bind(Elem),__(id){return _(id)?.kill()}})
     }
     createDocumentFragment = _____________
 }*/
+{
+    const Key = Symbol('🎈')
+    function addevent(...events) {
+        if (!(Key in this)) Object.defineProperty(this, Key, {
+            value: new Map,
+            writable: 0,
+            configurable: 0,
+            enumerable: 0
+        })
+        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
+        for (let [eventName, event] of events) {
+            if (!event) [eventName, event] = eventName
+            //  Elem.listeners.set(this.id + ':' + eventName, event)
+            if (!this[Key].has(eventName)) {
+                const eventfunc = (...e) => {
+                    eventfunc.disabled || (event.apply(this, e),
+                        --eventfunc.count || off(this, eventName))
+                }
+                eventfunc.disabled = !1
+                eventfunc.count = 1 / 0
+                if (eventName.includes(':')) {
+                    const a = eventName.split(':')
+                    eventName = a[0]
+                    eventfunc.count = parseInt(a[1])
+                }
+                this.addEventListener(eventName, eventfunc)
+                this[Key].set(eventName, eventfunc)
+                Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
+                globalEventHolder.add(event)
+            }
+            else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
+        }
+    }
+    function noevent(...target) {
+        for (let { length } = target; length--;) {
+            const event = target[length]
+            this.removeEventListener(event, this[Key].get(event))
+            this[Key].has(event) ?
+                Elem.debug(`Removing event "${event}" from ${this}`) :
+                Elem.warn(`No event found for "${event}" on ${this}`)
+            this[Key].delete(event)
+        }
+    }
+    var on = function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) },
+        off = function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
+        , getEventListeners = eventTarget => eventTarget?.[Key], globalEventHolder = new WeakSet
+}
+
 const color = (() => {
-    const n = new OffscreenCanvas(0,0).getContext('2d')
+    const n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
         dhk: { value: ___ },
         choose: { value: choose, },
@@ -1527,7 +1585,7 @@ const color = (() => {
     function __(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }
     function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
     function choose() { return '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) }
-    function value(e) {if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
+    function value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
     function get(t, prop) {
         if (CSS.supports('color', prop)) {
             n.fillStyle = prop
@@ -1569,13 +1627,13 @@ function createDocumentFragment() {
     return document.createDocumentFragment()
 }
 function $(opts, t = Elem) {
-    if (typeof opts === 'string')throw TypeError('This is not jQuery')
-    return new(t===true?Elem:t)(opts)
+    if (typeof opts === 'string') throw TypeError('This is not jQuery')
+    return new (t === true ? Elem : t)(opts)
 }
 function remix(oldFunc, { before, after } = {}) {
     function remix(...a) {
         before?.apply(this, a)
-        const instance =new.target?new oldFunc(...a):oldFunc(...a)
+        const instance = new.target ? new oldFunc(...a) : oldFunc(...a)
         after?.apply(instance, a)
         return instance
     }
@@ -1595,13 +1653,13 @@ async function getDataUrl(url) {
         }
     } catch (e) {
         Elem.error(`Resource Error: ${url} - ${e.message}`)
-        throw':('
+        throw ':('
     }
     try {
         data = await response.blob()
     } catch (e) {
         Elem.error(`Failed to convert response to blob: ${e.message}`)
-        return':('
+        return ':('
     }
     function x(resolve, onerror) {
         function onloadend() {
@@ -1614,84 +1672,39 @@ async function getDataUrl(url) {
         readAsDataURL(data) // Convert blob to data URL
     }
     return new Promise(x)
-}{
-const Key = Symbol('🎈')
-function addevent(...events) {
-    if (!(Key in this)) Object.defineProperty(this,Key,{
-        value: new Map,
-        writable:0,
-        configurable:0,
-        enumerable:0
-    })
-    if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-        for (let [eventName, event] of events) {
-        if (!event) [eventName, event] = eventName
-     //  Elem.listeners.set(this.id + ':' + eventName, event)
-        if (!this[Key].has(eventName)) {
-            const eventfunc = (...e) => {
-                eventfunc.disabled || (event.apply(this, e), 
-                --eventfunc.count  || off(this,eventName))
-            }
-            eventfunc.disabled = !1
-            eventfunc.count = 1 / 0
-            if (eventName.includes(':')) {
-                const a = eventName.split(':')
-                eventName = a[0]
-                eventfunc.count = parseInt(a[1])
-            }
-            this.addEventListener(eventName, eventfunc)
-            this[Key].set(eventName, eventfunc)
-            Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
-            globalEventHolder.add(event)
-        }
-        else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
-    }
-}
-function noevent(...target) {
-    for (let { length } = target; length--;) {
-        const event = target[length]
-        this.removeEventListener(event, this[Key].get(event))
-        this[Key].has(event)? 
-        Elem.debug(`Removing event "${event}" from ${this}`):    
-        Elem.warn(`No event found for "${event}" on ${this}`)
-        this[Key].delete(event)
-    }
-}
-var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + target)},
-off = function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + target)}
-, getEventListeners = eventTarget=>eventTarget?.[Key],globalEventHolder=new WeakSet
-}{
-    var intervals=new Map,
-    interval = a,
-    timeout = b,
-    remove = c
-    function a(callback,time) {
-        const out = setInterval(callback,time)
-        intervals.set(out,callback)
+} 
+ {
+    var intervals = new Map,
+        interval = a,
+        timeout = b,
+        remove = c
+    function a(callback, time) {
+        const out = setInterval(callback, time)
+        intervals.set(out, callback)
         return out
     }
-    function b(callback,time) {
-        const out = setTimeout(()=>{
+    function b(callback, time) {
+        const out = setTimeout(() => {
             callback()
             intervals.delete(out)
-        },time)
-        intervals.set(out,callback)
+        }, time)
+        intervals.set(out, callback)
         return out
     }
-    function c(id){
+    function c(id) {
         if (intervals.has(id)) {
             clearInterval(id)
             intervals.delete(id)
-        } else Elem.warn('No interval/timeout with id '+id)
+        } else Elem.warn('No interval/timeout with id ' + id)
     }
 }
 function zoom(zoom) {
-    return html.styleMe({transform:`scale(${zoom}, ${zoom})`})
+    return html.styleMe({ transform: `scale(${zoom}, ${zoom})` })
 }
 const gopd = Object.getOwnPropertyDescriptor,
-gopds = Object.getOwnPropertyDescriptors,
-gopn = Object.getOwnPropertyNames, 
-//Freaking methods are too long
-util = {...utilArray,...utilMath,...utilString,...ran}
-html.kill=null;
-{let arr = [Math,utilArray,utilMath,utilString,ran,assign,util];for (let {length} = arr; length--;) Object.freeze(arr[length])}
+    gopds = Object.getOwnPropertyDescriptors,
+    gopn = Object.getOwnPropertyNames,
+    //Freaking methods are too long
+    util = { ...utilArray, ...utilMath, ...utilString, ...ran }
+html.kill = null;
+{ let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) }
