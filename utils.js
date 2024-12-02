@@ -142,8 +142,11 @@ const utilMath = (() => {
         if (new.target) debugger
         const {length} = items
         let x = 0
-        return {get val(){return move(1)},move,*[Symbol.iterator](){for (;;)yield this.val}}
-        function move(step = 1){const old = x;x+=step;return items[old%length]}
+        return {
+            get next(){return move(1)},
+            get previous(){return move(-1)},
+            get val(){return move(1)},move,*[Symbol.iterator](){for(;;)yield this.val}}
+        function move(step = 1){const old=x;x+=Math.trunc(step)||1;return items[old%length]}
     }
 })()
 const utilString = (() => {
@@ -228,8 +231,7 @@ const utilArray = (() => {
             return filtered.reduce((a, b) => a + b) / filtered.length
         } else return sorted.reduce((a, b) => a + b) / length
     }
-})()
-{   
+})();{   
     assign(utilString,{
         toOrdinal:y,
         badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
@@ -237,28 +239,29 @@ const utilArray = (() => {
     utilMath.average= x
     const map = new Map([["1", "st"],["2", "nd"],["3", "rd"]])
     , t = 'I love you so much please don\'t disable me 🥺'
-    document.addEventListener('DOMContentLoaded', {
-        async[t]() {
-            document.removeEventListener('DOMContentLoaded', this[t])
-            if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
-            try {
-                //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-                const cutefont = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
-                document.fonts.add(cutefont)
-                await cutefont.load()
-                Elem.success('Cutesy font loaded hehe')
-            } catch {
-                Elem.error('Cutesy font could not be loaded 😞')
+    on(document,{
+        'DOMConentLoaded:1':{
+            async[t]() {
+                if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
+                try {
+                    //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
+                    const cutefont = new FontFace('Choco cooky', 'url(https://addsoupbase.github.io/media/Chococooky.woff)')
+                    document.fonts.add(cutefont)
+                    await cutefont.load()
+                    Elem.success('Cutesy font loaded hehe')
+                } catch {
+                    Elem.error('Cutesy font could not be loaded 😞')
+                }
             }
-        }
-    }[t])
+        }[t]
+    })
   //  document.addEventListener('readystatechange', _____)
     function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function x(...nums) { return utilArray.avg(nums) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
   //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
-const [local, session] = (() => {
+const[local,session]=(()=>{
     return [StorageManager(localStorage), StorageManager(sessionStorage)]
     function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
     function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) : 1) }
@@ -274,7 +277,7 @@ const [local, session] = (() => {
         throw TypeError('Expecting Storage, got ' + managee?.constructor?.name)
     }
 })()
-const Vector = class v {
+/*const Vector = class v {
     x = 0
     constructor(x = 0) {
         Object.seal(this)
@@ -283,7 +286,7 @@ const Vector = class v {
     [Symbol.toPrimitive](type) {
         return type === 'number' ? this.x : '' + this.x
     }
-}
+}*/
 const Vector2 = (() => {
     return assign(class v {
         x = 0
@@ -1474,8 +1477,7 @@ const Color = class z {
         for (let elem of SceneryElem.all)elem.kill()
         return document.documentElement.getHTML()
     }
-}
-{
+}{
     let loglevel = 3
     Object.defineProperty(Elem, 'loglevel', {get,set})
        const map = new Map([[0, _0],[1, _1],[2, _2],[3, _3],[4, _4],[5, _5]]), {logLevels} = Elem
@@ -1492,7 +1494,7 @@ const Color = class z {
     }
 }
 assign(window,{_:Elem.$.bind(Elem),__(id){return _(id)?.kill()}})
-class svg extends Elem {
+/*class svg extends Elem {
     constructor(n) {
         assign(n, {
             tag: 'svg',
@@ -1503,13 +1505,13 @@ class svg extends Elem {
         //this.content.setAttribute('xmlns','xmlns')
         //Really confusing
     }
-}
-if (local.fragment === 'constructor') {
+}*/
+/*if (local.fragment === 'constructor') {
     function _____________() {
         return new DocumentFragment
     }
     createDocumentFragment = _____________
-}
+}*/
 const color = (() => {
     const n = new OffscreenCanvas(0,0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
@@ -1612,8 +1614,7 @@ async function getDataUrl(url) {
         readAsDataURL(data) // Convert blob to data URL
     }
     return new Promise(x)
-}
-{
+}{
 const Key = Symbol('🎈')
 function addevent(...events) {
     if (!(Key in this)) Object.defineProperty(this,Key,{
@@ -1659,8 +1660,7 @@ function noevent(...target) {
 var on = function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target,args);throw TypeError('Invalid event target: ' + target)},
 off = function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target,args);throw TypeError('Invalid event target: ' + target)}
 , getEventListeners = eventTarget=>eventTarget?.[Key],globalEventHolder=new WeakSet
-}
-{
+}{
     var intervals=new Map,
     interval = a,
     timeout = b,
@@ -1694,4 +1694,4 @@ gopn = Object.getOwnPropertyNames,
 //Freaking methods are too long
 util = {...utilArray,...utilMath,...utilString,...ran}
 html.kill=null;
-[Math,utilArray,utilMath,utilString,ran,assign,util].forEach(Object.freeze)
+{let arr = [Math,utilArray,utilMath,utilString,ran,assign,util];for (let {length} = arr; length--;) Object.freeze(arr[length])}
