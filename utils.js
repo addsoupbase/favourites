@@ -385,6 +385,9 @@ const Vector2 = (() => {
             return new v(...this.value.map(map, this))
             function map(o) { return o / this.magnitude || 0 }
         }
+        get isValid(){
+            return this.x===this.x&&this.y===this.y
+        }
         get magnitude() {
             return this.value.reduce(reduce)
             function reduce(a, b) { return Math.abs(a + b) }
