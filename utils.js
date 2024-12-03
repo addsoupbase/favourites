@@ -275,7 +275,8 @@ const [local, session] = (() => {
     }
 }*/
 const Vector2 = (() => {
-    return assign(class v {
+    let v;
+    return assign(v=class v {
         x = 0
         y = 0
         constructor(x = 0, y = 0) {
