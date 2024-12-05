@@ -4,6 +4,7 @@ Png to webp
 cwebp file.png -o file.webp
 */
 'use strict'
+//Object.defineProperty(window,'NULLOBJ',{get(){return Object.create(null)}})
 assign(assign, {
     nullish(target, props) {
         const k = Object.keys(props)
@@ -69,7 +70,7 @@ const ran =
             range,
             frange,
             pseudo,
-            true: _true,
+            true:_true,
             shuffle,
             gen,
             Randomizer,
@@ -98,10 +99,10 @@ const ran =
         }
         function Randomizer(n = 6) {
             if (new.target) debugger
+            return new Proxy({}, { get })
             function get(t, p) {
                 return t[p] ??= gen(n)
             }
-            return new Proxy({}, { get })
         }
     })()
 const SUPPORTS = {
@@ -147,7 +148,7 @@ const utilMath = (() => {
             get previous() { return move(-1) },
             get val() { return move(1) }, move, *[Symbol.iterator]() { for (; ;)yield this.val }
         }
-        function move(step = 1) { const old = x; x += Math.trunc(step) || 1; return items[old % length] }
+        function move(step = 1) { const old = x; x += Math.trunc(step) || 1; return items[old%length] }
     }
 })()
 const utilString = (() => {
@@ -243,8 +244,8 @@ const utilArray = (() => {
     const map = new Map([["1", "st"], ["2", "nd"], ["3", "rd"]])
        
     //  document.addEventListener('readystatechange', _____)
-    function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function x(...nums) { return utilArray.avg(nums) }
+    function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
     //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
@@ -275,7 +276,7 @@ const [local, session] = (() => {
     }
 }*/
 const Vector2 = (() => {
-    let v;
+    let v
     return assign(v=class v {
         x = 0
         y = 0
@@ -394,7 +395,7 @@ const Vector2 = (() => {
             function reduce(a, b) { return Math.abs(a + b) }
         }
         get sqrtMag() {
-            return Math.sqrt(this.magnitude)
+            return this.magnitude**.5
         }
         get value() {
             return [this.x, this.y]//Object.values(this)
@@ -432,8 +433,8 @@ const Vector2 = (() => {
         return vectorLike.y ?? vectorLike[1] ?? Object.values(vectorLike)[1]
     }
     function angle(first, second) {
-        const firstAngle = Math.atan2(v.y(first), v.x(first)),
-            secondAngle = Math.atan2(v.y(second), v.x(second)),
+        const firstAngle = Math.atan2(y(first), x(first)),
+            secondAngle = Math.atan2(y(second), x(second)),
             angle = secondAngle - firstAngle
         return Math.abs(angle)
     }
@@ -450,7 +451,7 @@ const Vector2 = (() => {
         return new v(...out)
     }
     function distance(vector, vector2) {
-        return Math.hypot(v.x(vector) - v.x(vector2), v.y(vector) - v.y(vector2))
+        return Math.hypot(x(vector) - x(vector2), y(vector) - y(vector2))
     }
     function combine(...vectors) {
         const out = new v
@@ -463,13 +464,13 @@ const Vector2 = (() => {
         return out
     }
     function max(vector, vector2) {
-        return new v(Math.max(v.x(vector2), v.x(vector)), Math.max(v.y(vector2), v.y(vector)))
+        return new v(Math.max(x(vector2), x(vector)), Math.max(y(vector2), y(vector)))
     }
     function min(vector, vector2) {
-        return new v(Math.min(v.x(vector2), v.x(vector)), Math.min(v.y(vector2), v.y(vector)))
+        return new v(Math.min(x(vector2), x(vector)), Math.min(y(vector2), y(vector)))
     }
     function equals(...vectors) {
-        return utilMath.arreq(...vectors.map(o => [v.x(o), v.y(o)]))
+        return utilMath.arreq(...vectors.map(o => [v(o), y(o)]))
     }
 })()
 /*class Vector3 extends v {
@@ -583,7 +584,7 @@ const Color = class z {
         g = min(255, max(0, g))
         b = min(255, max(0, b))
         a = round(min(1, max(0, a)) * 255)
-        return `#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`
+        return`#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`
     }
     static toHSL(r, g, b) {
         r /= 255, g /= 255, b /= 255
@@ -627,7 +628,8 @@ const Color = class z {
 }
 {
     const Key = Symbol('\ud83d\udd11'),
-        ERROR_MESSAGE = TypeError('Illegal invocation')
+        ERROR_MESSAGE = TypeError('Illegal invocation'),
+        {hasOwn} = Object
     var Elem = class Elem {
         [Key] = '\ud83d\udd12'
         static USE_CUTESY_FONT = true
@@ -708,7 +710,6 @@ const Color = class z {
                 return Array.from(this.content.children, from).filter(filter); 
                 function from(o) { return o.content }
                 function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
-
             }
             function setChildren(children) {
                 //  for (let o of children) this.adopt(o)
@@ -726,7 +727,7 @@ const Color = class z {
             return this.content.getHTML({ serializableShadowRoots: true })
         }
         eval(code) {
-            return Function(`with(this){(()=>{'use strict';${code}}})()`).call(this)
+            return Function(`with(this){(()=>{'use strict';${code}}})()}`).call(this)
         }
         assign(obj) {
             assign(this, obj)
@@ -876,7 +877,7 @@ const Color = class z {
                     const 우정 = prototype[key]
                     prototype[key] = (俉俊 => {
                         return You_are_so_awesome_and_i_love_you
-                        function You_are_so_awesome_and_i_love_you(...अ) { if (Key in this) return 우정.apply(this, अ); throw 俉俊 }
+                        function You_are_so_awesome_and_i_love_you(...अ) { if (hasOwn(this,Key)) return 우정.apply(this, अ); throw 俉俊 }
                     }
                     )(ERROR_MESSAGE)
                 }
@@ -885,11 +886,11 @@ const Color = class z {
                 const a = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if (Key in this) return this.content[attribute] ?? null
+                        if (hasOwn(this,Key)) return this.content[attribute] ?? null
                         throw ERROR_MESSAGE
                     },
                     set(val) {
-                        if (Key in this) {
+                        if (hasOwn(this,Key)) {
                             if (a && this.childCount)// {
                                 // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
                                 //          let temp = this.detachedChildren
@@ -1130,13 +1131,13 @@ const Color = class z {
             p.content.prepend(this.content)
         }
         get parent() {
-            if (Key in this)
+            if (hasOwn(this,Key))
                 return this.content.parentElement?.content ?? null
             throw ERROR_MESSAGE
         }
         set parent(val) {
             //i shouldve thought of this earlier
-            if (Key in this) return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
+            if (hasOwn(this,Key)) return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
             throw ERROR_MESSAGE
         }
         get childCount() {
@@ -1264,6 +1265,16 @@ const Color = class z {
                 else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id + '"' : ''}`)
             }
         }
+        get generation(){
+            let {parent} = this,
+            num = 0
+            while(parent){++num;({parent}=parent)}
+            return num
+        }
+        [Symbol.toPrimitive](type) {
+            if (type==='number') return this.generation
+            return this.toString()
+        }
         hasevent(eventName) { return this.eventNames.has(eventName) }
         noevent(...target) {
             // for (let event of target) {
@@ -1299,6 +1310,12 @@ const Color = class z {
             Elem.registry.register(this, this.id)
             o.start?.call(this)
         }
+        disable(){
+              this.disabled=true
+        }
+        enable(){
+            this.disabled=false
+        }
         killChildren() {
             const n = this.children
             for (let { length } = n; length--;) {
@@ -1322,7 +1339,7 @@ const Color = class z {
             return out
         }
         get visibilityStatus() {
-            return {
+            return{
                 visibility: this.style.visibility,
                 opacity: this.style.opacity,
                 display: this.style.display,
@@ -1344,14 +1361,14 @@ const Color = class z {
             this.transition({ frames: { opacity: 1 }, timing: { duration: 300 }, }, () => { callback?.call(this) })
         }
         async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
-        addTimeout(callback, interval) {
+        addTimeout(callback, interval_) {
             callback.paused = false
             let mult
             if (typeof interval === 'object') {
-                if ('seconds' in interval) mult = 1_000 * interval.seconds
-                else if ('minutes' in interval) mult = 60_000 * interval.minutes
-                else if ('hours' in interval) mult = 3_600_000 * interval.hours
-            } else mult = interval
+                if ('seconds' in interval_) mult = 1_000 * interval_.seconds
+                else if ('minutes' in interval_) mult = 60_000 * interval_.minutes
+                else if ('hours' in interval_) mult = 3_600_000 * interval_.hours
+            } else mult = interval_
             const id = timeout(() => {
                 callback.paused || this.timeouts.get(id).call(this)
                 this.timeouts.delete(id)
@@ -1363,15 +1380,15 @@ const Color = class z {
             const n = this.intervals.get(id)
             return n.paused = !n.paused
         }
-        addInterval(callback, interval) {
+        addInterval(callback, interval_) {
             callback.paused = false
-            callback.count = interval?.count ?? -1
+            callback.count = interval_?.count ?? -1
             let mult
-            if (typeof interval === 'object') {
-                if ('seconds' in interval) mult = 1_000 * interval.seconds
-                else if ('minutes' in interval) mult = 60_000 * interval.minutes
-                else if ('hours' in interval) mult = 3_600_000 * interval.hours
-            } else mult = interval
+            if (typeof interval_ === 'object') {
+                if ('seconds' in interval_) mult = 1_000 * interval_.seconds
+                else if ('minutes' in interval_) mult = 60_000 * interval_.minutes
+                else if ('hours' in interval_) mult = 3_600_000 * interval_.hours
+            } else mult = interval_
             const id = interval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
             this.intervals.set(id, callback)
             return id
@@ -1422,7 +1439,7 @@ const Color = class z {
                         const 우정 = prototype[key]
                         prototype[key] = (份 => {
                             return You_are_so_awesome_and_i_love_you
-                            function You_are_so_awesome_and_i_love_you(...l) { if (Key in this) return 우정.apply(this, l); throw 份 }
+                            function You_are_so_awesome_and_i_love_you(...l) { if (hasOwn(this,Key)) return 우정.apply(this, l); throw 份 }
                         }
                         )(ERROR_MESSAGE)
                     }
@@ -1571,6 +1588,9 @@ function $(opts, t = Elem) {
     if (typeof opts === 'string') throw TypeError('This is not jQuery')
     return new (t === true ? Elem : t)(opts)
 }
+/*function Q(tag,opts){
+    return $({tag,...opts})
+}*/
 function remix(oldFunc, { before, after } = {}) {
     function remix(...a) {
         before?.apply(this, a)
@@ -1580,6 +1600,9 @@ function remix(oldFunc, { before, after } = {}) {
     }
     if (oldFunc.prototype) Object.setPrototypeOf(remix, oldFunc.prototype)
     return assign(remix, oldFunc)
+}
+function link(url) {
+    return new URL(url,location)
 }
 async function getDataUrl(url) {
     let data
@@ -1617,11 +1640,10 @@ async function getDataUrl(url) {
     const Key = Symbol('🎈')
     function addevent(...events) {
         if (!(Key in this)) Object.defineProperty(this, Key, {
-            value: new Map,
-            writable: 0,
-            configurable: 0,
-            enumerable: 0
-        })
+            value:new Map,
+            writable:0,
+            configurable:0,
+            enumerable:0})
         if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
         for (let [eventName, event] of events) {
             if (!event) [eventName, event] = eventName
@@ -1632,7 +1654,7 @@ async function getDataUrl(url) {
                         --eventfunc.count || off(this, eventName))
                 }
                 eventfunc.disabled = !1
-                eventfunc.count = 1 / 0
+                eventfunc.count = 1/0
                 if (eventName.includes(':')) {
                     const a = eventName.split(':')
                     eventName = a[0]
@@ -1658,7 +1680,8 @@ async function getDataUrl(url) {
     }
     var on = function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) },
         off = function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-        , getEventListeners = eventTarget => eventTarget?.[Key], globalEventHolder = new WeakSet
+        , getEventListeners = eventTarget => eventTarget?.[Key], 
+        globalEventHolder = new WeakSet
 } {
     var intervals = new Map,
         interval = a,
@@ -1699,6 +1722,7 @@ html.kill = null;
     on(document, {
         'DOMConentLoaded:1': {
             async[t]() {
+                document.getElementById('__load__')?.remove()
                 if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
                 try {
                     //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
@@ -1713,3 +1737,11 @@ html.kill = null;
         }[t]
     })
 }
+    {const sheet = document.styleSheets[0]??(()=>{let out = document.createElement('style');document.head.appendChild(out);return document.styleSheets[0]})(),
+    rules = ['.centerX{left:50%;position:fixed;transform:translateX(-50%)}',
+        '.centerY{top:50%;position:fixed;transform:translateY(-50%)}','.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}',
+        '.right{position:absolute;right:100%;}',
+        '.centerall{vertical-align:center;text-align:center;justify-content:center;justify-items:center;justify-self:center;align-content:center;align-items:center;align-content:center;align-self:center;}'
+    ]
+    for (let {length} = rules; length--;)
+    sheet.insertRule(rules[length])}
