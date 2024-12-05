@@ -1741,7 +1741,8 @@ html.kill = null;
     rules = ['.centerX{left:50%;position:fixed;transform:translateX(-50%)}',
         '.centerY{top:50%;position:fixed;transform:translateY(-50%)}','.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}',
         '.right{position:absolute;right:100%;}',
-        '.centerall{vertical-align:center;text-align:center;justify-content:center;justify-items:center;justify-self:center;align-content:center;align-items:center;align-content:center;align-self:center;}'
     ]
     for (let {length} = rules; length--;)
-    sheet.insertRule(rules[length])}
+    sheet.insertRule(rules[length])
+console.log(sheet)
+}
