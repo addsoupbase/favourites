@@ -727,7 +727,7 @@ const Color = class z {
             return this.content.getHTML({ serializableShadowRoots: true })
         }
         eval(code) {
-            return Function(`with(this){(()=>{'use strict';${code}}})()}`).call(this)
+            return Function(`with(this){(()=>{'use strict';${code}})()}`).call(this)
         }
         assign(obj) {
             assign(this, obj)
