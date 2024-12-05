@@ -1742,7 +1742,8 @@ html.kill = null;
         '.centerY{top:50%;position:fixed;transform:translateY(-50%)}','.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}',
         '.right{position:absolute;right:100%;}',
     ]
+    sheet.onload  =() => {
     for (let {length} = rules; length--;)
-    sheet.insertRule(rules[length])
+    sheet.insertRule(rules[length])}
 console.log(sheet)
 }
