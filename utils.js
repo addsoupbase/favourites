@@ -7,52 +7,34 @@ cwebp file.png -o file.webp
 //Object.defineProperty(window,'NULLOBJ',{get(){return Object.create(null)}})
 assign(assign, {
     nullish(target, props) {
-        const k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            const key = k[length]
-            if (target[key] != null) delete props[key]
-        }
+        for (let key in props) 
+        if (target[key] != null) delete props[key]
         return this(target, props)
     },
     not(target, props) {
-        const k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            const key = k[length]
-            if (target[key]) delete props[key]
-        }
+        for (let key in props) 
+        if (target[key]) delete props[key]
         return this(target, props)
     },
     and(target, props) {
-        const k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            const key = k[length]
-            if (!target[key]) delete props[key]
-        }
+        for (let key in props) 
+        if (!target[key]) delete props[key]
         return this(target, props)
     },
     notin(target, props) {
-        const k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            const key = k[length]
-            if (key in target) delete props[key]
-        }
+        for (let key in props) 
+        if (key in target) delete props[key]
         return this(target, props)
     },
     in(target, props) {
-        const k = Object.keys(props)
-        for (let { length } = k; length--;) {
-            const key = k[length]
-            if (!(key in target)) delete props[key]
-        }
+        for (let key in props) 
+        if (!(key in target)) delete props[key]
         return this(target, props)
     },
     invoke(target, methods) {
-        const out = [],
-            k = Object.keys(methods)
-        for (let { length } = k; length--;) {
-            let key = k[length]
-            out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
-        }
+        const out = []
+        for (let key in methods) 
+        out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
         return out
     },
     get '??='() { return this.nullish },
@@ -93,7 +75,7 @@ const ran =
             do str = Array.from({ length }, okay).join('')
             while (previouslygenerated.has(str))
             previouslygenerated.add(str)
-            previouslygenerated.size > 3000 && previouslygenerated.clear()
+            previouslygenerated.size > 3e3 && previouslygenerated.clear()
             return str
             function okay() { return pool[floor(random() * poolSize)] }
         }
@@ -148,7 +130,7 @@ const utilMath = (() => {
             get previous() { return move(-1) },
             get val() { return move(1) }, move, *[Symbol.iterator]() { for (; ;)yield this.val }
         }
-        function move(step = 1) { const old = x; x += Math.trunc(step) || 1; return items[old%length] }
+        function move(step = 1) { const old = x; x +=step|0 || 1; return items[old%length] }
     }
 })()
 const utilString = (() => {
@@ -216,13 +198,13 @@ const utilArray = (() => {
     function remove(item, index) { return typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1) }
     function swap(item, a, b) { return ([item[a], item[b]] = [item[b], item[a]], item) }
     function swapInside(item, a, b) {
-        let slot = item.indexOf(a),
+        const slot = item.indexOf(a),
             slot2 = item.indexOf(b)
         if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
     }
     function avg(array, type) {
         if (!array.length) return NaN
-        const sorted = array.slice().sort((a, b) => a - b),
+        const sorted = array.slice().sort(sort),
             { length } = sorted, { floor } = Math
         if (type) {
             //let median = sorted[Math.floor(length / 2)],
@@ -231,9 +213,14 @@ const utilArray = (() => {
                 IQR = q3 - q1,
                 upperFence = q3 + 1.5 * IQR,
                 lowerFence = q1 - 1.5 * IQR,
-                filtered = sorted.filter(x => x >= lowerFence && x <= upperFence)
-            return filtered.reduce((a, b) => a + b) / filtered.length
-        } else return sorted.reduce((a, b) => a + b) / length
+                filtered = sorted.filter(filter)
+            return filtered.reduce(reduce) / filtered.length
+            function filter(x){return x >= lowerFence && x <= upperFence}
+        } 
+         return sorted.reduce(reduce) / length
+         function reduce(a,b) {return a+b}
+         function sort(a,b) {return a-b}
+
     }
 })(); {
     assign(utilString, {
@@ -241,15 +228,14 @@ const utilArray = (() => {
         badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
     })
     utilMath.average = x
-    const map = new Map([["1", "st"], ["2", "nd"], ["3", "rd"]])
-       
+    const map = new Map([["1","st"],["2","nd"],["3","rd"]])
     //  document.addEventListener('readystatechange', _____)
     function x(...nums) { return utilArray.avg(nums) }
     function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
     //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
-const [local, session] = (() => {
+const[local,session]=(() => {
     return [StorageManager(localStorage), StorageManager(sessionStorage)]
     function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
     function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) : 1) }
@@ -307,15 +293,16 @@ const Vector2 = (() => {
         }
         set(...numbers) {
             if (numbers.length === 1) numbers = Array.from(numbers[0])
-            for (let i = 0, { length } = numbers; i < length; ++i) {
-                const n = utilMath.clamp(+numbers[i], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
-                if (Object.keys(this)[i] in this)
-                    this[Object.keys(this)[i]] = n
+                const keys = Object.keys(this)
+            for (let {length} = numbers; length--;) {
+                const n = utilMath.clamp(+numbers[length], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+                if (keys[length] in this)
+                    this[keys[length]] = n
             }
         }
         pow(vector) {
             if (!Array.isArray(vector)) vector = Array.from(vector)
-            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] ** vector[i]
+            for (let { length } = this.value; length--;) vector[length] = this[length] ** vector[length]
             this.set(vector)
             return this
         }
@@ -324,7 +311,7 @@ const Vector2 = (() => {
                 if (1 in arguments) vector = [vector, arguments[1]]
                 vector = Array.from(vector)
             }
-            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] + vector[i]
+            for (let { length } = this.value; length--;) vector[length] = this[length] + vector[length]
             this.set(vector)
             return this
         }
@@ -333,7 +320,7 @@ const Vector2 = (() => {
                 if (1 in arguments) vector = [vector, arguments[1]]
                 vector = Array.from(vector)
             }
-            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] - vector[i]
+            for (let { length } = this.value; length--;) vector[length] = this[length] - vector[length]
             this.set(vector)
             return this
         }
@@ -342,7 +329,7 @@ const Vector2 = (() => {
                 if (1 in arguments) vector = [vector, arguments[1]]
                 vector = Array.from(vector)
             }
-            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] * vector[i]
+            for (let { length } = this.value; length--;) vector[length] = this[length] * vector[length]
             this.set(vector)
             return this
         }
@@ -351,7 +338,7 @@ const Vector2 = (() => {
                 if (1 in arguments) vector = [vector, arguments[1]]
                 vector = Array.from(vector)
             }
-            for (let i = 0, { length } = this.value; i < length; ++i) vector[i] = this[i] / vector[i]
+            for (let { length } = this.value; length--;) vector[length] = this[length] / vector[length]
             this.set(vector)
             return this
         }
@@ -446,8 +433,8 @@ const Vector2 = (() => {
     function difference(vector, vector2) {
         if (!Array.isArray(vector)) vector = Array.from(vector)
         if (!Array.isArray(vector2)) vector2 = Array.from(vector2)
-        const out = Array.from(vector), { length } = out
-        for (let i = 0; i < length; ++i) out[i] = utilMath.diff(vector2[i], vector[i])
+        const out = Array.from(vector)
+        for (let { length } = out;length--;) out[length] = utilMath.diff(vector2[length], vector[length])
         return new v(...out)
     }
     function distance(vector, vector2) {
@@ -470,7 +457,8 @@ const Vector2 = (() => {
         return new v(Math.min(x(vector2), x(vector)), Math.min(y(vector2), y(vector)))
     }
     function equals(...vectors) {
-        return utilMath.arreq(...vectors.map(o => [v(o), y(o)]))
+        return utilMath.arreq(...vectors.map(N))
+        function N(o) {return [v(o), y(o)]}
     }
 })()
 /*class Vector3 extends v {
@@ -647,7 +635,7 @@ const Color = class z {
                     value(id) {
                         const out = document.getElementById(id.replace('#', ''))
                         out || this.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
-                        return out?.content ?? out ?? null
+                        return out?.content??out??null
                     }
                 },
                 formats: {
@@ -666,8 +654,9 @@ const Color = class z {
                 set: {
                     configurable: 1, writable: 1,
                     value(val, type) {
-                        if (map.has(type)) return this[map.get(type)] = val
-                        return this.content.setHTMLUnsafe(val)
+                        return map.has(type) ? 
+                        this[map.get(type)] = val :
+                        this.content.setHTMLUnsafe(val)
                     }
                 }
             },)
@@ -802,15 +791,11 @@ const Color = class z {
                 if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
                 const contentType = response.headers.get('Content-Type');
                 if (contentType) {
-                    if (contentType.includes('application/json'))
-                        return response.json()
-                    else if (contentType.includes('text/html'))
-                        return response.text()
-                    else if (contentType.includes('application/xml'))
-                        return response.text()
-                    else if (contentType.includes('application/octet-stream'))
-                        return response.blob()
-                    else return response.text()
+                    let type
+                    if (contentType.includes('application/json'))   type='json'
+                    else if (contentType.includes('application/octet-stream'))  type='blob'
+                    else type='text'
+                    return response[type]()
                 }
             }
             async function map(o) {
@@ -820,15 +805,15 @@ const Color = class z {
             function final() {
                 callback?.(...src)
                 console.groupCollapsed('Bulk load:')
-                for (const sr of src) Elem.success(`${new URL(sr, location)} loaded successfully`)
+                for (const sr of src) Elem.success(`${link(sr)} loaded successfully`)
                 console.groupEnd()
             }
         }
         static preload(src, callback) {
             if (this.loaded.has(src)) return src
-            if (!src?.replaceAll(' ', '')) throw TypeError('No source for Media provided.')
+            if (!src?.replace(/\s/g, '')) throw TypeError('No source for Media provided.')
             fetch(src).then(response)
-            this.info(`Preloading Resource: ${new URL(src, location)}`)
+            this.info(`Preloading Resource: ${link(src)}`)
             return src
             function response(res) {
                 if (!res.ok) {
@@ -837,7 +822,7 @@ const Color = class z {
                 }
                 else {
                     callback?.(src)
-                    Elem.success(`Resource Pre-loaded: ${new URL(src, location)}`)
+                    Elem.success(`Resource Pre-loaded: ${link(src)}`)
                     Elem.loaded.add(src)
                 }
             }
@@ -943,23 +928,23 @@ const Color = class z {
         static listeners = new Map
         static warn(message) {
             this.logLevels.warn &&
-                console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static error(message) {
             this.logLevels.error &&
-                console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static info(message) {
             this.logLevels.info &&
-                console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static success(message) {
             this.logLevels.success &&
-                console.trace('%cSuccess %c ' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+            console.trace('%cSuccess %c' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
         }
         static debug(message) {
             this.logLevels.debug &&
-                console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
         }
         static elements = new WeakSet
         static logLevels = {
@@ -982,33 +967,36 @@ const Color = class z {
                 , head = document.head.children
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
             this.select(document.documentElement)
-            window.body = document.querySelector('body').content
-            window.html = document.querySelector('html').content
+            assign(window, {
+                body:document.querySelector('body').content,
+                html:document.querySelector('html').content
+            })
             for (const o of head) {
                 const butes = o.attributes,
                     name = o.getAttribute('name'),
-                    prop = o.getAttribute('property')
+                    prop = o.getAttribute('property'),
+                    content = o.getAttribute('content')
                 if (butes.charset) out.charset = o
                 else if (o.getAttribute('rel') === 'icon') out['favicon'] = o
                 else if (name === 'description' && butes[0]?.nodeValue) out['description'] = o
                 else if (prop === 'og:description') out['og:description'] = o
-                else if (name === 'theme-color' && o.getAttribute('content')?.replaceAll(' ', '')) out['theme-color'] = o
-                else if (name === 'application-name' && o.getAttribute('content')?.replaceAll(' ', '')) out['application-name'] = o
-                else if (name === 'googlebot' && o.getAttribute('content')?.replaceAll(' ', '')) out['googlebot'] = o
-                else if (name === 'color-scheme' && o.getAttribute('content')?.replaceAll(' ', '')) out['color-scheme'] = o
+                else if (name === 'theme-color' && content?.replace(/\s/g, '')) out['theme-color'] = o
+                else if (name === 'application-name' && content?.replace(/\s/g, '')) out['application-name'] = o
+                else if (name === 'googlebot' && content?.replace(/\s/g, '')) out['googlebot'] = o
+                else if (name === 'color-scheme' && content?.replace(/\s/g, '')) out['color-scheme'] = o
                 else if (prop === 'og:image') out['og:image'] = o
                 else if (prop === 'og:url') out['og:url'] = o
                 else if (name === 'og:title') out['og:title'] = o
                 else if (name === 'viewport' && butes[1]?.nodeValue) out.viewport = o
             }
-            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replaceAll(' ', '') && !document.querySelector('title')) out['document has <title>'] = 'red'
-            else out['document has <title>'] = document.querySelector('title')
+            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replace(/\s/g, '') && !document.querySelector('title')) out['<title> element'] = 'red'
+            else out['<title> element'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
             console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
             for (const [key, value] of Object.entries(out))
                 if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
-            console.groupEnd()
+                console.groupEnd()
             /* for (let script of document.scripts) {
                  script.addEventListener('load',function n(a){
                      this.removeEventListener('load',n)
@@ -1032,17 +1020,19 @@ const Color = class z {
         eventNames = Object.defineProperty(new Map, 'trigger', {
             value(search) {
                 if (search)
-                    if (this.eventNames.has(search)) this.eventNames.get(search)()
-                    else Elem.warn(`Non-existent event: ${search}`)
+                    this.eventNames.has(search)
+                  ? this.eventNames.get(search)()
+                    : Elem.warn(`Non-existent event: ${search}`)
                 else for (const [, n] of this.eventNames) n.call(this)
             }
         })
         constructor(opts) {
             //Main init
+            const {tag} = opts
             if (!opts || !('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
-            if (opts.tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${opts.tag}" is not allowed as a tag name`)
-            if (opts.tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${opts.tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
-            if (opts.tag ^ opts.self) throw TypeError('You must only pick between self or tag')
+            if (tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${tag}" is not allowed as a tag name`)
+            if (tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+            if (tag ^ opts.self) throw TypeError('You must only pick between self or tag')
             if (opts.self) {
                 if (new.target.elements.has(opts.self.content)) {
                     console.error(opts.self)
@@ -1054,9 +1044,9 @@ const Color = class z {
             }
             else {
                 if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
-                else this.content = document.createElement(opts.tag)
+                else this.content = document.createElement(tag)
                 opts.id ??= ran.gen(7)
-                if (opts.tag === 'button') this.styleMe({ 'cursor': 'pointer' })
+                if (tag === 'button') this.styleMe({ cursor: 'pointer' })
             }
             this.content.content = this
             for (const attr of new.target.attributes) if (attr in opts) this[attr] = opts[attr]
@@ -1080,15 +1070,17 @@ const Color = class z {
             if (opts.styles)
                 this.styleMe(opts.styles)
             //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
-            if (opts.parent && typeof opts.parent === 'string') opts.parent = new.target.$(opts.parent)
-            // this.append(opts.parent)
             if (arguments[1] === true) {
-                //new.target.warn(`Migrate to parent instead of using arguments[1]`)
                 debugger
                 opts.parent = body
             }
-            if (opts.parent) this.parent = opts.parent
+            if (opts.parent) {
+                if (typeof opts.parent === 'string') opts.parent = new.target.$(opts.parent)
+                this.parent = opts.parent
+            } 
+            // this.append(opts.parent)
             if (opts.children) this.children = opts.children
+            if (opts.txt) this.textContent=opts.txt
             // if (Elem.logLevels.debug && !opts.self) {
             /*    let arr = ''
                 for (let [key, value] of Object.entries(opts)) {
@@ -1143,8 +1135,8 @@ const Color = class z {
         get childCount() {
             return this.children.length
         }
-        batchAppendChild(count, childFunc) {
-            this.children = Array.from({ length: count }, childFunc)
+        batchAppendChild(length, childFunc) {
+            this.children = Array.from({ length }, childFunc)
         }
         set txt(text) {
             this.textContent = text
@@ -1166,7 +1158,7 @@ const Color = class z {
         }
         addClass(...className) { return this.add({ class: className }) }
         add(props) {
-            if (props.class) {
+            if (props.class) 
                 if (typeof props.class === 'string') props.class = [props.class]
                 //for (let $class of props.class)
                 for (let { length } = props.class; length--;)
@@ -1177,15 +1169,15 @@ const Color = class z {
                             }
                             else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
                     this.toggle(props.class[length], true)
-            }
+            
             return this
         }
         disableEvent(name) { this.eventNames.get(name).disabled = true }
         enableEvent(name) { this.eventNames.get(name).disabled = false }
         toggleEvent(name) { const e = this.eventNames.get(name).disabled; e.disabled = !e.disabled }
-        async transition({ timing = { duration: 1000, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
+        async transition({ timing = { duration: 1e3, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
             assign['??='](timing, {
-                duration: 1000,
+                duration: 1e3,
                 iterations: 1,
                 easing: 'ease',
                 direction: 'normal',
@@ -1209,7 +1201,7 @@ const Color = class z {
         }
         anim(target, callback) {
             let keep = false
-            if ('keep class' in target) keep = delete target['keep class']
+            if ('keep class'in target) keep = delete target['keep class']
             // switch (target.class) {
             //     default: 
             this.add(target)
@@ -1225,7 +1217,8 @@ const Color = class z {
                 ],500); break;*/
             //  }
             function _____() {
-                this.noevent('animationend'); callback?.call(this)
+                this.noevent('animationend')
+                callback?.call(this)
                 //switch (target.class) {
                 //    default: 
                 keep || this.removeClass(target.class);
@@ -1247,9 +1240,7 @@ const Color = class z {
                 if (!event) [eventName, event] = eventName
                 Elem.listeners.set(this.id + ':' + eventName, event)
                 if (!this.eventNames.has(eventName)) {
-                    const eventfunc = (...e) => {
-                        eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName))
-                    }
+                    const eventfunc = (...e) => void(eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName)))
                     eventfunc.disabled = !1
                     eventfunc.count = 1 / 0
                     if (eventName.includes(':')) {
@@ -1272,8 +1263,9 @@ const Color = class z {
             return num
         }
         [Symbol.toPrimitive](type) {
-            if (type==='number') return this.generation
-            return this.toString()
+            return type==='number'
+            ? this.generation
+            : this.toString()
         }
         hasevent(eventName) { return this.eventNames.has(eventName) }
         noevent(...target) {
@@ -1365,9 +1357,9 @@ const Color = class z {
             callback.paused = false
             let mult
             if (typeof interval === 'object') {
-                if ('seconds' in interval_) mult = 1_000 * interval_.seconds
-                else if ('minutes' in interval_) mult = 60_000 * interval_.minutes
-                else if ('hours' in interval_) mult = 3_600_000 * interval_.hours
+                if ('seconds'in interval_) mult = 1e3 * interval_.seconds
+                else if ('minutes'in interval_) mult = 6e4 * interval_.minutes
+                else if ('hours'in interval_) mult = 3.6e6 * interval_.hours
             } else mult = interval_
             const id = timeout(() => {
                 callback.paused || this.timeouts.get(id).call(this)
@@ -1385,9 +1377,9 @@ const Color = class z {
             callback.count = interval_?.count ?? -1
             let mult
             if (typeof interval_ === 'object') {
-                if ('seconds' in interval_) mult = 1_000 * interval_.seconds
-                else if ('minutes' in interval_) mult = 60_000 * interval_.minutes
-                else if ('hours' in interval_) mult = 3_600_000 * interval_.hours
+                if ('seconds'in interval_) mult = 1e3 * interval_.seconds
+                else if ('minutes'in interval_) mult = 6e4 * interval_.minutes
+                else if ('hours'in interval_) mult = 3.6e6 * interval_.hours
             } else mult = interval_
             const id = interval(() => callback.paused || (this.intervals.get(id).call(this), --callback.count) || this.removeInterval(id), mult)
             this.intervals.set(id, callback)
@@ -1412,7 +1404,7 @@ const Color = class z {
             static all = new Set
             static frame = 0
             static update() {
-                this.frame++
+                ++this.frame
                 for (const o of this.all) o.#update()
             }
             position = new Vector2
@@ -1467,8 +1459,7 @@ const Color = class z {
                 this.isOverFlowed = n
             }
             #update() {
-                this.#lifetime++
-                if (this.#lifetime > 1) {
+                if (++this.#lifetime > 1) {
                     if (!this.isOverFlowed) {
                         if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
                             || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
@@ -1497,19 +1488,19 @@ const Color = class z {
     let loglevel = 3
     Object.defineProperty(Elem, 'loglevel', { get, set })
     const map = new Map([[0, _0], [1, _1], [2, _2], [3, _3], [4, _4], [5, _5]]), { logLevels } = Elem
-    function _0() { const k = Object.keys(logLevels); for (let { length } = k; length--;) { let o = k[length]; logLevels[o] = false } }
+    function _0() { const k = Object.keys(logLevels); for (let { length } = k; length--;) logLevels[k[length]] = false } 
     function _1() { map.get(0)(); return logLevels.error = true }
     function _2() { return logLevels.warn = map.get(1)() }
     function _3() { return logLevels.success = map.get(2)() }
     function _4() { return logLevels.info = map.get(3)() }
     function _5() { return logLevels.debug = map.get(4)() }
-    function get() { return loglevel }
+    function get() {return loglevel }
     function set(val) {
         if (!utilMath.sanitize(val) || !Number.isInteger(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
         return map.get(+(loglevel = val))()
     }
 }
-assign(window, { _: Elem.$.bind(Elem), __(id) { return _(id)?.kill() } })
+assign(window, { _: Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
 /*class svg extends Elem {
     constructor(n) {
         assign(n, {
@@ -1549,7 +1540,7 @@ const color = (() => {
             n.fillStyle = prop
             return n.fillStyle
         }
-        else if (prop in t) return t[prop]//Reflect.get(t, prop)
+        if (prop in t) return t[prop]//Reflect.get(t, prop)
         throw TypeError('CSS does not support the color "' + prop + '"')
     }
 })()
@@ -1588,13 +1579,16 @@ function $(opts, t = Elem) {
     if (typeof opts === 'string') throw TypeError('This is not jQuery')
     return new (t === true ? Elem : t)(opts)
 }
+function * backwards(iterable) {
+    for (let {length} = iterable; length--;) yield iterable[length]
+}
 /*function Q(tag,opts){
     return $({tag,...opts})
 }*/
 function remix(oldFunc, { before, after } = {}) {
     function remix(...a) {
         before?.apply(this, a)
-        const instance = new.target ? new oldFunc(...a) : oldFunc(...a)
+        const instance =new.target?new oldFunc(...a):oldFunc(...a)
         after?.apply(instance, a)
         return instance
     }
@@ -1649,10 +1643,7 @@ async function getDataUrl(url) {
             if (!event) [eventName, event] = eventName
             //  Elem.listeners.set(this.id + ':' + eventName, event)
             if (!this[Key].has(eventName)) {
-                const eventfunc = (...e) => {
-                    eventfunc.disabled || (event.apply(this, e),
-                        --eventfunc.count || off(this, eventName))
-                }
+                const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
                 eventfunc.disabled = !1
                 eventfunc.count = 1/0
                 if (eventName.includes(':')) {
@@ -1678,10 +1669,11 @@ async function getDataUrl(url) {
             this[Key].delete(event)
         }
     }
-    var on = function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) },
-        off = function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-        , getEventListeners = eventTarget => eventTarget?.[Key], 
+    var on = add,
+        off = remove, getEventListeners = eventTarget => eventTarget?.[Key], 
         globalEventHolder = new WeakSet
+        function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
+        function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
 } {
     var intervals = new Map,
         interval = a,
@@ -1740,10 +1732,9 @@ html.kill = null;
     {const sheet = document.styleSheets[0]??(()=>{let out = document.createElement('style');document.head.appendChild(out);return document.styleSheets[0]})(),
     rules = ['.centerX{left:50%;position:fixed;transform:translateX(-50%)}',
         '.centerY{top:50%;position:fixed;transform:translateY(-50%)}','.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}',
-        '.right{position:absolute;right:100%;}',
-    ]
+        '.right{position:absolute;right:100%;}']
     sheet.onload  =() => {
     for (let {length} = rules; length--;)
     sheet.insertRule(rules[length])}
-console.log(sheet)
+    console.log(sheet)
 }
