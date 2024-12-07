@@ -1688,7 +1688,7 @@ html.kill = null;
 { let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) }
     {const t = 'I love you so much please don\'t disable me 🥺'
     on(document, {
-        'DOMConentLoaded:1': {
+        'DOMContentLoaded:1': {
             async[t]() {
                 document.getElementById('__load__')?.remove()
                 if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
