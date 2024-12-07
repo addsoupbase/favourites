@@ -41,8 +41,7 @@ assign(assign, {
     get '&&='() { return this.and },
     get '||='() { return this.not }
 })
-const ran =
-    (() => {
+const ran = (() => {
         const previouslygenerated = new Set,
             { floor, random } = Math
         return {
@@ -220,18 +219,17 @@ const utilArray = (() => {
          return sorted.reduce(reduce) / length
          function reduce(a,b) {return a+b}
          function sort(a,b) {return a-b}
-
     }
 })(); {
     assign(utilString, {
-        toOrdinal: y,
+        toOrdinal,
         badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
     })
     utilMath.average = x
-    const map = new Map([["1","st"],["2","nd"],["3","rd"]])
+    const map = new Map(Object.entries({1:'st',2:'nd',3:'rd'}))
     //  document.addEventListener('readystatechange', _____)
     function x(...nums) { return utilArray.avg(nums) }
-    function y(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
+    function toOrdinal(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
     //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
@@ -294,11 +292,9 @@ const Vector2 = (() => {
         set(...numbers) {
             if (numbers.length === 1) numbers = Array.from(numbers[0])
                 const keys = Object.keys(this)
-            for (let {length} = numbers; length--;) {
-                const n = utilMath.clamp(+numbers[length], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+            for (let {length} = numbers; length--;) 
                 if (keys[length] in this)
-                    this[keys[length]] = n
-            }
+                    this[keys[length]] =  utilMath.clamp(+numbers[length], Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
         }
         pow(vector) {
             if (!Array.isArray(vector)) vector = Array.from(vector)
@@ -411,7 +407,7 @@ const Vector2 = (() => {
         multiply,
         min,
         max,
-        equals,
+       // equals,
     })
     function x(vectorLike) {
         return vectorLike.x ?? vectorLike[0] ?? Object.values(vectorLike)[0]
@@ -456,10 +452,10 @@ const Vector2 = (() => {
     function min(vector, vector2) {
         return new v(Math.min(x(vector2), x(vector)), Math.min(y(vector2), y(vector)))
     }
-    function equals(...vectors) {
+   /* function equals(...vectors) {
         return utilMath.arreq(...vectors.map(N))
         function N(o) {return [v(o), y(o)]}
-    }
+    }*/
 })()
 /*class Vector3 extends v {
     z
@@ -654,17 +650,13 @@ const Color = class z {
                 set: {
                     configurable: 1, writable: 1,
                     value(val, type) {
-                        return map.has(type) ? 
-                        this[map.get(type)] = val :
+                        return map.has(''+type) ? 
+                        this[map.get(''+type)] = val :
                         this.content.setHTMLUnsafe(val)
                     }
                 }
             },)
-            const map = new Map([
-                [1, 'textContent'],
-                [2, 'innerHTML'],
-                [3, 'innerText']
-            ])
+            const map = new Map(Object.entries({1:'textContent',2:'innerHTML',3:'innerText'}))
             function Ro(entries) {
                 for (const { contentBoxSize, target } of entries) {
                     // For modern browsers that return an array (contentBoxSize[0])
@@ -751,7 +743,7 @@ const Color = class z {
             for (const [propName, propValue] of prop) {
                 if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
                 else if (propName === 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
-                else {
+                else
                     if (SUPPORTS.attributeStyleMap) try {
                         //this one is slower
                         let n = propValue
@@ -761,7 +753,7 @@ const Color = class z {
                         this.content.style.setProperty(propName, propValue)
                     }
                     else this.content.style.setProperty(propName, propValue)
-                }
+                
                 // this.content.style[propName] = propValue
                 //this.content.style.setProperty(propName, propValue)
                 //  CSSStyleValue.parse(propName,propValue)
@@ -785,8 +777,9 @@ const Color = class z {
                     }
             }
         }
-        static bulk(callback, ...src) {
-            return Promise.all(src.map(map)).then(final)
+        static async bulk(callback, ...src) {
+            const result = await Promise.all(src.map(map))
+            return final(result)
             function res(response) {
                 if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
                 const contentType = response.headers.get('Content-Type');
@@ -805,7 +798,8 @@ const Color = class z {
             function final() {
                 callback?.(...src)
                 console.groupCollapsed('Bulk load:')
-                for (const sr of src) Elem.success(`${link(sr)} loaded successfully`)
+                for (const sr of src) 
+                Elem.success(`${link(sr)} loaded successfully`)
                 console.groupEnd()
             }
         }
@@ -871,31 +865,16 @@ const Color = class z {
                 const a = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if (hasOwn(this,Key)) return this.content[attribute] ?? null
+                        if (hasOwn(this,Key))
+                        return this.content[attribute] ?? null
                         throw ERROR_MESSAGE
                     },
                     set(val) {
-                        if (hasOwn(this,Key)) {
-                            if (a && this.childCount)// {
-                                // Elem.warn(`Element with id "${this.id}" had its ${attribute} changed even though it was a parent of ${this.childCount} element(s)`)
-                                //          let temp = this.detachedChildren
-                                //   let parser = new DOMParserm
-                                //   doc = parser.parseFromString(val,'text/html')
-                                //  if (doc.body.childElementCount) {
-                                //       const inlineTags = new Set(['SPAN', 'B', 'I', 'EM', 'STRONG', 'U', 'A', 'CODE', 'MARK', 'SMALL', 'SUB', 'SUP', 'Q', 'TIME', 'VAR'])
-                                //         , detected = Array.from(doc.body.querySelectorAll('*')).filter(el => inlineTags.has(el.tagName))
-                                //        this
-                                //    }
-                                //    else {
-                                //         this.content[attribute] = val
-                                //    }
-                                //          this.content.append(temp)
-                                //      }
-                                throw TypeError(`You are not allowed to set the "${attribute}" of a parent element`)
-                            // if (Elem.#attrMap.has(attribute))
-                            //  Elem.#attrMap.get(attribute).call(this, val)
-                            else this.content[attribute] = val
-                        } else throw ERROR_MESSAGE
+                        if (hasOwn(this,Key)) 
+                        if (a && this.childCount)
+                        throw TypeError(`You are not allowed to set the "${attribute}" of a parent element`)
+                        else this.content[attribute] = val
+                        else throw ERROR_MESSAGE
                     }
                 })
             }
@@ -956,10 +935,10 @@ const Color = class z {
         }
         static select(self) {
             const out = new this({ self })
-            if (out.content.children) for (const node of out.content.children) {
-                if (node.nodeName.match(this.ILLEGAL_TAGNAMES)) continue
-                this.select(node)
-            }
+            if (out.content.children)
+            for (const node of out.content.children) 
+            if (!node.nodeName.match(this.ILLEGAL_TAGNAMES)) 
+            this.select(node)
             return out
         }
         static {
@@ -1059,10 +1038,7 @@ const Color = class z {
             // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
             if (opts.class) {
                 if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
-                for (let { length } = opts.class; length--;) {
-                    const $class = opts.class[length]
-                    this.content.classList.add($class)
-                }
+                for (let { length } = opts.class; length--;) this.content.classList.add(opts.class[length])
             }
             if (opts.events)
                 this.addevent(opts.events)
@@ -1124,12 +1100,13 @@ const Color = class z {
         }
         get parent() {
             if (hasOwn(this,Key))
-                return this.content.parentElement?.content ?? null
+            return this.content.parentElement?.content ?? null
             throw ERROR_MESSAGE
         }
         set parent(val) {
             //i shouldve thought of this earlier
-            if (hasOwn(this,Key)) return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
+            if (hasOwn(this,Key)) 
+            return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
             throw ERROR_MESSAGE
         }
         get childCount() {
@@ -1169,7 +1146,6 @@ const Color = class z {
                             }
                             else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
                     this.toggle(props.class[length], true)
-            
             return this
         }
         disableEvent(name) { this.eventNames.get(name).disabled = true }
@@ -1230,7 +1206,6 @@ const Color = class z {
             return this
         }
         removeClass(...className) {
-            //for (let name of className)
             for (let { length } = className; length--;)
                 this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
         }
@@ -1257,9 +1232,10 @@ const Color = class z {
             }
         }
         get generation(){
-            let {parent} = this,
-            num = 0
-            while(parent){++num;({parent}=parent)}
+            let num = 0
+            for(let {parent}=this;
+                parent;
+                ++num,({parent}=parent));
             return num
         }
         [Symbol.toPrimitive](type) {
@@ -1496,7 +1472,8 @@ const Color = class z {
     function _5() { return logLevels.debug = map.get(4)() }
     function get() {return loglevel }
     function set(val) {
-        if (!utilMath.sanitize(val) || !Number.isInteger(val) || val > 5 || val < -1) throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
+        if (!utilMath.sanitize(val) || !Number.isInteger(val) || val > 5 || val < -1) 
+        throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
         return map.get(+(loglevel = val))()
     }
 }
@@ -1580,7 +1557,7 @@ function $(opts, t = Elem) {
     return new (t === true ? Elem : t)(opts)
 }
 function * backwards(iterable) {
-    for (let {length} = iterable; length--;) yield iterable[length]
+    for (let {length} = iterable; length--;)yield iterable[length]
 }
 /*function Q(tag,opts){
     return $({tag,...opts})
@@ -1588,7 +1565,7 @@ function * backwards(iterable) {
 function remix(oldFunc, { before, after } = {}) {
     function remix(...a) {
         before?.apply(this, a)
-        const instance =new.target?new oldFunc(...a):oldFunc(...a)
+        const instance=new.target?new oldFunc(...a):oldFunc(...a)
         after?.apply(instance, a)
         return instance
     }
@@ -1632,49 +1609,49 @@ async function getDataUrl(url) {
     return new Promise(x)
 } {
     const Key = Symbol('🎈')
-    function addevent(...events) {
-        if (!(Key in this)) Object.defineProperty(this, Key, {
-            value:new Map,
-            writable:0,
-            configurable:0,
-            enumerable:0})
-        if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-        for (let [eventName, event] of events) {
-            if (!event) [eventName, event] = eventName
-            //  Elem.listeners.set(this.id + ':' + eventName, event)
-            if (!this[Key].has(eventName)) {
-                const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
-                eventfunc.disabled = !1
-                eventfunc.count = 1/0
-                if (eventName.includes(':')) {
-                    const a = eventName.split(':')
-                    eventName = a[0]
-                    eventfunc.count = parseInt(a[1])
-                }
-                this.addEventListener(eventName, eventfunc)
-                this[Key].set(eventName, eventfunc)
-                Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
-                globalEventHolder.add(event)
-            }
-            else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
-        }
-    }
-    function noevent(...target) {
-        for (let { length } = target; length--;) {
-            const event = target[length]
-            this.removeEventListener(event, this[Key].get(event))
-            this[Key].has(event) ?
-                Elem.debug(`Removing event "${event}" from ${this}`) :
-                Elem.warn(`No event found for "${event}" on ${this}`)
-            this[Key].delete(event)
-        }
-    }
     var on = add,
         off = remove, getEventListeners = eventTarget => eventTarget?.[Key], 
         globalEventHolder = new WeakSet
         function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
         function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-} {
+        function addevent(...events) {
+            (Key in this) || 
+            Object.defineProperty(this, Key, {
+                value:new Map,
+                writable:0,
+                configurable:0,
+                enumerable:0})
+            if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
+            for (let [eventName, event] of events) {
+                if (!event) [eventName, event] = eventName
+                if (!this[Key].has(eventName)) {
+                    const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
+                    eventfunc.disabled = false
+                    eventfunc.count = 1/0
+                    if (eventName.includes(':')) {
+                        const a = eventName.split(':')
+                        eventName = a[0]
+                        eventfunc.count = parseInt(a[1])
+                    }
+                    this.addEventListener(eventName, eventfunc)
+                    this[Key].set(eventName, eventfunc)
+                    Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
+                    globalEventHolder.add(event)
+                }
+                else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
+            }
+        }
+        function noevent(...target) {
+            for (let { length } = target; length--;) {
+                const event = target[length]
+                this.removeEventListener(event, this[Key].get(event))
+                this[Key].has(event) ?
+                    Elem.debug(`Removing event "${event}" from ${this}`) :
+                    Elem.warn(`No event found for "${event}" on ${this}`)
+                this[Key].delete(event)
+            }
+        }
+    } {
     var intervals = new Map,
         interval = a,
         timeout = b,
@@ -1709,8 +1686,7 @@ const gopd = Object.getOwnPropertyDescriptor,
     util = { ...utilArray, ...utilMath, ...utilString, ...ran }
 html.kill = null;
 { let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) }
-{
-    const t = 'I love you so much please don\'t disable me 🥺'
+    {const t = 'I love you so much please don\'t disable me 🥺'
     on(document, {
         'DOMConentLoaded:1': {
             async[t]() {
@@ -1727,14 +1703,13 @@ html.kill = null;
                 }
             }
         }[t]
-    })
-}
+    })}
     {const sheet = document.styleSheets[0]??(()=>{let out = document.createElement('style');document.head.appendChild(out);return document.styleSheets[0]})(),
-    rules = ['.centerX{left:50%;position:fixed;transform:translateX(-50%)}',
-        '.centerY{top:50%;position:fixed;transform:translateY(-50%)}','.center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}',
-        '.right{position:absolute;right:100%;}']
-    sheet.onload  =() => {
+    rules = 
+    `.centerX{left:50%;position:fixed;transform:translateX(-50%)}
+    .centerY{top:50%;position:fixed;transform:translateY(-50%)
+    .center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
+    .right{position:absolute;right:100%;}`.split('\n')
+    sheet.onload=()=>{
     for (let {length} = rules; length--;)
-    sheet.insertRule(rules[length])}
-    console.log(sheet)
-}
+    sheet.insertRule(rules[length])}}
