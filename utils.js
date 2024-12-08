@@ -971,7 +971,7 @@ const Color = class z {
             if (document.title?.match?.(/Untitled|Document/) || !document.title?.replace(/\s/g, '') && !document.querySelector('title')) out['<title> element'] = 'red'
             else out['<title> element'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
-            console.groupCollapsed('%cView SEO Check:', 'font-family:\'Choco cooky\',monospace')
+            console.groupCollapsed('%cView SEO Check for '+location, 'font-family:\'Choco cooky\',monospace')
             for (const [key, value] of Object.entries(out))
                 if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
