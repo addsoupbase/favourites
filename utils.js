@@ -1209,6 +1209,8 @@ const Color = class z {
             for (let { length } = className; length--;)
                 this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
         }
+        get on(){return this.addevent}
+        get off(){return this.noevent}
         addevent(...events) {
             if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
             for (let [eventName, event] of events) {
