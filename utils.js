@@ -1226,7 +1226,7 @@ const Color = class z {
                     this.content.addEventListener(eventName, eventfunc)
                     this.eventNames.set(eventName, eventfunc)
                     globalEventHolder.add(event)
-                    Elem.debug(`Event "${eventName}" added${this.content.id ? ' to  ' + this.content.id : ''}: \n${event}`)
+                    Elem.debug(`Event "${eventName}" added${this.content.id ? ' to ' + this.content.id : ''}: \n${event}`)
                 }
                 else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id + '"' : ''}`)
             }
