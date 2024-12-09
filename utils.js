@@ -42,7 +42,7 @@ assign(assign, {
     get '||='() { return this.not }
 })
 const ran = (() => {
-        const previouslygenerated = new Set,
+        const //previouslygenerated = new Set,
             { floor, random } = Math
         return {
             get coin() { return choose(1, 0) },
@@ -69,14 +69,20 @@ const ran = (() => {
             return item
         }
         function gen(length = 6) {
-            const pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length
+          //  const pool = utilString.alphabet + utilString.numbers + utilString.ALPHABET, poolSize = pool.length
             let str
-            do str = Array.from({ length }, okay).join('')
-            while (previouslygenerated.has(str))
-            previouslygenerated.add(str)
-            previouslygenerated.size > 3e3 && previouslygenerated.clear()
+            //do str 
+            = 
+            Array.from({ length }, okay4).join('')
+           // while (previouslygenerated.has(str))
+           // previouslygenerated.add(str)
+           // previouslygenerated.size > 3e3 && previouslygenerated.clear()
             return str
-            function okay() { return pool[floor(random() * poolSize)] }
+           // function okay() { return pool[(random() * poolSize)|0] }
+           // function okay2() {let codePoint;do codePoint=floor(random()*0x110000);while(codePoint >= 0xD800 && codePoint <= 0xDFFF)return String.fromCodePoint(codePoint)}
+          //function okay3(){function randomEmoji() {const emojiRanges=[[0x1F600,0x1F64F],[0x1F300,0x1F5FF],[0x1F680,0x1F6FF],[0x1F700,0x1F77F],[0x1F900,0x1F9FF],[0x1FA70,0x1FAFF]],[start,end]=emojiRanges[floor(random()*emojiRanges.length)],codePoint=floor(random()*(end-start+1))+start;return String.fromCodePoint(codePoint)}}
+          function okay4() {return String.fromCodePoint(floor(random()*0x110000))}
+        
         }
         function Randomizer(n = 6) {
             if (new.target) debugger
@@ -119,7 +125,7 @@ const utilMath = (() => {
     function toRad(deg) { return deg * π / 180 }
     function toDeg(rad) { return rad * 180 / π }
     function diff(a, b) { return Math.abs(a - b) }
-    function clamp(val, min, max) { if (val > max) return max; if (val < min) return min; return val }
+    function clamp(val, min, max) { return Math.min(max,Math.max(min,val)) }
     function Cycle(...items) {
         if (new.target) debugger
         const { length } = items
@@ -159,7 +165,7 @@ const utilString = (() => {
         return out
     }
     function clip(string, len) { return string.slice(len, string.length - len) }
-    function reverse(string) { return Array.from(string).reverse().join('') }
+    function reverse(string) { return [...string].reverse().join('') }
     function upper(string) { return string[0].toUpperCase() + string.slice(1) }
 })()
 /*async function idb(name) {
@@ -192,7 +198,7 @@ const utilArray = (() => {
             out.push(arrayLike.at(sequence[i]))
         return out
     }
-    function center(o) { return o[Math.floor(o.length / 2)] }
+    function center(o) { return o[(o.length / 2)|0] }
     function insert(array, item, index) { return array.splice(index, 0, item) }
     function remove(item, index) { return typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1) }
     function swap(item, a, b) { return ([item[a], item[b]] = [item[b], item[a]], item) }
@@ -272,6 +278,9 @@ const Vector2 = (() => {
             Object.seal(this)
             this.set(x, y)
         }
+      get  [Symbol.toStringTag](){
+        return 'Vector2'
+      }
         static get up() {
             return new v(0, 1)
         }
@@ -290,7 +299,7 @@ const Vector2 = (() => {
             return new v(1, 0)
         }
         set(...numbers) {
-            if (numbers.length === 1) numbers = Array.from(numbers[0])
+            if (numbers.length === 1) numbers = [...numbers[0]]
                 const keys = Object.keys(this)
             for (let {length} = numbers; length--;) 
                 if (keys[length] in this)
@@ -675,7 +684,7 @@ const Color = class z {
                 function filter(o) { return Elem.elements.has(o) }
             }
             function detachedChildren() {
-                const a = Array.from(this.content.childNodes),
+                const a =[...this.content.childNodes],
                     fragment = createDocumentFragment()
                 for (let i = 0, { length } = a; i < length; ++i) {
                     a[i].remove()
@@ -937,7 +946,7 @@ const Color = class z {
             const out = new this({ self })
             if (out.content.children)
             for (const node of out.content.children) 
-            if (!node.nodeName.match(this.ILLEGAL_TAGNAMES)) 
+            node.nodeName.match(this.ILLEGAL_TAGNAMES)??
             this.select(node)
             return out
         }
@@ -1019,12 +1028,12 @@ const Color = class z {
                 }
                 this.content = opts.self
                 if (this.content === document.body) opts.id = 'body'
-                else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen()
+                else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen(2)
             }
             else {
                 if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
                 else this.content = document.createElement(tag)
-                opts.id ??= ran.gen(7)
+                opts.id ??= ran.gen(2)
                 if (tag === 'button') this.styleMe({ cursor: 'pointer' })
             }
             this.content.content = this
@@ -1318,7 +1327,7 @@ const Color = class z {
             }
         }
         async fadeOut(callback) {
-            this.transition({
+           return this.transition({
                 frames: { opacity: 0 }, timing: { duration: 300 },
             }, () => {
                 callback?.call(this)
@@ -1328,7 +1337,7 @@ const Color = class z {
         async fadeIn(callback) {
             this.styleMe({ opacity: 0 })
             this.show()
-            this.transition({ frames: { opacity: 1 }, timing: { duration: 300 }, }, () => { callback?.call(this) })
+           return this.transition({ frames: { opacity: 1 }, timing: { duration: 300 }, }, () => { callback?.call(this) })
         }
         async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
         addTimeout(callback, interval_) {
@@ -1378,7 +1387,7 @@ const Color = class z {
             for (const [id] of this.timeouts) this.removeTimeout(id)
         }
     }
-        , SceneryElem = class SceneryElem extends Elem {
+        var SceneryElem = class SceneryElem extends Elem {
             static all = new Set
             static frame = 0
             static update() {
@@ -1565,14 +1574,14 @@ function * backwards(iterable) {
     return $({tag,...opts})
 }*/
 function remix(oldFunc, { before, after } = {}) {
+    if (oldFunc.prototype) Object.setPrototypeOf(remix, oldFunc.prototype)
+    return assign(remix, oldFunc)
     function remix(...a) {
         before?.apply(this, a)
         const instance=new.target?new oldFunc(...a):oldFunc(...a)
         after?.apply(instance, a)
         return instance
     }
-    if (oldFunc.prototype) Object.setPrototypeOf(remix, oldFunc.prototype)
-    return assign(remix, oldFunc)
 }
 function link(url) {
     return new URL(url,location)
