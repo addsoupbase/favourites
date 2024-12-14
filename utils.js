@@ -819,19 +819,7 @@ const Color = class z {
                 })
             }
         }
-        /*static #attrMap = new Map([
-            ['id', function(val){
-                if (Elem.elements.has(this)0) throw TypeError("Not allowed re-assign element id")
-                else { this.content['id'] = val; }
-            }]
-        ])*/
         static svgattr = 'viewBox cx cy stroke fill r strokeWidth'.split(' ')
-        /* static {
-             for (const a of this.svgattr) this.#attrMap.set(a, function hey(val) {
-                 this.content.setAttribute(a, val)
-                 //requestAnimationFrame(()=>this.innerHTML+='')
-             })
-         }*/
         static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
         static {
             const { prototype } = this
@@ -1240,6 +1228,7 @@ const Color = class z {
             this.cleanup()
             this.content.remove()
             Elem.debug(`Element "${this.id}" was removed from body`)
+            delete this[Key]
         }
         cleanup() {
             assign.invoke(this, {
@@ -1657,7 +1646,6 @@ const gopd = Object.getOwnPropertyDescriptor,
     gopn = Object.getOwnPropertyNames,
     //Freaking methods are too long
     util = { ...utilArray, ...utilMath, ...utilString, ...ran }
-html.kill = null;
 { 
     let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) 
 }
