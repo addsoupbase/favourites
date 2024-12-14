@@ -1,51 +1,25 @@
-/* Gif to webp: 
+/* Gif to webp:
 gif2webp file.gif -o file.webp
 Png to webp
 cwebp file.png -o file.webp
 */
 'use strict'
-//Object.defineProperty(window,'NULLOBJ',{get(){return Object.create(null)}})
 assign(assign, {
-    nullish(target, props) {
-        for (let key in props) 
-        if (target[key] != null) delete props[key]
-        return this(target, props)
-    },
-    not(target, props) {
-        for (let key in props) 
-        if (target[key]) delete props[key]
-        return this(target, props)
-    },
-    and(target, props) {
-        for (let key in props) 
-        if (!target[key]) delete props[key]
-        return this(target, props)
-    },
-    notin(target, props) {
-        for (let key in props) 
-        if (key in target) delete props[key]
-        return this(target, props)
-    },
-    in(target, props) {
-        for (let key in props) 
-        if (!(key in target)) delete props[key]
-        return this(target, props)
-    },
-    invoke(target, methods) {
-        const out = []
-        for (let key in methods) 
-        out.push(target[key].apply(target, Array.from(methods[key] ?? 0)))
-        return out
-    },
-    get '??='() { return this.nullish },
-    get '&&='() { return this.and },
-    get '||='() { return this.not }
+    nullish(target,props){for(let key in props)target[key]==null||delete props[key];return this(target,props)},
+    not(target,props){for(let key in props)target[key]&&delete props[key];return this(target,props)},
+    and(target,props){for(let key in props)target[key]||delete props[key];return this(target,props)},
+    notin(target,props){for(let key in props)(key in target)&&delete props[key];return this(target,props)},
+    in(target,props){for(let key in props)(key in target)||delete props[key];return this(target,props)},
+    invoke(target,methods){const out=[];for(let key in methods)out.push(target[key].apply(target,Array.from(methods[key]??0)));return out},
+    get'??='(){return this.nullish},
+    get'&&='(){return this.and},
+    get'||='(){return this.not}
 })
 const ran = (() => {
         const //previouslygenerated = new Set,
             { floor, random } = Math
         return {
-            get coin() { return choose(1, 0) },
+            get coin() { return choose(true, false) },
             get flip() { return choose(1, -1) },
             choose,
             range,
@@ -93,13 +67,13 @@ const ran = (() => {
         }
     })()
 const SUPPORTS = {
-    attributeStyleMap: false //'StylePropertyMap'in globalThis
+    attributeStyleMap:false //'StylePropertyMap'in globalThis
     //Firefox does not support it and it seems like its slower anyway soo
 }
 const utilMath = (() => {
     const π = Math.PI
     return {
-        isInt: Number.isInteger,
+        isInt:Number.isInteger,
         sanitize,
         equality,
         toRad,
@@ -143,16 +117,16 @@ const utilString = (() => {
         const alphabet = 'abcdefghijklmnopqrstuvwxyz'
         return {
             alphabet,
-            numbers: '0123456789',
-            months: 'January February March April May June July August September October November December'.split(' '),
-            days: 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
+            numbers:'0123456789',
+            months:'January February March April May June July August September October November December'.split(' '),
+            days:'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' '),
             contains,
             addCommas,
             shorten,
             clip,
             reverse,
             upper,
-            ALPHABET: alphabet.toUpperCase()
+            ALPHABET:alphabet.toUpperCase()
         }
     }
     function contains(string, ...searches) { return searches.every(string.match, string) }
@@ -160,7 +134,7 @@ const utilString = (() => {
         return (+num).toLocaleString()//(num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     }
     function shorten(string, len = 32) {
-        let out = (string + '').slice(0, len)
+        let out = string.slice(0, len)
         if (string.length > len) out += '…'
         return out
     }
@@ -168,19 +142,6 @@ const utilString = (() => {
     function reverse(string) { return [...string].reverse().join('') }
     function upper(string) { return string[0].toUpperCase() + string.slice(1) }
 })()
-/*async function idb(name) {
-    let request = indexedDB.open(name)
-    return new Promise((resolve, reject) =>
-        assign(request, {
-            onsuccess(event) {
-                resolve(event.target.result)
-            },
-            onerror(event) {
-                reject(event.target.error)
-            }
-        })
-    )
-}*/
 const utilArray = (() => {
     return {
         assemble,
@@ -193,14 +154,13 @@ const utilArray = (() => {
     }
     function assemble(arrayLike, ...sequence) {
         const out = []
-        //for (let digit of sequence) 
-        for (let { length } = sequence, i = 0; i < length; ++i)
-            out.push(arrayLike.at(sequence[i]))
+        for (let{length}=sequence,i=0;i<length;++i)
+        out.push(arrayLike.at(sequence[i]))
         return out
     }
     function center(o) { return o[(o.length / 2)|0] }
     function insert(array, item, index) { return array.splice(index, 0, item) }
-    function remove(item, index) { return typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) : item.splice(index, 1) }
+    function remove(item, index) { return typeof item === 'string' ? item.slice(0, index) + item.slice(index + 1) :item.splice(index, 1) }
     function swap(item, a, b) { return ([item[a], item[b]] = [item[b], item[a]], item) }
     function swapInside(item, a, b) {
         const slot = item.indexOf(a),
@@ -226,10 +186,11 @@ const utilArray = (() => {
          function reduce(a,b) {return a+b}
          function sort(a,b) {return a-b}
     }
-})(); {
+})()
+{
     assign(utilString, {
         toOrdinal,
-        badwords: RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
+        badwords:RegExp([z(13, 8, 6, 6, 4, 17), z(1, 8, 19, 2, 7), z(5, 20, 2, 10), z(18, 7, 8, 19), z(2, 14, 2, 10), z(5, 0, 6), z(17, 4, 19, 0, 17, 3), z(3, 8, 2, 10)].join('|'))
     })
     utilMath.average = x
     const map = new Map(Object.entries({1:'st',2:'nd',3:'rd'}))
@@ -237,13 +198,13 @@ const utilArray = (() => {
     function x(...nums) { return utilArray.avg(nums) }
     function toOrdinal(o) { const num = +o, lastTwoDigits = num % 100, me = (o + "").at(-1); if ((lastTwoDigits >= 11 && lastTwoDigits <= 13) || !map.has(me)) return o + "th"; return o + map.get(me) }
     function z(...a) { return utilArray.assemble(utilString.alphabet, ...a).join('') }
-    //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout: 3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
+    //  function _____() { if (!('fragment' in local) && typeof requestIdleCallback === 'function') requestIdleCallback(() => import('./timetest.js'), { timeout:3000000 }); document.querySelectorAll('script').forEach(o => o.remove()) }
 }
 const[local,session]=(() => {
     return [StorageManager(localStorage), StorageManager(sessionStorage)]
-    function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length: target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) : target.getItem(prop) }
-    function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) : 1) }
-    function deleteProperty(target, prop) { return !(prop === '__all__' ? target.clear() : target.removeItem(prop)) }
+    function get(target, prop) { return prop === '__all__' ? Object.fromEntries(Array.from({ length:target.length }, (_, i) => [target.key(i), target.getItem(target.key(i))])) :target.getItem(prop) }
+    function set(target, prop, value) { return !(prop !== '__all__' ? target.setItem(prop, value) :1) }
+    function deleteProperty(target, prop) { return !(prop === '__all__' ? target.clear() :target.removeItem(prop)) }
     function has(target, prop) { return target.getItem(prop) !== null }
     function StorageManager(managee) {
         if (managee instanceof Storage) return new Proxy(managee, {
@@ -262,7 +223,7 @@ const[local,session]=(() => {
         this.x = x
     }
     [Symbol.toPrimitive](type) {
-        return type === 'number' ? this.x : '' + this.x
+        return type === 'number' ? this.x :'' + this.x
     }
 }*/
 const Vector2 = (() => {
@@ -278,8 +239,8 @@ const Vector2 = (() => {
             Object.seal(this)
             this.set(x, y)
         }
-      get  [Symbol.toStringTag](){
-        return 'Vector2'
+      get[Symbol.toStringTag](){
+        return'Vector2'
       }
         static get up() {
             return new v(0, 1)
@@ -520,19 +481,19 @@ class Matrix {
         const canvas = new OffscreenCanvas(length, height)
             , ctx = canvas.getContext('2d')
         assign(ctx, {
-            fillStyle: color.grey,
-            textAlign: 'center',
-            textBaseline: 'middle',
-            font: `${cellSize / 10}px monospace`,
+            fillStyle:color.grey,
+            textAlign:'center',
+            textBaseline:'middle',
+            font:`${cellSize / 10}px monospace`,
         })
         ctx.fillRect(0, 0, length, height)
         function matchColor(value) {
             switch (typeof value) {
-                case 'string': return color.red
-                case 'bigint': case 'number': return color.darkblue
-                case 'symbol': return color.lightgreen
-                case 'object': return color.black
-                case 'undefined': return color.purple
+                case 'string':return color.red
+                case 'bigint':case 'number':return color.darkblue
+                case 'symbol':return color.lightgreen
+                case 'object':return color.black
+                case 'undefined':return color.purple
             }
         }
         for (let y = 0, { height } = this; y < height; ++y) {
@@ -540,7 +501,7 @@ class Matrix {
                 const value = this.get(x, y)
                 ctx.fillStyle = matchColor(value)
                 ctx.fillText(
-                    typeof value === 'string' ? '"' + value + '"' : value,
+                    typeof value === 'string' ? '"' + value + '"' :value,
                     (x + 0.5) * cellSize, // Center horizontally
                     (y + 0.5) * cellSize, cellSize  // Center vertically
                 )
@@ -551,14 +512,14 @@ class Matrix {
     }
 }
 function modifyAt(array, index, modifier) {
-    const idx = index < 0 ? array.length + index : index
+    const idx = index < 0 ? array.length + index :index
     if (idx >= 0 && idx < array.length) array[idx] = modifier(array[idx])
 }*/
 const Color = class z {
-    r = 0
-    g = 0
-    b = 0
-    a = 1
+    r = null
+    g = null
+    b = null
+    a = null
     constructor(r = 0, g = 0, b = 0, a = 1) {
         assign(this, { r, g, b, a })
     }
@@ -566,17 +527,16 @@ const Color = class z {
         return +(this.toString('hex').replace('#', ''))
     }
     static toHex(r, g, b) {
-        return ('#' + z.th(r) + z.th(g) + z.th(b)).toUpperCase()
+        return('#' + z.th(r) + z.th(g) + z.th(b)).toUpperCase()
     }
     static th(n) {
         return n.toString(16).padStart(2, 0)
     }
     static toHex2(r, g, b, a) {
-        const { min, max, round } = Math
-        r = min(255, max(0, r))
-        g = min(255, max(0, g))
-        b = min(255, max(0, b))
-        a = round(min(1, max(0, a)) * 255)
+        r = utilMath.clamp(r,0,255)
+        g = utilMath.clamp(g,0,255)
+        b = utilMath.clamp(b,0,255)
+        a = Math.round(utilMath.clamp(a,0,1) * 255)
         return`#${z.th(r)}${z.th(g)}${z.th(b)}${z.th(a)}`
     }
     static toHSL(r, g, b) {
@@ -585,13 +545,13 @@ const Color = class z {
             , min = Math.min(r, g, b)
         let h, s, l = (max + min) / 2
         const d = max - min
-        s = (d === 0) ? 0 : (l < 0.5) ? d / (max + min) : d / (2 - max - min)
+        s = (d === 0) ? 0 :(l < 0.5) ? d / (max + min) :d / (2 - max - min)
         if (d === 0) h = 0
         else {
             switch (max) {
-                case r: h = (g - b) / d + (g < b ? 6 : 0); break
-                case g: h = (b - r) / d + 2; break
-                case b: h = (r - g) / d + 4; break
+                case r:h = (g - b) / d + (g < b ? 6 :0); break
+                case g:h = (b - r) / d + 2; break
+                case b:h = (r - g) / d + 4; break
             }
             h /= 6
         }
@@ -620,61 +580,71 @@ const Color = class z {
     }
 }
 {
-    const Key = Symbol('\ud83d\udd11'),
+    const Key = Symbol(ran.gen(1)),
         ERROR_MESSAGE = TypeError('Illegal invocation'),
         {hasOwn} = Object
     var Elem = class Elem {
-        [Key] = '\ud83d\udd12'
+        [Key] = Object.defineProperty(new Map, 'trigger', {
+            value(search) {
+                if (search)
+                    this.eventNames.has(search)
+                  ? this.eventNames.get(search)()
+                    :Elem.warn(`Non-existent event:${search}`)
+                else for (const [, n]of this.eventNames) n.call(this)
+            }
+        })
+        get eventNames(){return this[Key]}
         static USE_CUTESY_FONT = true
         static getPageAsHTML = __
         static {
             Object.defineProperties(this, {
-                DEPRECATED_TAGNAMES: { value: /^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/ },
-                ILLEGAL_TAGNAMES: { value: /^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
-                allElements: { get: allElements },
-                registry: { value: new FinalizationRegistry(GarbageLog) },
-                RO: { value: new ResizeObserver(Ro) },
-                loaded: { value: new Set },
-                failed: { value: new Set },
-                $: {
+                DEPRECATED_TAGNAMES:{ value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/ },
+                ILLEGAL_TAGNAMES:{ value:/^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
+                allElements:{ get:allElements },
+                registry:{ value:new FinalizationRegistry(GarbageLog) },
+                RO:{ value:new ResizeObserver(Ro) },
+                loaded:{ value:new Set },
+                failed:{ value:new Set },
+                $:{
                     value(id) {
                         const out = document.getElementById(id.replace('#', ''))
                         out || this.error(`Cannot get element "${id.replace('#', '')}" as it does not exist`)
                         return out?.content??out??null
                     }
                 },
-                formats: {
-                    value: {
-                        image: /webp|png|jpeg|jpg|gif/,
-                        video: /mp4|mpeg|webm|avi|mov/,
-                        audio: /mp3|ogg|wav|aiff|aac|flac/
+                formats:{
+                    value:{
+                        image:/webp|png|jpeg|jpg|gif/,
+                        video:/mp4|mpeg|webm|avi|mov/,
+                        audio:/mp3|ogg|wav|aiff|aac|flac/
                     }
                 }
             })
             Object.defineProperties(this.prototype, {
-                children: { get: getChildren, set: setChildren },
-                before: { set: before },
-                after: { set: after },
-                detachedChildren: { get: detachedChildren },
-                set: {
-                    configurable: 1, writable: 1,
+                children:{ get:getChildren, set:setChildren },
+                before:{ set:before },
+                after:{ set:after },
+                detachedChildren:{ get:detachedChildren },
+                set:{
+                    configurable:1, writable:1,
                     value(val, type) {
-                        return map.has(''+type) ? 
-                        this[map.get(''+type)] = val :
+                        type+=''
+                        return map.has(type) ? 
+                        this[map.get(type)] = val :
                         this.content.setHTMLUnsafe(val)
                     }
                 }
-            },)
+            })
             const map = new Map(Object.entries({1:'textContent',2:'innerHTML',3:'innerText'}))
             function Ro(entries) {
                 for (const { contentBoxSize, target } of entries) {
                     // For modern browsers that return an array (contentBoxSize[0])
-                    const size = Array.isArray(contentBoxSize) ? contentBoxSize[0] : contentBoxSize
+                    const size = Array.isArray(contentBoxSize) ? contentBoxSize[0] :contentBoxSize
                     // target.content ??= {}
                     if (target.content)
                         target.content.bounds = {
-                            x: size.inlineSize,  // Width
-                            y: size.blockSize    // Height
+                            x:size.inlineSize,  // Width
+                            y:size.blockSize    // Height
                         }
                 }
             }
@@ -705,7 +675,7 @@ const Color = class z {
                 //  for (let o of children) this.adopt(o)
                 const frag = createDocumentFragment()
                 for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
-                    frag.appendChild(o.content)
+                frag.appendChild(o.content)
                 this.content.appendChild(frag)
                 //i think its faster but im not sure
             }
@@ -714,10 +684,10 @@ const Color = class z {
             }
         }
         raw() {
-            return this.content.getHTML({ serializableShadowRoots: true })
+            return this.content.getHTML({ serializableShadowRoots:true })
         }
         eval(code) {
-            return Function(`with(this){(()=>{'use strict';${code}})()}`).call(this)
+            return Function(`with(this)!class{static{${code}}}`).call(this)
         }
         assign(obj) {
             assign(this, obj)
@@ -731,14 +701,13 @@ const Color = class z {
             observe(child) {
                 delete child.content.parent.observer
                 child.content.parent.observer = new IntersectionObserver(く, {
-                    root: child.content.parent.content,
-                    threshold: 0,
+                    root:child.content.parent.content,
+                    threshold:0,
                 })
                 child.content.parent.observer.observe(child)
                 function く(entries) {
                     for (const entry of entries)
-                        if (!entry.isIntersecting) entry.target.content.detectVisibility?.(false)
-                        else entry.target.content.detectVisibility?.(true)
+                        entry.isIntersecting?entry.target.content.detectVisibility?.(true):entry.target.content.detectVisibility?.(false)        
                 }
             }
         }
@@ -749,9 +718,9 @@ const Color = class z {
         styleMe(...prop) {
             if (!Array.isArray(prop[0]) && typeof prop[0] === 'object' && prop.length === 1 && prop[0]) prop = Object.entries(prop[0])
             //return this.content.style.cssText= prop.map(([key,val])=>`${key}:${val}`).join(';')
-            for (const [propName, propValue] of prop) {
-                if (propName.match(/height\_width|width\_height/)) this.styleMe({ height: propValue, width: propValue })
-                else if (propName === 'max-height_width') this.styleMe({ 'max-height': propValue, 'max-width': propValue })
+            for (const [propName, propValue]of prop) {
+                if (propName.match(/height\_width|width\_height/)) this.styleMe({ height:propValue, width:propValue })
+                else if (propName === 'max-height_width') this.styleMe({ 'max-height':propValue, 'max-width':propValue })
                 else
                     if (SUPPORTS.attributeStyleMap) try {
                         //this one is slower
@@ -790,12 +759,12 @@ const Color = class z {
             const result = await Promise.all(src.map(map))
             return final(result)
             function res(response) {
-                if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`);
-                const contentType = response.headers.get('Content-Type');
+                if (!response.ok) return Promise.reject(`Request failed with status ${response.status}`)
+                const contentType = response.headers.get('Content-Type')
                 if (contentType) {
                     let type
-                    if (contentType.includes('application/json'))   type='json'
-                    else if (contentType.includes('application/octet-stream'))  type='blob'
+                    if (contentType.includes('application/json'))type='json'
+                    else if (contentType.includes('application/octet-stream'))type='blob'
                     else type='text'
                     return response[type]()
                 }
@@ -816,16 +785,16 @@ const Color = class z {
             if (this.loaded.has(src)) return src
             if (!src?.replace(/\s/g, '')) throw TypeError('No source for Media provided.')
             fetch(src).then(response)
-            this.info(`Preloading Resource: ${link(src)}`)
+            this.info(`Preloading Resource:${link(src)}`)
             return src
             function response(res) {
                 if (!res.ok) {
-                    Elem.error(`Resource error: ${res.status}`)
+                    Elem.error(`Resource error:${res.status}`)
                     Elem.failed.add(src)
                 }
                 else {
                     callback?.(src)
-                    Elem.success(`Resource Pre-loaded: ${link(src)}`)
+                    Elem.success(`Resource Pre-loaded:${link(src)}`)
                     Elem.loaded.add(src)
                 }
             }
@@ -835,10 +804,10 @@ const Color = class z {
                 opts.tag = 'iframe'
                 super(opts)
                 assign(this, {
-                    loading: 'lazy',
-                    frameborder: 0,
-                    referrerpolicy: 'strict-origin-when-cross-origin',
-                    allow: 'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                    loading:'lazy',
+                    frameborder:0,
+                    referrerpolicy:'strict-origin-when-cross-origin',
+                    allow:'fullscreen;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
                 })
             }
         }
@@ -855,7 +824,6 @@ const Color = class z {
                  //requestAnimationFrame(()=>this.innerHTML+='')
              })
          }*/
-        get '🩸🪦'() { return this.kill(), 'Why did you kill me 😢' }
         static attributes = new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id readonly width height frameborder allow').split(' ')))
         static {
             const { prototype } = this
@@ -916,31 +884,31 @@ const Color = class z {
         static listeners = new Map
         static warn(message) {
             this.logLevels.warn &&
-            console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow: yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cWarning %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:yellow;text-shadow:yellow 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static error(message) {
             this.logLevels.error &&
-            console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow: red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cError %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:red;text-shadow:red 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static info(message) {
             this.logLevels.info &&
-            console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow: teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
+            console.trace('%cInfo %c' + message, "font-size:12px;font-family:'Choco cooky',monospace;color:teal;text-shadow:teal 0px 0px 2px;", "font-family:'Choco cooky',monospace")
         }
         static success(message) {
             this.logLevels.success &&
-            console.trace('%cSuccess %c' + message, 'font-size:12px;color:lightgreen;text-shadow: lightgreen 0px 0px 2px;' + "font-family: 'Choco cooky',monospace;", "font-family: 'Choco cooky',monospace;")
+            console.trace('%cSuccess %c' + message, 'font-size:12px;color:lightgreen;text-shadow:lightgreen 0px 0px 2px;' + "font-family:'Choco cooky',monospace;", "font-family:'Choco cooky',monospace;")
         }
         static debug(message) {
             this.logLevels.debug &&
-            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow: orange 0px 0px 2px;font-size: 10;font-family: 'Choco cooky',monospace;", "font-size: 10;font-family: 'Choco cooky',monospace;")
+            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow:orange 0px 0px 2px;font-size:10;font-family:'Choco cooky',monospace;", "font-size:10;font-family:'Choco cooky',monospace;")
         }
         static elements = new WeakSet
         static logLevels = {
-            error: true,
-            warn: true,
-            success: true,
-            info: false,
-            debug: false,
+            error:true,
+            warn:true,
+            success:true,
+            info:false,
+            debug:false,
         }
         static select(self) {
             const out = new this({ self })
@@ -951,7 +919,7 @@ const Color = class z {
             return out
         }
         static {
-            const out = { 'standards mode': 'red' }
+            const out = { 'standards mode':'red' }
                 , head = document.head.children
             'application-name og:description favicon color-scheme theme-color description googlebot viewport og:image og:title keywords charset'.split(' ').forEach(o => out[o] = 'red')
             this.select(document.documentElement)
@@ -977,11 +945,11 @@ const Color = class z {
                 else if (name === 'og:title') out['og:title'] = o
                 else if (name === 'viewport' && butes[1]?.nodeValue) out.viewport = o
             }
-            if (document.title?.match?.(/Untitled|Document/) || !document.title?.replace(/\s/g, '') && !document.querySelector('title')) out['<title> element'] = 'red'
+            if (document.title?.match?.(/^(Untitled|Document)$/) || !document.title?.replace(/\s/g, '') && !document.querySelector('title')) out['<title> element'] = 'red'
             else out['<title> element'] = document.querySelector('title')
             if (document.compatMode === 'CSS1Compat') out['standards mode'] = document.doctype
             console.groupCollapsed('%cView SEO Check for '+location, 'font-family:\'Choco cooky\',monospace')
-            for (const [key, value] of Object.entries(out))
+            for (const [key, value]of Object.entries(out))
                 if (typeof value !== 'string') console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c' + key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
                 console.groupEnd()
@@ -1002,22 +970,13 @@ const Color = class z {
             if (Elem.animateOnRequestAnimationFrame.size === 1)
                 Elem.requestAnimationFrame()
         }
-        clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self: this.content.cloneNode(deep) }) }
+        clone({ deep = true, parent } = {}) { return new this.constructor({ parent, self:this.content.cloneNode(deep) }) }
         timeouts = new Map
         intervals = new Map
-        eventNames = Object.defineProperty(new Map, 'trigger', {
-            value(search) {
-                if (search)
-                    this.eventNames.has(search)
-                  ? this.eventNames.get(search)()
-                    : Elem.warn(`Non-existent event: ${search}`)
-                else for (const [, n] of this.eventNames) n.call(this)
-            }
-        })
         constructor(opts) {
             //Main init
             const {tag} = opts
-            if (!opts || !('tag' in opts) && (!('self' in opts) || !(opts.self instanceof Element)) && !('shadow' in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element: missing tag')
+            if (!opts || !('tag'in opts) && (!('self'in opts) || !(opts.self instanceof Element)) && !('shadow'in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element:missing tag')
             if (tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${tag}" is not allowed as a tag name`)
             if (tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
             if (tag ^ opts.self) throw TypeError('You must only pick between self or tag')
@@ -1031,10 +990,10 @@ const Color = class z {
                 else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen(2)
             }
             else {
-                if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode: 'open', serializable: true })
+                if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode:'open', serializable:true })
                 else this.content = document.createElement(tag)
                 opts.id ??= ran.gen(2)
-                if (tag === 'button') this.styleMe({ cursor: 'pointer' })
+                if (tag === 'button') this.styleMe({ cursor:'pointer' })
             }
             this.content.content = this
             for (const attr of new.target.attributes) if (attr in opts) this[attr] = opts[attr]
@@ -1042,19 +1001,16 @@ const Color = class z {
             if (opts.message) this.innerText = opts.message
             if (this.content.getBoundingClientRect) {
                 const f = this.content.getBoundingClientRect()
-                this.bounds = { x: /*parseFloat(*/f.width/*)*/, y: /*parseFloat(*/f.height/*)*/ }
+                this.bounds = { x:/*parseFloat(*/f.width/*)*/, y:/*parseFloat(*/f.height/*)*/ }
             }
-            // opts.style?.forEach?.(o => this.content.style[o] = opts.style[o])
             if (opts.class) {
                 if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
                 for (let { length } = opts.class; length--;) this.content.classList.add(opts.class[length])
             }
             if (opts.events)
                 this.addevent(opts.events)
-            // if (!Array.isArray(opts.events)) opts.events = Object.entries(opts.events)
             if (opts.styles)
                 this.styleMe(opts.styles)
-            //   if (!Array.isArray(opts.styles)) opts.styles = Object.entries(opts.styles)
             if (arguments[1] === true) {
                 debugger
                 opts.parent = body
@@ -1063,21 +1019,20 @@ const Color = class z {
                 if (typeof opts.parent === 'string') opts.parent = new.target.$(opts.parent)
                 this.parent = opts.parent
             } 
-            // this.append(opts.parent)
-            if (opts.children) this.children = opts.children
+            if (opts.children) this.children=opts.children
             if (opts.txt) this.textContent=opts.txt
             // if (Elem.logLevels.debug && !opts.self) {
             /*    let arr = ''
-                for (let [key, value] of Object.entries(opts)) {
+                for (let [key, value]of Object.entries(opts)) {
                     if (typeof value == 'object') {
                         value = Object.entries(value)
                         let str = ''
-                        for (let [_key, _value] of value) str += `${_key}: ${_value}\n`
+                        for (let [_key, _value]of value) str += `${_key}:${_value}\n`
                         value = str
                     }
                     arr += `${key}="${value}" `.replaceAll('\n', '').replaceAll(' ', '')
                 }*/
-            //       Elem.debug(`New <${opts.tag}> element: ${this.id}`)//`:\n ${arr}`)
+            //       Elem.debug(`New <${opts.tag}> element:${this.id}`)//`:\n ${arr}`)
             //   }
             this.begin(opts)
         }
@@ -1091,14 +1046,19 @@ const Color = class z {
         }
         /*set(val, type) {
             switch (type) {
-                default: return this.content.setHTMLUnsafe(val)
-                case 1: return this.textContent = val
-                case 2: return this.innerHTML = val
-                case 3: return this.innerText = val
+                default:return this.content.setHTMLUnsafe(val)
+                case 1:return this.textContent = val
+                case 2:return this.innerHTML = val
+                case 3:return this.innerText = val
             }
         }*/
         replaceWith(p) {
             this.content.replaceWith(p.content)
+            return p
+        }
+        replace(p) {
+            this.replaceWith(p)
+            this.kill()
             return p
         }
         becomeChild(p) {
@@ -1115,7 +1075,7 @@ const Color = class z {
         set parent(val) {
             //i shouldve thought of this earlier
             if (hasOwn(this,Key)) 
-            return val == null ? this.parent?.content.removeChild(this.content) : val.adopt(this)
+            return val == null ? this.parent?.content.removeChild(this.content) :val.adopt(this)
             throw ERROR_MESSAGE
         }
         get childCount() {
@@ -1142,31 +1102,30 @@ const Color = class z {
         toString() {
             return this.content.outerHTML
         }
-        addClass(...className) { return this.add({ class: className }) }
+        addClass(...className) { return this.add({ class:className }) }
         add(props) {
             if (props.class) 
                 if (typeof props.class === 'string') props.class = [props.class]
-                //for (let $class of props.class)
                 for (let { length } = props.class; length--;)
                     /*   if (!Elem.findClass($class)) {
                         Elem.messages.noclass($class)
                         } else if ([...this.content.classList].includes($class)) {
-                            Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id : ''}`)
+                            Elem.warn(`Class ${$class} already added${this.content.id ? ' to ' + this.content.id :''}`)
                             }
-                            else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id : ''}`) }*/
+                            else { Elem.info(`Class ${$class} added${this.content.id ? ' to ' + this.content.id :''}`) }*/
                     this.toggle(props.class[length], true)
             return this
         }
         disableEvent(name) { this.eventNames.get(name).disabled = true }
         enableEvent(name) { this.eventNames.get(name).disabled = false }
         toggleEvent(name) { const e = this.eventNames.get(name).disabled; e.disabled = !e.disabled }
-        async transition({ timing = { duration: 1e3, iterations: 1, easing: 'ease', delay: 0, direction: 'normal', endDelay: 0, fill: 'forwards', }, frames }, callback) {
+        async transition({ timing = { duration:1e3, iterations:1, easing:'ease', delay:0, direction:'normal', endDelay:0, fill:'forwards', }, frames }, callback) {
             assign['??='](timing, {
-                duration: 1e3,
-                iterations: 1,
-                easing: 'ease',
-                direction: 'normal',
-                fill: 'forwards'
+                duration:1e3,
+                iterations:1,
+                easing:'ease',
+                direction:'normal',
+                fill:'forwards'
             })
             // timing.composition
             try {
@@ -1188,27 +1147,27 @@ const Color = class z {
             let keep = false
             if ('keep class'in target) keep = delete target['keep class']
             // switch (target.class) {
-            //     default: 
+            //     default:
             this.add(target)
             //    break
-            /*    case 'fade out': this.content.animate([
-                    {opacity: 1, easing: 'ease-in'},
-                    {opacity:0, easing: 'ease-in'},
+            /*    case 'fade out':this.content.animate([
+                    {opacity:1, easing:'ease-in'},
+                    {opacity:0, easing:'ease-in'},
     
                 ],500); break;
-                case 'fade in': this.content.animate([
-                    {opacity: 0, easing: 'ease-in'},
-                    {opacity: 1, easing: 'ease-in'},
+                case 'fade in':this.content.animate([
+                    {opacity:0, easing:'ease-in'},
+                    {opacity:1, easing:'ease-in'},
                 ],500); break;*/
             //  }
             function _____() {
                 this.noevent('animationend')
                 callback?.call(this)
                 //switch (target.class) {
-                //    default: 
+                //    default:
                 keep || this.removeClass(target.class);
                 //break
-                //    case 'fade out': alert(134);
+                //    case 'fade out':alert(134);
                 // }
             }
             this.addevent(['animationend', _____])
@@ -1216,17 +1175,17 @@ const Color = class z {
         }
         removeClass(...className) {
             for (let { length } = className; length--;)
-                this.toggle(className[length], false) //|| this.content.classList.contains(name) || Elem.warn(`Class is not present: ${name}`)
+                this.toggle(className[length], false)
         }
         get on(){return this.addevent}
         get off(){return this.noevent}
         addevent(...events) {
             if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-            for (let [eventName, event] of events) {
+            for (let [eventName, event]of events) {
                 if (!event) [eventName, event] = eventName
                 Elem.listeners.set(this.id + ':' + eventName, event)
                 if (!this.eventNames.has(eventName)) {
-                    const eventfunc = (...e) => void(eventfunc.disabled || (event.apply(this, e), --eventfunc.count || this.noevent(eventName)))
+                    const eventfunc = (...e) => void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||this.noevent(eventName)))
                     eventfunc.disabled = !1
                     eventfunc.count = 1 / 0
                     if (eventName.includes(':')) {
@@ -1237,22 +1196,22 @@ const Color = class z {
                     this.content.addEventListener(eventName, eventfunc)
                     this.eventNames.set(eventName, eventfunc)
                     globalEventHolder.add(event)
-                    Elem.debug(`Event "${eventName}" added${this.content.id ? ' to ' + this.content.id : ''}: \n${event}`)
+                    Elem.debug(`Event "${eventName}" added${this.content.id ? ' to ' + this.content.id :''}:\n${event}`)
                 }
-                else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" ${this.id ? 'on "' + this.id + '"' : ''}`)
+                else Elem.warn(`Duplicate event listeners are not allowed:"${eventName}" ${this.id ? 'on "' + this.id + '"' :''}`)
             }
         }
         get generation(){
             let num = 0
-            for(let {parent}=this;
-                parent;
-                ++num,({parent}=parent));
+            for(let{parent}=this;
+            parent;
+            ++num,({parent}=parent));
             return num
         }
         [Symbol.toPrimitive](type) {
             return type==='number'
             ? this.generation
-            : this.toString()
+            :this.toString()
         }
         hasevent(eventName) { return this.eventNames.has(eventName) }
         noevent(...target) {
@@ -1262,8 +1221,8 @@ const Color = class z {
                 this.content.removeEventListener(event, this.eventNames.get(event))
                 this.eventNames.has(event) ?
                     Elem.listeners.delete(this.id + ':' + event)
-                    : Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id : ''}`)
-                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id : ''}`)//:\n${this.eventNames.get(event).toString()}`)
+                    :Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id :''}`)
+                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id :''}`)//:\n${this.eventNames.get(event).toString()}`)
                 this.eventNames.delete(event)
             }
         }
@@ -1274,9 +1233,9 @@ const Color = class z {
         }
         cleanup() {
             assign.invoke(this, {
-                noevent: this.eventNames.keys(),
-                removeIntervals: 0,
-                removeTimeouts: 0,
+                noevent:this.eventNames.keys(),
+                removeIntervals:0,
+                removeTimeouts:0,
             })
             Elem.RO.unobserve(this.content)
             this.parent?.observer.unobserve?.(this.content)
@@ -1307,43 +1266,43 @@ const Color = class z {
         show() { (this.toggle('hidden', false), this) }
         toggle($, force) { this.content.classList.toggle($, force) }
         conceal() {
-            this.styleMe({ visibility: 'hidden' })
+            this.styleMe({ visibility:'hidden' })
         }
         reveal() {
-            this.styleMe({ visibility: 'visible' })
+            this.styleMe({ visibility:'visible' })
         }
         getModifiedStyleProperties() {
             const out = {}
-            for (let i = 0; i in this.content.style; ++i) out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
+            for (let i = 0;i in this.content.style;++i) out[this.content.style[i]] = this.content.style.getPropertyValue(this.content.style[i])
             return out
         }
         get visibilityStatus() {
             return{
-                visibility: this.style.visibility,
-                opacity: this.style.opacity,
-                display: this.style.display,
-                hidden: this.content.classList.contains('hidden'),
-                zIndex: this.style.zIndex
+                visibility:this.style.visibility,
+                opacity:this.style.opacity,
+                display:this.style.display,
+                hidden:this.content.classList.contains('hidden'),
+                zIndex:this.style.zIndex
             }
         }
         async fadeOut(callback) {
            return this.transition({
-                frames: { opacity: 0 }, timing: { duration: 300 },
+                frames:{ opacity:0 }, timing:{ duration:300 },
             }, () => {
                 callback?.call(this)
                 this.hide()
             })
         }
         async fadeIn(callback) {
-            this.styleMe({ opacity: 0 })
+            this.styleMe({ opacity:0 })
             this.show()
-           return this.transition({ frames: { opacity: 1 }, timing: { duration: 300 }, }, () => { callback?.call(this) })
+           return this.transition({ frames:{ opacity:1 }, timing:{ duration:300 }, }, () => { callback?.call(this) })
         }
         async blink(callback) { return this.fadeOut(() => this.fadeIn(callback)) }
         addTimeout(callback, interval_) {
             callback.paused = false
             let mult
-            if (typeof interval === 'object') {
+            if (typeof interval_ === 'object') {
                 if ('seconds'in interval_) mult = 1e3 * interval_.seconds
                 else if ('minutes'in interval_) mult = 6e4 * interval_.minutes
                 else if ('hours'in interval_) mult = 3.6e6 * interval_.hours
@@ -1377,14 +1336,14 @@ const Color = class z {
             clearInterval(id)
         }
         removeIntervals() {
-            for (const [id] of this.intervals) this.removeInterval(id)
+            for (const [id]of this.intervals) this.removeInterval(id)
         }
         removeTimeout(id) {
             this.timeouts.delete(id)
             clearTimeout(id)
         }
         removeTimeouts() {
-            for (const [id] of this.timeouts) this.removeTimeout(id)
+            for (const [id]of this.timeouts) this.removeTimeout(id)
         }
     }
         var SceneryElem = class SceneryElem extends Elem {
@@ -1428,7 +1387,7 @@ const Color = class z {
                 opts.tag ??= 'div'
                 super(opts, i)
                 new.target.all.add(this)
-                this.styleMe({ position: 'absolute', margin: 'auto' })
+                this.styleMe({ position:'absolute', margin:'auto' })
                 this.position.set(+opts.x || 0, +opts.y || 0)
                 this.#update()
                 this.parent?.observer.observe(this.content)
@@ -1448,17 +1407,18 @@ const Color = class z {
             #update() {
                 if (++this.#lifetime > 1) {
                     if (!this.isOverFlowed) {
-                        if (this.#hasBeenSeen || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
+                        if (this.#hasBeenSeen 
+                            || (this.position.y + this.bounds.y < 0 && this.velocity.y <= 0
                             || this.velocity.y >= 0 && this.position.y - this.bounds.y > this.parent?.bounds.y)
                             ||
                             (this.position.x + this.bounds.x < 0 && this.velocity.x <= 0
-                                || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
+                            || this.velocity.x >= 0 && this.position.x - this.bounds.x > this.parent?.bounds.x)) this.outofbounds?.()
                     } else this.#hasBeenSeen = true
                     this.update?.()
                 }
                 this.styleMe({
-                    transform: `rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
-                    'transform-origin': 'center',
+                    transform:`rotateY(${this.#mirror}deg) translate(${(this.position.x)}px, ${(this.position.y)}px)`,
+                    'transform-origin':'center',
                 })
                 this.rotate(this.angular)
                 this.position.add(this.velocity)
@@ -1471,7 +1431,50 @@ const Color = class z {
         for (let elem of SceneryElem.all) elem.kill()
         return document.documentElement.getHTML()
     }
-} {
+    var on = add,
+        off = remove, getEventListeners = eventTarget=>eventTarget?.[Key], 
+        globalEventHolder = new WeakSet
+        function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
+        function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
+        function addevent(...events) {
+            (Key in this) || 
+            Object.defineProperty(this, Key, {
+                value:new Map,
+                writable:0,
+                configurable:0,
+                enumerable:0})
+            if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
+            for (let [eventName, event]of events) {
+                if (!event) [eventName, event] = eventName
+                if (!this[Key].has(eventName)) {
+                    const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
+                    eventfunc.disabled = false
+                    eventfunc.count = 1/0
+                    if (eventName.includes(':')) {
+                        const a = eventName.split(':')
+                        eventName = a[0]
+                        eventfunc.count = parseInt(a[1])
+                    }
+                    this.addEventListener(eventName, eventfunc)
+                    this[Key].set(eventName, eventfunc)
+                    Elem.debug(`Event "${eventName}" added to ${this}:\n${event}`)
+                    globalEventHolder.add(event)
+                }
+                else Elem.warn(`Duplicate event listeners are not allowed:"${eventName}" on ${this}`)
+            }
+        }
+        function noevent(...target) {
+            for (let { length } = target; length--;) {
+                const event = target[length]
+                this.removeEventListener(event, this[Key].get(event))
+                this[Key].has(event) ?
+                    Elem.debug(`Removing event "${event}" from ${this}`) :
+                    Elem.warn(`No event found for "${event}" on ${this}`)
+                this[Key].delete(event)
+            }
+        }
+} 
+{
     let loglevel = 3
     Object.defineProperty(Elem, 'loglevel', { get, set })
     const map = new Map([[0, _0], [1, _1], [2, _2], [3, _3], [4, _4], [5, _5]]), { logLevels } = Elem
@@ -1488,19 +1491,7 @@ const Color = class z {
         return map.get(+(loglevel = val))()
     }
 }
-assign(window, { _: Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
-/*class svg extends Elem {
-    constructor(n) {
-        assign(n, {
-            tag: 'svg',
-            xmlns: 'http://www.w3.org/2000/svg'
-        })
-        super(n)
-        this.parent.innerHTML += ''
-        //this.content.setAttribute('xmlns','xmlns')
-        //Really confusing
-    }
-}*/
+assign(window, { _:Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
 /*if (local.fragment === 'constructor') {
     function _____________() {
         return new DocumentFragment
@@ -1510,17 +1501,17 @@ assign(window, { _: Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
 const color = (() => {
     const n = new OffscreenCanvas(0, 0).getContext('2d')
     return new Proxy(Object.defineProperties({}, {
-        dhk: { value: ___ },
-        choose: { value: choose, },
-        log: { value: __ },
-        opposite: { value }
+        dhk:{ value:___ },
+        choose:{ value:choose, },
+        log:{ value:__ },
+        opposite:{ value }
     }), {
         set,
         get
     })
     function set(t, p, v) { return Reflect.set(t, p, v) }
-    function __(e) { console.log(`%c ${e}`, `color: ${e};font-size: 100px; background-color: ${e}`) }
-    function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f : f }).join('') }
+    function __(e) { console.log(`%c ${e}`, `color:${e};font-size:100px; background-color:${e}`) }
+    function ___(e, f = 40) { let $ = parseInt((e = ('' + e).replace(/^#/, "")).substring(0, 2), 16), a = parseInt(e.substring(2, 4), 16), r = parseInt(e.substring(4, 6), 16); return $ = Math.round($ * (1 - f / 100)), a = Math.round(a * (1 - f / 100)), r = Math.round(r * (1 - f / 100)), $ = Math.min(255, Math.max(0, $)), a = Math.min(255, Math.max(0, a)), r = Math.min(255, Math.max(0, r)), "#" + [$, a, r].map(e => { let f = e.toString(16); return 1 === f.length ? "0" + f :f }).join('') }
     function choose() { return '#' + ran.frange(0, 16777216).toString(16).padStart(6, 0) }
     function value(e) { if (0 === e.indexOf("#") && (e = e.slice(1)), 3 === e.length && (e = e[0] + e[0] + e[1] + e[1] + e[2] + e[2]), 6 !== e.length) throw Error('Invalid HEX color.'); let f = (255 - parseInt(e.slice(0, 2), 16)).toString(16), $ = (255 - parseInt(e.slice(2, 4), 16)).toString(16), a = (255 - parseInt(e.slice(4, 6), 16)).toString(16); return "#" + ('' + f).padStart(0, 2) + ('' + $).padStart(0, 2) + ('' + a).padStart(0, 2) }
     function get(t, prop) {
@@ -1528,7 +1519,7 @@ const color = (() => {
             n.fillStyle = prop
             return n.fillStyle
         }
-        if (prop in t) return t[prop]//Reflect.get(t, prop)
+        if (prop in t) return t[prop]
         throw TypeError('CSS does not support the color "' + prop + '"')
     }
 })()
@@ -1560,12 +1551,17 @@ cursed = {
 function assign(target, props) {
     return Object.assign(target, props)
 }
+function Try(callback,failure) {
+    try {return callback()}
+    catch(e){return failure(e)}
+}
 function createDocumentFragment() {
     return document.createDocumentFragment()
 }
 function $(opts, t = Elem) {
-    if (typeof opts === 'string') throw TypeError('This is not jQuery')
-    return new (t === true ? Elem : t)(opts)
+    if (typeof opts === 'string') 
+    throw TypeError('This is not jQuery')
+    return new(t === true ? Elem :t)(opts)
 }
 function * backwards(iterable) {
     for (let {length} = iterable; length--;)yield iterable[length]
@@ -1590,21 +1586,21 @@ async function getDataUrl(url) {
     let data
     try {
         let response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors'
+            method:'GET',
+            mode:'cors'
         })
         if (!response.ok) {
-            Elem.error(`Failed to fetch image. Status: ${response.status}`)
+            Elem.error(`Failed to fetch image. Status:${response.status}`)
             throw ':('
         }
     } catch (e) {
-        Elem.error(`Resource Error: ${url} - ${e.message}`)
+        Elem.error(`Resource Error:${url} - ${e.message}`)
         throw ':('
     }
     try {
         data = await response.blob()
     } catch (e) {
-        Elem.error(`Failed to convert response to blob: ${e.message}`)
+        Elem.error(`Failed to convert response to blob:${e.message}`)
         return ':('
     }
     function x(resolve, onerror) {
@@ -1615,54 +1611,11 @@ async function getDataUrl(url) {
             onloadend,
             onerror
         })
-        readAsDataURL(data) // Convert blob to data URL
+        readAsDataURL(data)
     }
     return new Promise(x)
-} {
-    const Key = Symbol('🎈')
-    var on = add,
-        off = remove, getEventListeners = eventTarget => eventTarget?.[Key], 
-        globalEventHolder = new WeakSet
-        function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-        function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target: ' + target) }
-        function addevent(...events) {
-            (Key in this) || 
-            Object.defineProperty(this, Key, {
-                value:new Map,
-                writable:0,
-                configurable:0,
-                enumerable:0})
-            if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
-            for (let [eventName, event] of events) {
-                if (!event) [eventName, event] = eventName
-                if (!this[Key].has(eventName)) {
-                    const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
-                    eventfunc.disabled = false
-                    eventfunc.count = 1/0
-                    if (eventName.includes(':')) {
-                        const a = eventName.split(':')
-                        eventName = a[0]
-                        eventfunc.count = parseInt(a[1])
-                    }
-                    this.addEventListener(eventName, eventfunc)
-                    this[Key].set(eventName, eventfunc)
-                    Elem.debug(`Event "${eventName}" added to ${this}: \n${event}`)
-                    globalEventHolder.add(event)
-                }
-                else Elem.warn(`Duplicate event listeners are not allowed: "${eventName}" on ${this}`)
-            }
-        }
-        function noevent(...target) {
-            for (let { length } = target; length--;) {
-                const event = target[length]
-                this.removeEventListener(event, this[Key].get(event))
-                this[Key].has(event) ?
-                    Elem.debug(`Removing event "${event}" from ${this}`) :
-                    Elem.warn(`No event found for "${event}" on ${this}`)
-                this[Key].delete(event)
-            }
-        }
-    } {
+} 
+{
     var intervals = new Map,
         interval = a,
         timeout = b,
@@ -1688,7 +1641,7 @@ async function getDataUrl(url) {
     }
 }
 function zoom(zoom) {
-    return html.styleMe({ transform: `scale(${zoom}, ${zoom})` })
+    return html.styleMe({ transform:`scale(${zoom}, ${zoom})` })
 }
 const gopd = Object.getOwnPropertyDescriptor,
     gopds = Object.getOwnPropertyDescriptors,
@@ -1696,10 +1649,13 @@ const gopd = Object.getOwnPropertyDescriptor,
     //Freaking methods are too long
     util = { ...utilArray, ...utilMath, ...utilString, ...ran }
 html.kill = null;
-{ let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) }
-    {const t = 'I love you so much please don\'t disable me 🥺'
+{ 
+    let arr = [Math, utilArray, utilMath, utilString, ran, assign, util]; for (let { length } = arr; length--;) Object.freeze(arr[length]) 
+}
+{
+    const t = 'I love you so much please don\'t disable me 🥺'
     on(document, {
-        'DOMContentLoaded:1': {
+        'DOMContentLoaded:1':{
             async[t]() {
                 document.getElementById('__load__')?.remove()
                 if (!Elem.USE_CUTESY_FONT || typeof FontFace === 'undefined') return //How could you :(
@@ -1714,13 +1670,16 @@ html.kill = null;
                 }
             }
         }[t]
-    })}
-    {const sheet = document.styleSheets[0]??(()=>{let out = document.createElement('style');document.head.appendChild(out);return document.styleSheets[0]})(),
+    })
+}
+{
+    const sheet = (()=>{let out = document.createElement('style');document.head.appendChild(out);return out})(),
     rules = 
     `.centerX{left:50%;position:fixed;transform:translateX(-50%)}
     .centerY{top:50%;position:fixed;transform:translateY(-50%)
     .center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
-    .right{position:absolute;right:100%;}`.split('\n')
-    sheet.onload=()=>{
+    .right{position:absolute;right:100%;}`
+    .split('\n')
     for (let {length} = rules; length--;)
-    sheet.insertRule(rules[length])}}
+    sheet.textContent+=rules[length]
+}
