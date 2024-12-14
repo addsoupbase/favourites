@@ -1228,6 +1228,7 @@ const Color = class z {
             this.cleanup()
             this.content.remove()
             Elem.debug(`Element "${this.id}" was removed from body`)
+            Elem.elements.delete(this)
             delete this[Key]
         }
         cleanup() {
