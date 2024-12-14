@@ -91,10 +91,10 @@ const utilMath = (() => {
           return true
       },*/
     }
-    function sanitize(num) { return (num === +num) && num != null && isFinite(num) }
-    function equality(...target) {
+    function sanitize(num) {return num===+num&&num!=null&&isFinite(num)}
+    function equality(t,...target) {
         return target.every(is)
-        function is(o) { return Object.is(o, target[0]) }
+        function is(o) { return Object.is(o, t) }
     }
     function toRad(deg) { return deg * π / 180 }
     function toDeg(rad) { return rad * 180 / π }
@@ -109,7 +109,7 @@ const utilMath = (() => {
             get previous() { return move(-1) },
             get val() { return move(1) }, move, *[Symbol.iterator]() { for (; ;)yield this.val }
         }
-        function move(step = 1) { const old = x; x +=step|0 || 1; return items[old%length] }
+        function move(step = 1) {const old=x;x+=step|0||1;return items[old%length]}
     }
 })()
 const utilString = (() => {
@@ -131,7 +131,7 @@ const utilString = (() => {
     }
     function contains(string, ...searches) { return searches.every(string.match, string) }
     function addCommas(num) {
-        return (+num).toLocaleString()//(num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        return(+num).toLocaleString()//(num + '').replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     }
     function shorten(string, len = 32) {
         let out = string.slice(0, len)
@@ -139,7 +139,7 @@ const utilString = (() => {
         return out
     }
     function clip(string, len) { return string.slice(len, string.length - len) }
-    function reverse(string) { return [...string].reverse().join('') }
+    function reverse(string) { return[].toReversed.call(string).join('') }
     function upper(string) { return string[0].toUpperCase() + string.slice(1) }
 })()
 const utilArray = (() => {
@@ -697,6 +697,9 @@ const Color = class z {
         assign(obj) {
             assign(this, obj)
         }
+        refresh(){
+            this.content.append(this.detachedChildren)
+        }
         age = performance.now()
         static log() {
             console.log('bleh')
@@ -905,7 +908,7 @@ const Color = class z {
         }
         static debug(message) {
             this.logLevels.debug &&
-            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow:orange 0px 0px 2px;font-size:10;font-family:'Choco cooky',monospace;", "font-size:10;font-family:'Choco cooky',monospace;")
+            console.trace('%cDebug %c' + message, "font-size:12px;color:orange;text-shadow:orange 0px 0px 2px;font-size:10;font-family: 'Choco cooky',monospace;", "font-size:10;font-family:'Choco cooky',monospace;")
         }
         static elements = new WeakSet
         static logLevels = {
@@ -992,6 +995,7 @@ const Color = class z {
                 }
                 this.content = opts.self
                 if (this.content === document.body) opts.id = 'body'
+                else if (this.content === document.documentElement) opts.id = 'html'
                 else opts.id = (opts.id ?? opts.self.getAttribute('id')) || Elem.#unique
             }
             else {
@@ -1234,7 +1238,8 @@ const Color = class z {
         kill() {
             this.ondeath?.()
             this.cleanup()
-            if (body !== this) this.content.remove(), Elem.debug(`Element "${this.id}" was removed from body`)
+            this.content.remove()
+            Elem.debug(`Element "${this.id}" was removed from body`)
         }
         cleanup() {
             assign.invoke(this, {
@@ -1254,7 +1259,7 @@ const Color = class z {
             o.start?.call(this)
         }
         disable(){
-              this.disabled=true
+            this.disabled=true
         }
         enable(){
             this.disabled=false
@@ -1491,7 +1496,7 @@ const Color = class z {
     function _5() { return logLevels.debug = map.get(4)() }
     function get() {return loglevel }
     function set(val) {
-        if (!utilMath.sanitize(val) || !Number.isInteger(val) || val > 5 || val < -1) 
+        if (!utilMath.sanitize(val)||!utilMath.isInt(val)||val>5||val <0) 
         throw RangeError("Supported log levels are 0 — 5, with 0 being none and 5 being all")
         return map.get(+(loglevel = val))()
     }
@@ -1528,10 +1533,7 @@ const color = (() => {
         throw TypeError('CSS does not support the color "' + prop + '"')
     }
 })()
-assign(color, {
-    //Extra colors go here
-})
-const { body } = window
+const { body,html } = window
 /*,
 cursed = {
     reload() {
@@ -1556,19 +1558,15 @@ cursed = {
 function assign(target, props) {
     return Object.assign(target, props)
 }
-function Try(callback,failure) {
-    try {return callback()}
-    catch(e){return failure(e)}
-}
 function createDocumentFragment() {
     return document.createDocumentFragment()
 }
 function $(opts, t = Elem) {
     if (typeof opts === 'string') 
     throw TypeError('This is not jQuery')
-    return new(t === true ? Elem :t)(opts)
+    return new(t===true?Elem:t)(opts)
 }
-function * backwards(iterable) {
+function*backwards(iterable) {
     for (let {length} = iterable; length--;)yield iterable[length]
 }
 /*function Q(tag,opts){
@@ -1583,6 +1581,12 @@ function remix(oldFunc, { before, after } = {}) {
         after?.apply(instance, a)
         return instance
     }
+}
+function MapObj(...values) {
+    if (values.length%2)throw TypeError("Invalid key/value pairs")
+    const map=new Map
+    for (let i = 0,{length}=values;i<length;i+=2){const key=values[i],value=values[i+1];map.set(key,value)}
+    return map
 }
 function link(url) {
     return new URL(url,location)
