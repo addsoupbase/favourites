@@ -583,6 +583,7 @@ const Color = class z {
     const Key = Symbol(ran.gen(1)),
         ERROR_MESSAGE = TypeError('Illegal invocation'),
         {hasOwn} = Object
+        let uniqueNumber = -1
     var Elem = class Elem {
         [Key] = Object.defineProperty(new Map, 'trigger', {
             value(search) {
@@ -596,6 +597,10 @@ const Color = class z {
         get eventNames(){return this[Key]}
         static USE_CUTESY_FONT = true
         static getPageAsHTML = __
+        static get #unique() {
+            if (++uniqueNumber > 0x110000) uniqueNumber = 0
+            return String.fromCodePoint(uniqueNumber)
+        }
         static {
             Object.defineProperties(this, {
                 DEPRECATED_TAGNAMES:{ value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/ },
@@ -987,12 +992,12 @@ const Color = class z {
                 }
                 this.content = opts.self
                 if (this.content === document.body) opts.id = 'body'
-                else opts.id = (opts.id ?? opts.self.getAttribute('id')) || ran.gen(2)
+                else opts.id = (opts.id ?? opts.self.getAttribute('id')) || Elem.#unique
             }
             else {
                 if (opts.shadow) this.content = opts.parent.content.attachShadow({ mode:'open', serializable:true })
                 else this.content = document.createElement(tag)
-                opts.id ??= ran.gen(2)
+                opts.id ??= Elem.#unique
                 if (tag === 'button') this.styleMe({ cursor:'pointer' })
             }
             this.content.content = this
