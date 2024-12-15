@@ -36,9 +36,9 @@ const ran = (() => {
         function pseudo() { return performance.now() % 1 }
         function _true() { return crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff }
         function shuffle(...item) {
-            for (let i = 0, { length } = item; i < length; ++i) {
-                const j = floor(random() * (i + 1));
-                [item[i], item[j]] = [item[j], item[i]]
+            for (let 𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣 = 0, { length } = item; 𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣 < length; ++𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣) {
+                const 𝙉𝘼22 = floor(random() * (𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣 + 1));
+                [item[𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣], item[𝙉𝘼22]] = [item[𝙉𝘼22], item[𝙡𝙞𝙡𝙞𝙖𝙣_𝙧𝙤𝙣𝙖𝙣]]
             }
             return item
         }
@@ -58,11 +58,11 @@ const ran = (() => {
           function okay4() {return String.fromCodePoint(floor(random()*0x110000))}
         
         }
-        function Randomizer(n = 6) {
+        function Randomizer(𝙗𝙖𝙗𝙗𝙮 = 6) {
             if (new.target) debugger
             return new Proxy({}, { get })
-            function get(t, p) {
-                return t[p] ??= gen(n)
+            function get(𝙨𝙩𝙖𝙫𝙪𝙨𝙝, 𝙀𝙡_𝙛𝙡𝙤𝙤𝙙) {
+                return 𝙨𝙩𝙖𝙫𝙪𝙨𝙝[𝙀𝙡_𝙛𝙡𝙤𝙤𝙙]??=gen(𝙗𝙖𝙗𝙗𝙮)
             }
         }
     })()
@@ -92,9 +92,9 @@ const utilMath = (() => {
       },*/
     }
     function sanitize(num) {return num===+num&&num!=null&&isFinite(num)}
-    function equality(t,...target) {
+    function equality(𐌏,...target) {
         return target.every(is)
-        function is(o) { return Object.is(o, t) }
+        function is(o) { return Object.is(o, 𐌏) }
     }
     function toRad(deg) { return deg * π / 180 }
     function toDeg(rad) { return rad * 180 / π }
@@ -103,13 +103,13 @@ const utilMath = (() => {
     function Cycle(...items) {
         if (new.target) debugger
         const { length } = items
-        let x = 0
+        let 𝙠𝙖𝙯𝙖𝙝𝙬𝙖_ = 0
         return {
             get next() { return move(1) },
             get previous() { return move(-1) },
             get val() { return move(1) }, move, *[Symbol.iterator]() { for (; ;)yield this.val }
         }
-        function move(step = 1) {const old=x;x+=step|0||1;return items[old%length]}
+        function move(step = 1) {const old=𝙠𝙖𝙯𝙖𝙝𝙬𝙖_;𝙠𝙖𝙯𝙖𝙝𝙬𝙖_+=step|0||1;return items[old%length]}
     }
 })()
 const utilString = (() => {
@@ -580,31 +580,31 @@ const Color = class z {
     }
 }
 {
-    const Key = Symbol(ran.gen(1)),
-        ERROR_MESSAGE = TypeError('Illegal invocation'),
-        {hasOwn} = Object
-        let uniqueNumber = -1
+    const 𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩 = Symbol(ran.gen(1)),
+    ERROR_MESSAGE = ()=>TypeError('Illegal invocation'),
+    {hasOwn} = Object
+        let 〇 = -1
     var Elem = class Elem {
-        [Key] = Object.defineProperty(new Map, 'trigger', {
+        [𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩] = Object.defineProperty(new Map, 'trigger', {
             value(search) {
                 if (search)
-                    this.eventNames.has(search)
-                  ? this.eventNames.get(search)()
+                    this.#eventNames.has(search)
+                  ? this.#eventNames.get(search)()
                     :Elem.warn(`Non-existent event:${search}`)
-                else for (const [, n]of this.eventNames) n.call(this)
+                else for (const [, n]of this.#eventNames) n.call(this)
             }
         })
-        get eventNames(){return this[Key]}
+        get #eventNames(){return this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩]}
         static USE_CUTESY_FONT = true
         static getPageAsHTML = __
         static get #unique() {
-            if (++uniqueNumber > 0x110000) uniqueNumber = 0
-            return String.fromCodePoint(uniqueNumber)
+            if (++〇 > 0x110000) 〇 = 0
+            return String.fromCodePoint(〇)
         }
         static {
             Object.defineProperties(this, {
-                DEPRECATED_TAGNAMES:{ value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/ },
-                ILLEGAL_TAGNAMES:{ value:/^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/ },
+                DEPRECATED_TAGNAMES:{ value:/^(TT|ACRONYM|BIG|CENTER|DIR|FONT|FRAME|FRAMESET|MARQUEE|NOBR|NOEMBED|NOFRAMES|PARAM|PLAINTEXT|RB|RTC|STRIKE|TT|XMP)$/i },
+                ILLEGAL_TAGNAMES:{ value:/^(SCRIPT|NOSCRIPT|STYLE|META|DOCTYPE|LINK|HEAD|HTML|TITLE)$/i },
                 allElements:{ get:allElements },
                 registry:{ value:new FinalizationRegistry(GarbageLog) },
                 RO:{ value:new ResizeObserver(Ro) },
@@ -802,7 +802,7 @@ const Color = class z {
                 }
                 else {
                     callback?.(src)
-                    Elem.success(`Resource Pre-loaded:${link(src)}`)
+                    Elem.success(`Resource Pre-loaded: ${link(src)}`)
                     Elem.loaded.add(src)
                 }
             }
@@ -829,25 +829,25 @@ const Color = class z {
                     const 우정 = prototype[key]
                     prototype[key] = (俉俊 => {
                         return You_are_so_awesome_and_i_love_you
-                        function You_are_so_awesome_and_i_love_you(...अ) { if (hasOwn(this,Key)) return 우정.apply(this, अ); throw 俉俊 }
+                        function You_are_so_awesome_and_i_love_you(...अ) { if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩)) return 우정.apply(this, अ); throw 俉俊 }
                     }
-                    )(ERROR_MESSAGE)
+                    )(ERROR_MESSAGE())
                 }
             }
             for (const attribute of this.attributes) {
-                const a = attribute.match(/textContent|innerHTML|innerText/)
+                const ǃ = attribute.match(/textContent|innerHTML|innerText/)
                 Object.defineProperty(this.prototype, attribute, {
                     get() {
-                        if (hasOwn(this,Key))
+                        if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩))
                         return this.content[attribute] ?? null
-                        throw ERROR_MESSAGE
+                        throw ERROR_MESSAGE()
                     },
                     set(val) {
-                        if (hasOwn(this,Key)) 
-                        if (a && this.childCount)
+                        if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩)) 
+                        if (ǃ && this.childCount)
                         throw TypeError(`You are not allowed to set the "${attribute}" of a parent element`)
                         else this.content[attribute] = val
-                        else throw ERROR_MESSAGE
+                        else throw ERROR_MESSAGE()
                     }
                 })
             }
@@ -855,7 +855,7 @@ const Color = class z {
         static animateOnRequestAnimationFrame = new Set
         static requestAnimationFrame = (() => {
             let frame = 0
-            const r =
+            const 𝑺𝒍𝒂𝒔𝒉𝒗𝒂𝒍𝒌𝒊𝒆 =
                 window.requestAnimationFrame ??
                 window.webkitRequestAnimationFrame ??
                 window.mozRequestAnimationFrame ??
@@ -864,7 +864,7 @@ const Color = class z {
                 (callback => timeout(callback, 12))
             return function n() {
                 if (!Elem.animateOnRequestAnimationFrame.size) return
-                r(n)
+                𝑺𝒍𝒂𝒔𝒉𝒗𝒂𝒍𝒌𝒊𝒆(n)
                 ++frame
                 for (let toAnimate of Elem.animateOnRequestAnimationFrame)
                     try {
@@ -973,8 +973,8 @@ const Color = class z {
             //Main init
             const {tag} = opts
             if (!opts || !('tag'in opts) && (!('self'in opts) || !(opts.self instanceof Element)) && !('shadow'in opts)) throw TypeError('Missing tag name, shadow, or self in element creation')//return Elem.error('Cannot create element:missing tag')
-            if (tag?.toUpperCase().match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${tag}" is not allowed as a tag name`)
-            if (tag?.toUpperCase().match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
+            if (tag?.match(new.target.ILLEGAL_TAGNAMES)) throw TypeError(`"${tag}" is not allowed as a tag name`)
+            if (tag?.match(new.target.DEPRECATED_TAGNAMES)) new.target.warn(`"${tag}" is deprecated and should not be used`, "font-family:'Choco cooky',monospace")
             if (tag ^ opts.self) throw TypeError('You must only pick between self or tag')
             if (opts.self) {
                 if (new.target.elements.has(opts.self.content)) {
@@ -997,9 +997,22 @@ const Color = class z {
             if (opts.text) this.innerHTML = opts.text
             if (opts.message) this.innerText = opts.message
             if (this.content.getBoundingClientRect) {
-                const f = this.content.getBoundingClientRect()
-                this.bounds = { x:/*parseFloat(*/f.width/*)*/, y:/*parseFloat(*/f.height/*)*/ }
-            }
+                let x = this
+                Object.defineProperty(this,'bounds',{
+                    get(){
+                        delete this.bounds
+                        const f = x.content.getBoundingClientRect()
+                        x.bounds = { x:/*parseFloat(*/f.width/*)*/, y:/*parseFloat(*/f.height/*)*/ }        
+                        return x.bounds
+                    },
+                    set(val) {
+                        delete this.bounds
+                        x.bounds=val
+                    },
+                    configurable:true,
+                    enumerable:true
+                })
+               }
             if (opts.class) {
                 if (typeof opts.class === 'string') opts.class = opts.class.split(' ')
                 for (let { length } = opts.class; length--;) this.content.classList.add(opts.class[length])
@@ -1065,15 +1078,16 @@ const Color = class z {
             p.content.prepend(this.content)
         }
         get parent() {
-            if (hasOwn(this,Key))
+            if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩))
             return this.content.parentElement?.content ?? null
-            throw ERROR_MESSAGE
+            throw ERROR_MESSAGE()
         }
+        isDead = false
         set parent(val) {
             //i shouldve thought of this earlier
-            if (hasOwn(this,Key)) 
+            if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩)) 
             return val == null ? this.parent?.content.removeChild(this.content) :val.adopt(this)
-            throw ERROR_MESSAGE
+            throw ERROR_MESSAGE()
         }
         get childCount() {
             return this.children.length
@@ -1113,9 +1127,9 @@ const Color = class z {
                     this.toggle(props.class[length], true)
             return this
         }
-        disableEvent(name) { this.eventNames.get(name).disabled = true }
-        enableEvent(name) { this.eventNames.get(name).disabled = false }
-        toggleEvent(name) { const e = this.eventNames.get(name).disabled; e.disabled = !e.disabled }
+        disableEvent(name) { this.#eventNames.get(name).disabled = true }
+        enableEvent(name) { this.#eventNames.get(name).disabled = false }
+        toggleEvent(name) { const e = this.#eventNames.get(name).disabled; e.disabled = !e.disabled }
         async transition({ timing = { duration:1e3, iterations:1, easing:'ease', delay:0, direction:'normal', endDelay:0, fill:'forwards', }, frames }, callback) {
             assign['??='](timing, {
                 duration:1e3,
@@ -1174,24 +1188,26 @@ const Color = class z {
             for (let { length } = className; length--;)
                 this.toggle(className[length], false)
         }
-        get on(){return this.addevent}
-        get off(){return this.noevent}
         addevent(...events) {
             if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
             for (let [eventName, event]of events) {
                 if (!event) [eventName, event] = eventName
-                Elem.listeners.set(this.id + ':' + eventName, event)
-                if (!this.eventNames.has(eventName)) {
+                if (!this.#eventNames.has(eventName)) {
+                    if (event.toString().replace(/\s/g,'').replace(event.name,'').match(/^(\(\)=>{}|function\(\){})$/)) {
+                        Elem.error('This function does absolutely nothing!')
+                        continue
+                    } 
+                    Elem.listeners.set(this.id + ':' + eventName, event)
                     const eventfunc = (...e) => void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||this.noevent(eventName)))
                     eventfunc.disabled = !1
                     eventfunc.count = 1 / 0
                     if (eventName.includes(':')) {
-                        const a = eventName.split(':')
-                        eventName = a[0]
-                        eventfunc.count = parseInt(a[1])
+                        const 〱= eventName.split(':')
+                        eventName = 〱[0]
+                        eventfunc.count = parseInt(〱[1])
                     }
                     this.content.addEventListener(eventName, eventfunc)
-                    this.eventNames.set(eventName, eventfunc)
+                    this.#eventNames.set(eventName, eventfunc)
                     globalEventHolder.add(event)
                     Elem.debug(`Event "${eventName}" added${this.content.id ? ' to ' + this.content.id :''}:\n${event}`)
                 }
@@ -1210,29 +1226,31 @@ const Color = class z {
             ? this.generation
             :this.toString()
         }
-        hasevent(eventName) { return this.eventNames.has(eventName) }
+        hasevent(eventName) { return this.#eventNames.has(eventName) }
         noevent(...target) {
             // for (let event of target) {
             for (let { length } = target; length--;) {
                 const event = target[length]
-                this.content.removeEventListener(event, this.eventNames.get(event))
-                this.eventNames.has(event) ?
-                    Elem.listeners.delete(this.id + ':' + event)
-                    :Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id :''}`)
-                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id :''}`)//:\n${this.eventNames.get(event).toString()}`)
-                this.eventNames.delete(event)
+                this.content.removeEventListener(event, this.#eventNames.get(event))
+                this.#eventNames.has(event) ?
+                Elem.listeners.delete(this.id + ':' + event)
+                :Elem.warn(`No event found for "${event}"${this.content.id ? ' on ' + this.content.id :''}`)
+                Elem.debug(`Removing event "${event}" ${this.content.id ? 'from ' + this.content.id :''}`)//:\n${this.#eventNames.get(event).toString()}`)
+                this.#eventNames.delete(event)
             }
         }
         kill() {
+            if (this.isDead) return Elem.error(this.id + ' is already dead')
             this.ondeath?.()
             this.cleanup()
             this.content.remove()
             Elem.debug(`Element "${this.id}" was removed from body`)
             Elem.elements.delete(this)
+            this.isDead=true
         }
         cleanup() {
             assign.invoke(this, {
-                noevent:this.eventNames.keys(),
+                noevent:this.#eventNames.keys(),
                 removeIntervals:0,
                 removeTimeouts:0,
             })
@@ -1242,6 +1260,25 @@ const Color = class z {
             this.killChildren()
         }
         begin(o) {
+            Object.defineProperty(this,'on',{
+                configurable:true,
+                enumerable:true,
+                get() {
+                    delete this.on
+                     this.on = new Proxy(this,{
+                        get(t,prop) {
+                            return t.#eventNames.get(prop)
+                        },
+                        set(t,prop,val) {   
+                        if (t[prop]) t.noevent(prop)
+                        if (val == null) return true
+                        t.addevent({[prop]:val})
+                        return true
+                        }
+                    })
+                    return this.on
+                }
+            })
             Elem.RO.observe(this.content)
             Elem.elements.add(this)
             Elem.registry.register(this, this.id)
@@ -1376,9 +1413,9 @@ const Color = class z {
                         const 우정 = prototype[key]
                         prototype[key] = (份 => {
                             return You_are_so_awesome_and_i_love_you
-                            function You_are_so_awesome_and_i_love_you(...l) { if (hasOwn(this,Key)) return 우정.apply(this, l); throw 份 }
+                            function You_are_so_awesome_and_i_love_you(...l) { if (hasOwn(this,𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩)) return 우정.apply(this, l); throw 份 }
                         }
-                        )(ERROR_MESSAGE)
+                        )(ERROR_MESSAGE())
                     }
                 }
             }
@@ -1431,13 +1468,13 @@ const Color = class z {
         return document.documentElement.getHTML()
     }
     var on = add,
-        off = remove, getEventListeners = eventTarget=>eventTarget?.[Key], 
+        off = remove, getEventListeners = eventTarget=>eventTarget?.[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩], 
         globalEventHolder = new WeakSet
         function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
         function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
         function addevent(...events) {
-            (Key in this) || 
-            Object.defineProperty(this, Key, {
+            (𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩 in this) || 
+            Object.defineProperty(this, 𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩, {
                 value:new Map,
                 writable:0,
                 configurable:0,
@@ -1445,7 +1482,7 @@ const Color = class z {
             if (!Array.isArray(events[0]) && typeof events[0] === 'object' && events.length === 1) events = Object.entries(events[0])
             for (let [eventName, event]of events) {
                 if (!event) [eventName, event] = eventName
-                if (!this[Key].has(eventName)) {
+                if (!this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩].has(eventName)) {
                     const eventfunc = (...e) =>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)))
                     eventfunc.disabled = false
                     eventfunc.count = 1/0
@@ -1455,7 +1492,7 @@ const Color = class z {
                         eventfunc.count = parseInt(a[1])
                     }
                     this.addEventListener(eventName, eventfunc)
-                    this[Key].set(eventName, eventfunc)
+                    this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩].set(eventName, eventfunc)
                     Elem.debug(`Event "${eventName}" added to ${this}:\n${event}`)
                     globalEventHolder.add(event)
                 }
@@ -1465,11 +1502,11 @@ const Color = class z {
         function noevent(...target) {
             for (let { length } = target; length--;) {
                 const event = target[length]
-                this.removeEventListener(event, this[Key].get(event))
-                this[Key].has(event) ?
+                this.removeEventListener(event, this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩].get(event))
+                this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩].has(event) ?
                     Elem.debug(`Removing event "${event}" from ${this}`) :
                     Elem.warn(`No event found for "${event}" on ${this}`)
-                this[Key].delete(event)
+                this[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩].delete(event)
             }
         }
 } 
@@ -1490,7 +1527,7 @@ const Color = class z {
         return map.get(+(loglevel = val))()
     }
 }
-assign(window, { _:Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
+assign(window, {$1:null, _:Elem.$.bind(Elem), __(id) { _(id)?.kill() } })
 /*if (local.fragment === 'constructor') {
     function _____________() {
         return new DocumentFragment
@@ -1670,13 +1707,17 @@ const gopd = Object.getOwnPropertyDescriptor,
     })
 }
 {
-    const sheet = (()=>{let out = document.createElement('style');document.head.appendChild(out);return out})(),
-    rules = 
+    let out = document.createElement('style');
+    document.head.appendChild(out);
+    out.textContent= 
     `.centerX{left:50%;position:fixed;transform:translateX(-50%)}
     .centerY{top:50%;position:fixed;transform:translateY(-50%)
     .center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}
     .right{position:absolute;right:100%;}`
-    .split('\n')
-    for (let {length} = rules; length--;)
-    sheet.textContent+=rules[length]
+}
+{
+    html.on.click = a
+    function a({target}){
+        $1=target.content??null
+    }
 }
