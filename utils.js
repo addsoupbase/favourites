@@ -166,6 +166,7 @@ const utilArray = (() => {
         const slot = item.indexOf(a),
             slot2 = item.indexOf(b)
         if (slot !== -1 && slot2 !== -1) return item.swap(slot, slot2)
+        throw RangeError("Index out of range")
     }
     function avg(array, type) {
         if (!array.length) return NaN
@@ -661,11 +662,11 @@ const Color = class z {
             function detachedChildren() {
                 const a =[...this.content.childNodes],
                     fragment = createDocumentFragment()
-                for (let i = 0, { length } = a; i < length; ++i) {
-                    a[i].remove()
-                    if (a[i] instanceof Element)
-                        fragment.appendChild(a[i])
-                    else a[i].nodeValue = ''
+                for (let {length} = a; length--;) {
+                    a[length].remove()
+                    if (a[length] instanceof Element)
+                        fragment.prepend(a[length])
+                    else a[length].nodeValue = ''
                 }
                 return fragment
             }
@@ -674,10 +675,9 @@ const Color = class z {
             function getChildren() {
                 return Array.from(this.content.children, from).filter(filter); 
                 function from(o) { return o.content }
-                function filter(o) { return o && !(o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)) }
+                function filter(o) { return o&&!o.content.tagName.match(Elem.ILLEGAL_TAGNAMES) }
             }
             function setChildren(children) {
-                //  for (let o of children) this.adopt(o)
                 const frag = createDocumentFragment()
                 for (let i = 0, { length } = children, o = children[i]; i < length; o = children[++i])
                 frag.appendChild(o.content)
@@ -692,13 +692,13 @@ const Color = class z {
             return this.content.getHTML({ serializableShadowRoots:true })
         }
         eval(code) {
-            return Function(`with(this)!class{static{${code}}}`).call(this)
+            return Function(`with(this)void class{static{${code}}}`).call(this)
         }
         assign(obj) {
             assign(this, obj)
         }
         refresh(){
-            this.content.append(this.detachedChildren)
+            this.content.appendChild(this.detachedChildren)
         }
         age = performance.now()
         static log() {
@@ -1002,8 +1002,7 @@ const Color = class z {
                     get(){
                         delete this.bounds
                         const f = x.content.getBoundingClientRect()
-                        x.bounds = { x:/*parseFloat(*/f.width/*)*/, y:/*parseFloat(*/f.height/*)*/ }        
-                        return x.bounds
+                        return x.bounds = { x:/*parseFloat(*/f.width/*)*/, y:/*parseFloat(*/f.height/*)*/ }        
                     },
                     set(val) {
                         delete this.bounds
@@ -1265,7 +1264,7 @@ const Color = class z {
                 enumerable:true,
                 get() {
                     delete this.on
-                     this.on = new Proxy(this,{
+                     return this.on = new Proxy(this,{
                         get(t,prop) {
                             return Elem.listeners.get(t.id+':'+prop)
                         },
@@ -1276,7 +1275,6 @@ const Color = class z {
                         return true
                         }
                     })
-                    return this.on
                 }
             })
             Elem.RO.observe(this.content)
@@ -1468,8 +1466,9 @@ const Color = class z {
         return document.documentElement.getHTML()
     }
     var on = add,
-        off = remove, getEventListeners = eventTarget=>eventTarget?.[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩], 
+        off = remove, getEventListeners = yes, 
         globalEventHolder = new WeakSet
+        function yes(eventTarget){return eventTarget?.[𝘿𝙞𝙞𝙣𝙠𝙞_𝙞𝙨_𝙝𝙤𝙩]}
         function add(target, ...args) { if (target instanceof EventTarget) return addevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
         function remove(target, ...args) { if (target instanceof EventTarget) return noevent.apply(target, args); throw TypeError('Invalid event target:' + target) }
         function addevent(...events) {
