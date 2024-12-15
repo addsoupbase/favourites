@@ -1267,7 +1267,7 @@ const Color = class z {
                     delete this.on
                      this.on = new Proxy(this,{
                         get(t,prop) {
-                            return t.#eventNames.get(prop)
+                            return Elem.listeners.get(prop+':'+t.id)
                         },
                         set(t,prop,val) {   
                         if (t[prop]) t.noevent(prop)
