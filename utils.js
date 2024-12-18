@@ -386,11 +386,11 @@ const Color=class z {
            }
             function allElements(){
                 return[].map.call(document.querySelectorAll('*'),map).filter(filter)
-                function map(o){return o.content}
+                function map({content}){return content}
                 function filter(o){return Elem.elements.has(o)}
            }
             function detachedChildren(){
-                const a=[...this.content.childNodes],
+                const a=this.content.childNodes,
                     fragment=createDocumentFragment()
                 for(let{length}=a;length--;){
                     let me = a[length]
@@ -401,11 +401,11 @@ const Color=class z {
                }
                 return fragment
            }
-            function before(e){this.content.before(e.content)}
-            function after(e){this.content.after(e.content)}
+            function before({content}){this.content.before(content)}
+            function after({content}){this.content.after(content)}
             function getChildren(){
                 return Array.from(this.content.children, from).filter(filter);
-                function from(o){return o.content}
+                function from({content}){return content}
                 function filter(o){return o&&!o.content.tagName.match(Elem.ILLEGAL_TAGNAMES)}
            }
             function setChildren(children){
