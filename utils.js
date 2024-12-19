@@ -7,7 +7,7 @@ cwebp file.png -o file.webp
 if (!document.querySelector('head'))throw ReferenceError('You must add a <head> element to this document.')
 {function getIcon(){let 𛱃𛱄𛱅=document.querySelector("link[rel~='icon']");if(!𛱃𛱄𛱅){𛱃𛱄𛱅=document.createElement('link');𛱃𛱄𛱅.rel='icon';document.head.appendChild(𛱃𛱄𛱅)}return 𛱃𛱄𛱅}Object.defineProperties(window,{title:{get(){return document.title},set(val){document.title=val}},icon:{get(){return getIcon().href},set(val){getIcon().href=val}}})}
 assign(assign,{nullish(target,props){for(let key in props)target[key]==null||delete props[key];return this(target,props)},not(target,props){for(let key in props)target[key]&&delete props[key];return this(target,props)},and(target,props){for(let key in props)target[key]||delete props[key];return this(target,props)},notin(target,props){for(let key in props)(key in target)&&delete props[key];return this(target,props)},in(target,props){for(let key in props)(key in target)||delete props[key];return this(target,props)},invoke(target,methods){const out=[];for(let key in methods)out.push(target[key].apply(target,Array.from(methods[key]??0)));return out},get'??='(){return this.nullish},get'&&='(){return this.and},get'||='(){return this.not}})
-const coolunicodes = '༗', 
+const coolunicodes = '༗⏻ꐑꗫꕤ꧁꧂꩟꫞𖹭𖹬', 
 ran=(()=>{
         const{floor,random}=Math
         return{get coin(){return choose(true,false)},get flip(){return choose(1,-1)},choose,range,frange,pseudo,true:_true,shuffle,gen,Randomizer}
@@ -354,7 +354,7 @@ Color=class z {
         static preload(src,callback){if(this.loaded.has(src))return src;if(!src?.replace(/\s/g,''))throw TypeError('No source for Media provided.');fetch(src).then(response);this.info(`Preloading Resource: ${link(src)}`);return src;function response(res){if(!res.ok){Elem.error(`Resource error: ${res.status}`);Elem.failed.add(src)}else{callback?.(src);Elem.success(`Resource Pre-loaded: ${link(src)}`);Elem.loaded.add(src)}}}
         static youtube=class extends this{constructor(opts){opts.tag='iframe';super(opts);assign(this,{loading:'lazy',frameborder:0,referrerpolicy:'strict-origin-when-cross-origin',allow:'fullscreen;accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share;'})}}
         static svgattr='viewBox cx cy autocorrect autocapitalize stroke fill r strokeWidth'.split(' ')
-        static attributes=new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent dir innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id rows width height frameborder allow').split(' ')))
+        static attributes=new Set(this.svgattr.concat(('style xmlns for max min low high optimum target rel preload multiple disabled href draggable label innerText textContent dir innerHTML type action method required download style autobuffer value loading name checked src maxLength accept placeholder title controls id columns rows width height frameborder allow').split(' ')))
         static {const{prototype}=this;for(const key of Object.getOwnPropertyNames(prototype)){const descriptor=Object.getOwnPropertyDescriptor(prototype,key);if(typeof descriptor.value==='function'&&key!=='constructor'){const 우정=prototype[key];prototype[key]=(俉俊=>{return 𛰙𛰚𛰪𛰙𛰚;function 𛰙𛰚𛰪𛰙𛰚(...अ){if(hasOwn(this,Soul))return 우정.apply(this, अ);return null}})(ERROR_MESSAGE())}}for(const attribute of this.attributes){const ǃ=attribute.match(/textContent|innerHTML|innerText/);defineProperty(this.prototype,attribute,{get(){if(hasOwn(this,Soul))return this.content[attribute]??null;return null},set(val){if(hasOwn(this,Soul))if(ǃ&&this.childCount)throw TypeError(`You are not allowed to set the "${attribute}" of a parent element`);else this.content[attribute]=val;else throw ERROR_MESSAGE()}})}}
         static animateOnRequestAnimationFrame=new Set
         static requestAnimationFrame = (() => {
@@ -481,6 +481,7 @@ console.trace('%cDebug %c'+message, "font-size:12px;color:orange;text-shadow:ora
         get childCount(){return this.children.length}
         batchAppendChild(length,childFunc){this.children=Array.from({length},childFunc)}
         set txt(text){this.textContent=text}
+        get txt(){return this.textContent}
         get previous(){return this.content.previousElementSibling?.content??null}
         get next(){return this.content.nextElementSibling?.content??null}
         get firstChild(){return this.content.firstElementChild?.content??null}
@@ -960,7 +961,7 @@ util=Object.create({...utilArray,...utilMath,...utilString})
                 if(!Elem.USE_CUTESY_FONT||typeof FontFace==='undefined')return //How could you :(
                     try {
                     //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-                    const cutefont=new FontFace('Choco cooky','url(https://addsoupbase.github.io/media/Chococooky.woff)')
+                    const cutefont=new FontFace('Choco cooky','url(../addsoupbase.github.io/media/Chococooky.woff2)')
                     document.fonts.add(cutefont)
                     await cutefont.load()
                     Elem.success('Cutesy font loaded hehe')
@@ -984,6 +985,7 @@ util=Object.create({...utilArray,...utilMath,...utilString})
 function a({target:{content}}){$1=content??null}}
  //Dont need to modify anymore
 function link(url){return new URL(url,location)}
+function wait(ms){return new Promise(resolve);function resolve(res){return timeout(res,ms)}}
 function remix(oldFunc,{before,after}={}){if(oldFunc.prototype)Object.setPrototypeOf(remix,oldFunc.prototype);return assign(remix,oldFunc);function remix(...a){before?.apply(this,a);const instance=new.target?new oldFunc(...a):oldFunc(...a);after?.apply(instance,a);return instance}}
 function safelyConvertToString(maybestring){if(typeof maybestring==='string')return maybestring;let out;try{/*Basic*/out=maybestring.toString()+''}catch{try{/*Maybe it has some weird toString function?*/out=maybestring+''}catch{/*Last resort something like: [object Null]*/out=toString.call(maybestring)}}return out}
 function MapObj(...values){if(values.length%2)throw TypeError("Invalid key/value pairs");const map=new Map;for(let i=0,{length}=values;i<length;i+=2){const key=values[i],value=values[i+1];map.set(key,value)}return map}
