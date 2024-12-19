@@ -125,7 +125,7 @@ utilArray=(()=>{
     })(),
 Vector2=(()=>{
     let v,
-    {abs,atan2} = Math,
+    {abs,atan2,hypot} = Math,
     _min=Math.min,
     _max=Math.max
     return assign(v=class v {
