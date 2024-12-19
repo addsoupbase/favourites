@@ -523,15 +523,16 @@ console.trace('%cDebug %c'+message, "font-size:12px;color:orange;text-shadow:ora
             if(!Array.isArray(x)&&typeof x==='object'&&events.length===1)events=Object.entries(x)
             for(let[eventName,event]of events){
                 if(!event)[eventName,event]=eventName
+                verifyEventName(eventName,this.content)
                 if(!this.#eventNames.has(eventName)){
                     if(event.toString().replace(/\s/g,'').replace(event.name,'').match(/^(\(\)=>{}|function\(\){})$/)){Elem.error('This function does absolutely nothing!');continue}
                     Elem.listeners.set(this.id+':'+eventName, event)
                     const eventfunc=(...e)=>void(eventfunc.disabled||(event.apply(this,e),--eventfunc.count||this.noevent(eventName)))
                     assign(eventfunc,{disabled:!1,count:1/0})
+                    globalEventHolder.add(event)
                     if(eventName.includes(':')){[eventName,eventfunc.count]=eventName.split(':');eventfunc.count=parseInt(eventfunc.count)}
                     this.content.addEventListener(eventName,eventfunc)
                     this.#eventNames.set(eventName,eventfunc)
-                    globalEventHolder.add(event)
                     Elem.debug(`Event "${eventName}" added${this.content.id?' to '+this.content.id :''}:\n${event}`)
                }
                 else Elem.warn(`Duplicate event listeners are not allowed:"${eventName}" ${this.id?'on "'+this.id+'"' :''}`)
@@ -636,9 +637,9 @@ console.trace('%cDebug %c'+message, "font-size:12px;color:orange;text-shadow:ora
         for(let elem of Elem.elements){if(elem instanceof SceneryElem)elem.kill();else elem.randomID&&elem.content.removeAttribute('id')}return document.documentElement.getHTML()}
     var on=add,off=remove,getEventListeners=yes,globalEventHolder=new WeakSet
         function yes(eventTarget){return eventTarget?.[Soul]}
-        function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target, args);throw TypeError('Invalid event target:'+target)}
-        function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target, args);throw TypeError('Invalid event target:'+target)}
-        function addevent(...events){(Soul in this)||Object.defineProperty(this,Soul,{value:new Map,writable:0,configurable:0,enumerable:0});if(!Array.isArray(events[0])&&typeof events[0]==='object'&&events.length===1)events=Object.entries(events[0]);for(let[eventName,event]of events){if(!event)[eventName,event]=eventName;if(!this[Soul].has(eventName)){const eventfunc=(...e)=>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)));eventfunc.disabled=false;eventfunc.count=1/0;if(eventName.includes(':')){const a=eventName.split(':');eventName=a[0];eventfunc.count=parseInt(a[1])}this.addEventListener(eventName, eventfunc);this[Soul].set(eventName, eventfunc);Elem.debug(`Event "${eventName}" added to ${this}:\n${event}`);globalEventHolder.add(event)}else Elem.warn(`Duplicate event listeners are not allowed:"${eventName}" on ${this}`)}}
+        function add(target,...args){if(target instanceof EventTarget)return addevent.apply(target, args);throw TypeError('Invalid event target: '+target)}
+        function remove(target,...args){if(target instanceof EventTarget)return noevent.apply(target, args);throw TypeError('Invalid event target: '+target)}
+        function addevent(...events){(Soul in this)||Object.defineProperty(this,Soul,{value:new Map,writable:0,configurable:0,enumerable:0});if(!Array.isArray(events[0])&&typeof events[0]==='object'&&events.length===1)events=Object.entries(events[0]);for(let[eventName,event]of events){if(!event)[eventName,event]=eventName;verifyEventName(eventName,this);if(!this[Soul].has(eventName)){const eventfunc=(...e)=>void(eventfunc.disabled||(event.apply(this, e),--eventfunc.count||off(this,eventName)));eventfunc.disabled=false;eventfunc.count=1/0;if(eventName.includes(':')){const a=eventName.split(':');eventName=a[0];eventfunc.count=parseInt(a[1])}globalEventHolder.add(event);this.addEventListener(eventName, eventfunc);this[Soul].set(eventName, eventfunc);Elem.debug(`Event "${eventName}" added to ${this}:\n${event}`)}else Elem.warn(`Duplicate event listeners are not allowed:"${eventName}" on ${this}`)}}
         function noevent(...target){for(let{length}=target;length--;){const event=target[length];this.removeEventListener(event,this[Soul].get(event));this[Soul].has(event)?Elem.debug(`Removing event "${event}" from ${this}`):Elem.warn(`No event found for "${event}" on ${this}`);this[Soul].delete(event)}}
         function r(o){o.remove()}
     }
@@ -969,10 +970,7 @@ util=Object.create({...utilArray,...utilMath,...utilString})
             }
         }[t]
     })
-   let arr=[Math,utilArray,utilMath,utilString,ran,assign,util];for(let{length}=arr;length--;) {
-    let me = arr[length]
-    Object.freeze(me)
-   }
+   let arr=[Math,utilArray,utilMath,utilString,ran,assign,util];for(let{length}=arr;length--;){let me=arr[length];Object.freeze(me)}
     document.head.appendChild(style(`
             @property --primary {syntax:"<color>";inherits:false;initial-value:${color.primary};}
             @property --secondary{syntax:"<color>";inherits:false;initial-value:${color.secondary};}
@@ -997,4 +995,5 @@ function style(css){let out=document.createElement('style');out.textContent=css;
 function Alert(text='Alert',subtext='Message'){return Prompt({type:'none',cancelable:false,text,subtext})}
 function Confirm(text='Confirm',subtext='Message'){return Prompt({type:'none',cancelable:true,text,subtext})}
 function namedFunction(name='',original){return({[name](...args){return original.apply(this,args)}}[name])}
+function verifyEventName(eventName,target){eventName=eventName.toLowerCase?.().split(':')[0];if ((!(('on'+eventName)in target))&&(target!==document&&eventName!=='domcontentloaded'))throw TypeError('Cannot listen for "'+eventName+"\" events")}
 //Just for funzies ^
