@@ -778,7 +778,7 @@ class Shadow {
         border-style: solid;
         border-bottom-width: 0;
         border-right-width: 0;
-        min-height: fit-content;
+        min-height: 200px;
         max-height: 200px;
         transform-origin: center;
         border-radius: 4px;
