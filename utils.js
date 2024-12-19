@@ -425,7 +425,7 @@ console.trace('%cDebug %c'+message, "font-size:12px;color:orange;text-shadow:ora
             else out['<title> element']=document.querySelector('title')
             if(document.compatMode==='CSS1Compat')out['standards mode']=document.doctype
             console.groupCollapsed('%cView SEO Check for '+location, 'font-family:\'Choco cooky\',monospace')
-            for(const[key,...value]of Object.entries(out))
+            for(const[key,value]of Object.entries(out))
                 if(typeof value!=='string')console.debug('%c'+key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:lightgreen', value)
                 else console.debug('%c'+key, 'font-family:\'Choco cooky\',monospace;font-size:10px;color:red')
                 console.groupEnd()
