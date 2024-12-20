@@ -961,7 +961,7 @@ util=Object.create({...utilArray,...utilMath,...utilString})
                 if(!Elem.USE_CUTESY_FONT||typeof FontFace==='undefined')return //How could you :(
                     try {
                     //THE B E S T FONT OF ALL TIME RIGHT HERE LADIES AND GENTLEMEN
-                    const cutefont=new FontFace('Choco cooky','url(../addsoupbase.github.io/media/Chococooky.woff2)')
+                    const cutefont=new FontFace('Choco cooky','url(../addsoupbase.github.io/media/Chococooky.woff)')
                     document.fonts.add(cutefont)
                     await cutefont.load()
                     Elem.success('Cutesy font loaded hehe')
