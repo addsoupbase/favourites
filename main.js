@@ -1,8 +1,8 @@
 import ascii from './ascii.js'
 __('progress')
-let あ = Elem, r = color
+let あ = Elem, r = color,snow;
 const { sin, cos } = Math;
-new あ({
+$({
     parent: body,
     start() {
         this.anim({ class: 'bounce-in-top', 'keep class': true },
@@ -11,11 +11,12 @@ new あ({
                     parent:body,
                     tag: 'img', src: Elem.preload('./media/hearticon.webp'), class: ['emoji', 'clickable'], styles: { opacity: 0 }, start() {
                         this.fadeIn(() => this.addevent({
-                            click() {
+                            async click() {
                                 this.noevent('click')
                                 this.removeClass('clickable')
                                 this.fadeOut(this.kill)
-                                Elem.$('main').fadeOut(thanks)
+                              await  Elem.$('main').fadeOut()
+                               thanks()
                             }
                         }))
                     }, id: 'foot',
@@ -86,13 +87,13 @@ new あ({
             })
     },
     tag: 'div', id: 'main', children: [
-        new あ({ tag: 'p', class: ['fancy'], text: '<img class="emoji"  src="./media/stars.webp"> Favourite Things <img class="emoji" src="./media/stars.webp">' }),
-        new あ({
+        $({ tag: 'p', class: ['fancy'], text: '<img class="emoji"  src="./media/stars.webp"> Favourite Things <img class="emoji" src="./media/stars.webp">' }),
+        $({
             tag: 'div', class: ['holder'], id: 'color', style: 'background-color:#20a6a6', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', text: 'Color: <b>Teal</b>' }),
-                        new あ({
+                        $({ tag: 'p', text: 'Color: <b>Teal</b>' }),
+                        $({
                             tag: 'input', type: 'color', class: ['clickable'], events: [
                                 ['change', function () {
                                     あ.$('#color').style.backgroundColor = this.value
@@ -104,12 +105,12 @@ new あ({
             ]
         }),
 
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:yellow', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Fruit:' }),
-                        new あ({
+                        $({ tag: 'p', style: 'color: black', text: 'Fruit:' }),
+                        $({
                             tag: 'h2', style: 'color: black', class: ['clickable'], text: '🍋Lemon🍋', events: [
                                 ['click', () => {
 
@@ -121,12 +122,12 @@ new あ({
             ]
         }),
 
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:green', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
-                        new あ({
+                        $({ tag: 'p', text: 'Hobby: <b>Code (JavaScript)</b>' }),
+                        $({
                             tag: 'img', class: ['clickable', 'preview'], src: Elem.preload('./media/js.webp'), events: {
                                 click() {
                                     this.anim({ class: 'rotate-center', }, () => {
@@ -139,32 +140,32 @@ new あ({
                 }),
             ]
         }),
-        /*  new あ({
+        /*  $({
               tag: 'div', class: ['holder'], style: 'background-color:darkgrey', children: [
-                  new あ({
+                  $({
                       tag: 'div', children: [
-                          new あ({ tag: 'p', style: 'color: black', text: 'Symbol: <b>Whatever this is</b>' }),
-                          new あ({ tag: 'a', href: 'https://graphemica.com/%D9%BC/glyphs/times-new-roman-regular', style: 'color: white; font-size: 40px', text: 'ټ' }),
+                          $({ tag: 'p', style: 'color: black', text: 'Symbol: <b>Whatever this is</b>' }),
+                          $({ tag: 'a', href: 'https://graphemica.com/%D9%BC/glyphs/times-new-roman-regular', style: 'color: white; font-size: 40px', text: 'ټ' }),
                       ]
                   }),
               ]
           }),*/
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#34baeb', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Sound: <b>Windows Logon Sound</b>' }),
-                        new あ({ tag: 'audio', src: Elem.preload('./media/logonsound.mp3'), controls: true, type: 'audio/mpeg' }),
+                        $({ tag: 'p', style: 'color: black', text: 'Sound: <b>Windows Logon Sound</b>' }),
+                        $({ tag: 'audio', src: Elem.preload('./media/logonsound.mp3'), controls: true, type: 'audio/mpeg' }),
                     ]
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:	#7289da', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
-                        new あ({
+                        $({ tag: 'p', style: 'color: black', text: 'Discord Emoji: <b>:bighugs:</b>', }),
+                        $({
                             tag: 'img', src: Elem.preload('./media/hugs.webp'), title: 'big hugs', class: ['clickable'], events: {
                                 click() {
                                     this.anim({ class: 'wobble-hor-bottom' })
@@ -175,43 +176,43 @@ new あ({
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:	#314A63', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
-                        new あ({ tag: 'img', src: './media/200.webp', title: 'Misdreavus', width: 100, height: 100 }),
-                        new あ({ tag: 'img', src: './media/m.webp', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
+                        $({ tag: 'p', style: 'color: black', text: 'Pokemon: <b>Misdreavus</b>' }),
+                        $({ tag: 'img', src: './media/200.webp', title: 'Misdreavus', width: 100, height: 100 }),
+                        $({ tag: 'img', src: './media/m.webp', title: 'Misdreavus Gen 3', width: 100, height: 100 }),
 
                     ]
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#08e6ff', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
-                        new あ({
-                            id: 'snowfall', tag: 'div', styles: {
+                        $({ tag: 'p', style: 'color: black', text: 'Season: <b>Winter</b>' }),
+                       snow= $({
+                             tag: 'div', styles: {
                                 width: 'inherit',
                                 height: '250px',
                                 overflow: 'hidden',
                                 position: 'relative'
                             }
                         })
-                        //new あ({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.webp', title: 'Winter', }),
+                        //$({ tag: 'img', style: 'width:100%; height:100%;', src: './media/winter.webp', title: 'Winter', }),
 
                     ]
                 }),
             ]
         }),
-        /*       new あ({
+        /*       $({
                    tag: 'div', class: ['holder'], style: 'background-color:	#5f3685', children: [
-                       new あ({
+                       $({
                            tag: 'div', children: [
-                               new あ({ tag: 'p', style: 'color: black', text: 'App: <b>Discord</b>' }),
-                               new あ({ tag: 'img', class:['clickable'], src: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/6257d23c5fb25be7e0b6e220_Open%20Source%20Projects%20_%20Discord-7.svg', title: 'Discord', width: 100, height: 100, events: [
+                               $({ tag: 'p', style: 'color: black', text: 'App: <b>Discord</b>' }),
+                               $({ tag: 'img', class:['clickable'], src: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/6257d23c5fb25be7e0b6e220_Open%20Source%20Projects%20_%20Discord-7.svg', title: 'Discord', width: 100, height: 100, events: [
                                    ['click',()=>{
                                        open('http://discord.com/users/805868620205916161')
                                    }]
@@ -222,19 +223,19 @@ new あ({
                    ]
                }),*/
         //
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#cc8a33', children: [
-                new あ({
+                $({
                     tag: 'div', style: 'width:70%;', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Messages:' }),
-                        new あ({ tag: 'p', style: 'color: black', id: 'help1', text: '(tap image to go to the next one)' }),
+                        $({ tag: 'p', style: 'color: black', text: 'Messages:' }),
+                        $({ tag: 'p', style: 'color: black', id: 'help1', text: '(tap image to go to the next one)' }),
 
-                        new あ({
+                        $({
                             tag: 'div', children: [
-                                new あ({
+                                $({
                                     tag: 'fig', children: [
 
-                                        new あ({
+                                        $({
                                             tag: 'img', id: 'msgImg', class: ['clickable', 'preview'], title: 'Mila being hyper', src: './media/fig1.webp', events: {
                                                 click() {
                                                     this.disableEvent('click')
@@ -245,10 +246,10 @@ new あ({
                                                 }
                                             }
                                         }),
-                                        new あ({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
+                                        $({ tag: 'figcaption', id: 'caption', class: ['cursive'], text: 'Exhibit A' }),
                                     ]
                                 }),
-                                new あ({ tag: 'p', style: 'color: black', id: 'desc', text: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!' }),
+                                $({ tag: 'p', style: 'color: black', id: 'desc', text: 'I LOVE WHEN YOU ARE HYPER AND SILLY AND USE CAPS IT <b>ALWAYS</b> CHEERS ME UP!!!' }),
 
                             ]
                         })
@@ -257,29 +258,29 @@ new あ({
 
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#33cc42', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
-                        new あ({
+                        $({ tag: 'p', style: 'color: black', text: 'Tv series: <b>Gravity Falls</b>' }),
+                        $({
                             tag: 'img', class: ['preview', 'clickable'], title: 'Gravity Falls (2012)', src: Elem.preload('./media/gravityfalls.webp'), events: {
                                 click() {
                                     open('https://www.youtube.com/watch?v=o2E2wLm_LlY&list=PLg6R6yXKSLYBomPPcqXGzaQI0pCZc8uZA')
                                 }
                             }
                         })
-                        //    new あ.youtube({ src: 'https://www.youtube.com/embed/o2E2wLm_LlY' }),
+                        //    $.youtube({ src: 'https://www.youtube.com/embed/o2E2wLm_LlY' }),
                     ]
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#a32e2e', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Number:' }),
-                        new あ({
+                        $({ tag: 'p', style: 'color: black', text: 'Number:' }),
+                        $({
                             tag: 'p', class: ['clickable'], text: '49', id: 'forty', events: [
                                 ['click', function () {
                                     this.anim({ class: 'jello-horizontal' })
@@ -293,28 +294,28 @@ new あ({
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#599c16', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Websites:' }),
-                        new あ({
-                            tag: 'div', style: 'display:grid;', children: [new あ({ tag: 'a', text: 'MDN Web Docs', href: 'https://developer.mozilla.org/en-US/' }),
-                            new あ({ tag: 'a', text: 'W3Schools', href: 'https://www.w3schools.com/' }),
-                            new あ({ tag: 'a', text: 'Animista', href: 'https://animista.net/' }),
-                            new あ({ tag: 'a', text: 'Skribbl.io', href: 'https://skribbl.io/' })
+                        $({ tag: 'p', style: 'color: black', text: 'Websites:' }),
+                        $({
+                            tag: 'div', style: 'display:grid;', children: [$({ tag: 'a', text: 'MDN Web Docs', href: 'https://developer.mozilla.org/en-US/' }),
+                            $({ tag: 'a', text: 'W3Schools', href: 'https://www.w3schools.com/' }),
+                            $({ tag: 'a', text: 'Animista', href: 'https://animista.net/' }),
+                            $({ tag: 'a', text: 'Skribbl.io', href: 'https://skribbl.io/' })
                             ]
                         })
                     ]
                 }),
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:	#f263d8', children: [
-                new あ({
+                $({
                     tag: 'div', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Game: ' }),
-                        new あ({
+                        $({ tag: 'p', style: 'color: black', text: 'Game: ' }),
+                        $({
                             tag: 'img', class: ['preview', 'clickable'], src: Elem.preload('./media/kirby.webp'), title: 'Kirby\'s Return to Dreamland (2011)', events: {
                                 click() {
                                     this.anim({ class: 'wobble-hor-bottom' })
@@ -325,17 +326,17 @@ new あ({
                     ]
                 }),
             ]
-        }), new あ({
+        }), $({
             tag: 'div', class: ['holder'], style: 'background-color:#781e1e', children: [
-                new あ({
+                $({
                     tag: 'div', style: 'width:70%;', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Avatars (not my art):' }),
-                        new あ({ tag: 'p', style: 'color: black', id: 'help2', text: '(tap image to go to the next one)' }),
+                        $({ tag: 'p', style: 'color: black', text: 'Avatars (not my art):' }),
+                        $({ tag: 'p', style: 'color: black', id: 'help2', text: '(tap image to go to the next one)' }),
 
-                        new あ({
+                        $({
                             tag: 'div', children: [
 
-                                new あ({
+                                $({
                                     tag: 'img', id: 'avatars', class: ['clickable', 'preview'], src: Elem.preload('./media/towa.webp'), events: {
                                         click() {
                                             cycleAvatar()
@@ -350,28 +351,28 @@ new あ({
 
             ]
         }),
-        new あ({
+        $({
             tag: 'div', class: ['holder'], style: 'background-color:#2b731e', children: [
-                new あ({
+                $({
                     tag: 'div', style: 'width:70%;', children: [
-                        new あ({ tag: 'p', style: 'color: black', text: 'Font' }),
+                        $({ tag: 'p', style: 'color: black', text: 'Font' }),
                       $({tag:'h1',styles:{'font-family':'Choco cooky',},text:'Choco Cooky'})
                     ]
                 }),
 
             ]
         }),
-        /* new あ({
+        /* $({
              tag: 'div', class: ['holder'], id: 'formtab', style: 'background-color:#3bc736', children: [
-                 new あ({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
-                 new あ({
+                 $({ tag: 'p', id: 'jeff', text: 'Send me a message if you want :3' }),
+                 $({
                      tag: 'div', id: 'mainform', children: [
-                         new あ({
+                         $({
                              tag: 'label', text: 'Name (optional)<br>', for: 'formName'
                          }),
-                         new あ({ tag: 'input', class: ['cute-input'], id: 'formName', name: 'name', placeholder: 'namey name', value: 'anonymous' }),
+                         $({ tag: 'input', class: ['cute-input'], id: 'formName', name: 'name', placeholder: 'namey name', value: 'anonymous' }),
  
-                         new あ({
+                         $({
                              tag: 'input', class: ['cute-input'], id: 'formMessage', name: 'message', placeholder: 'Your message here...', events: {
                                  click() {
                                      this.placeholder = `Your message here...`
@@ -381,7 +382,7 @@ new あ({
  
                      ]
                  }),
-                 new あ({
+                 $({
                      tag: 'button', id: 'submitBtn', class: ['cute-button'], events: {
                          click() {
                              if (!Elem.$('#formMessage'].value) {
@@ -434,7 +435,7 @@ new あ({
                      text: 'Send'
                  }),
  
-                 new あ({ tag: 'img', class: ['emoji2', 'hidden'], id: 'loading', src: './media/heartmessage.webp' }),
+                 $({ tag: 'img', class: ['emoji2', 'hidden'], id: 'loading', src: './media/heartmessage.webp' }),
            
              ]
          }),*/
@@ -442,14 +443,16 @@ new あ({
 })
 
 function thanks() {
-    let n = new あ({
-        tag: 'div', start() { this.hide }, children: [
-            new あ({ tag: 'p', text: 'THANK YOU FOR VIEWING THIS IT MEANS A LOT TO ME HONESTLY!!<br>I MADE IT MYSELF' }),
-            new あ({ tag: 'img', src: Elem.preload('./media/grouphug.webp') }),
-            new あ({ tag: 'p', text: 'Message me a screenshot if you see this' }),
+    let n = $({
+        tag: 'div', children: [
+            $({ tag: 'p', text: 'THANK YOU FOR VIEWING THIS IT MEANS A LOT TO ME HONESTLY!!<br>I MADE IT MYSELF' }),
+            $({ tag: 'img', src: Elem.preload('./media/grouphug.webp') }),
+            $({ tag: 'p', text: 'Message me a screenshot if you see this' }),
 
         ], id: 'main2'
     }, true)
+    n.show()
+    n.reveal()
     n.anim({ class: 'roll-in-left' }, () => あ.$('main').kill())
 
 }
@@ -513,7 +516,7 @@ function cycleImage() {
     Elem.$('caption').innerHTML = `Exhibit ${letters[current].toUpperCase()}`
 }
 
-let bo = new あ({ parent:body,tag: 'div', id: 'box' },)
+let bo = $({ parent:body,tag: 'div', id: 'box' },)
 Elem.preload('./media/strawberry.gif')
 let frame = 0;
 const loop = function () {
@@ -636,4 +639,3 @@ const loop = function () {
     }
 }
 loop()
-let snow = あ.$('snowfall')
